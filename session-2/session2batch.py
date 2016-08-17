@@ -81,10 +81,10 @@ plt.title('Common Activation Functions/Nonlinearities')
 plt.legend(loc='lower right')
 
 #dja
-import time
 plt.ion()
 plt.show()
-time.sleep(2)
+plt.pause(2)
+plt.close()
 
 #
 # Code
@@ -140,7 +140,8 @@ plt.figure(figsize=(5, 5))
 plt.imshow(img)
 plt.title("(preparing the data)")
 plt.show()
-time.sleep(2)
+plt.pause(2)
+plt.close()
 #
 # Make sure you save this image as "reference.png"
 # and include it in your zipped submission file
@@ -192,7 +193,8 @@ print(np.min(ys), np.max(ys))
 plt.imshow(ys.reshape(img.shape))
 plt.title("(reshape)")
 plt.show()
-time.sleep(2)
+plt.pause(2)
+plt.close()
 
 
 # TODO! COMPLETE THIS SECTION!
@@ -248,7 +250,8 @@ plt.xlabel('error')
 plt.ylabel('loss')
 plt.title("(cost function)")
 plt.show()
-time.sleep(2)
+plt.pause(2)
+plt.close()
 
 
 error = np.linspace(0.0, 1.0, 100)
@@ -259,7 +262,8 @@ plt.ylabel('loss')
 plt.legend(loc='lower right')
 plt.title("(l1 vs l2 loss)")
 plt.show()
-time.sleep(2)
+plt.pause(2)
+plt.close()
 
 
 #-- hasta aqui todo ok
@@ -346,7 +350,8 @@ for it_i in range(n_iterations):
         ax[1].imshow(img)
         fig.suptitle('Iteration {}'.format(it_i))
         plt.show()
-        time.sleep(1)
+        plt.pause(1)
+        plt.close()
 
 # Save the images as a GIF
 _ = gif.build_gif(imgs, saveto='single_batch.gif', show_gif=False)
@@ -355,7 +360,8 @@ _ = gif.build_gif(imgs, saveto='single_batch.gif', show_gif=False)
 ipyd.Image(url='single_batch.gif?{}'.format(np.random.rand()),
            height=500, width=500)
 
-time.sleep(10)
+plt.pause(10)
+plt.close()
 
 # eop
 
