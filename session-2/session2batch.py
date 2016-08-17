@@ -82,8 +82,8 @@ plt.legend(loc='lower right')
 
 #dja
 plt.ion()
-plt.show()
-plt.pause(2)
+#plt.show()
+#plt.pause(2)
 plt.close()
 
 #
@@ -140,7 +140,7 @@ plt.figure(figsize=(5, 5))
 plt.imshow(img)
 plt.title("(preparing the data)")
 plt.show()
-plt.pause(2)
+plt.pause(5)
 plt.close()
 #
 # Make sure you save this image as "reference.png"
@@ -192,8 +192,8 @@ print(np.min(ys), np.max(ys))
 
 plt.imshow(ys.reshape(img.shape))
 plt.title("(reshape)")
-plt.show()
-plt.pause(2)
+#plt.show()
+#plt.pause(2)
 plt.close()
 
 
@@ -249,8 +249,8 @@ plt.plot(error, loss)
 plt.xlabel('error')
 plt.ylabel('loss')
 plt.title("(cost function)")
-plt.show()
-plt.pause(2)
+#plt.show()
+#plt.pause(2)
 plt.close()
 
 
@@ -261,8 +261,8 @@ plt.xlabel('error')
 plt.ylabel('loss')
 plt.legend(loc='lower right')
 plt.title("(l1 vs l2 loss)")
-plt.show()
-plt.pause(2)
+#plt.show()
+#plt.pause(2)
 plt.close()
 
 
@@ -273,7 +273,7 @@ plt.close()
 # first compute the error, the inner part of the summation.
 # This should be the l1-norm or l2-norm of the distance
 # between each color channel.
-error = tf.sub(Y*Y, Y_pred*Y_pred)
+error = tf.abs(tf.sub(Y*Y, Y_pred*Y_pred))
 assert(error.get_shape().as_list() == [None, 3])
 
 
@@ -296,7 +296,7 @@ assert(cost.get_shape().as_list() == [])
 optimizer =tf.train.AdamOptimizer(0.001).minimize(cost)
 #
 # Create parameters for the number of iterations to run for (< 100)
-n_iterations = 250
+n_iterations = 500
 #
 # And how much data is in each minibatch (< 500)
 batch_size = 200
@@ -357,11 +357,8 @@ for it_i in range(n_iterations):
 _ = gif.build_gif(imgs, saveto='single_batch.gif', show_gif=False)
 
 
-ipyd.Image(url='single_batch.gif?{}'.format(np.random.rand()),
-           height=500, width=500)
+#ipyd.Image(url='single_batch.gif?{}'.format(np.random.rand()), height=500, width=500)
 
-plt.pause(10)
-plt.close()
 
 # eop
 
