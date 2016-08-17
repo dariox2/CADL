@@ -1,3 +1,3 @@
-cd $HOME/CADL/session-1
+#!/bin/bash
 jupyter notebook
 
