@@ -1,4 +1,8 @@
-#OK, PROBADO EN AILINUX
+#
+# Test instalacion TensorFlow + GTK
+#
+#OK, PROBADO EN AILINUX (UBUNTU) Y CENTOS 
+#
 
 
 import matplotlib as mpl
@@ -18,4 +22,5 @@ res=z.eval()
 plt.plot(res)
 plt.show()
 
+# eop
 
