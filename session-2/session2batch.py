@@ -130,13 +130,14 @@ h, W = utils.linear(
 # TODO! COMPLETE THIS SECTION!
 # First load an image
 import matplotlib.pyplot as plt
-#img = plt.imread("mypictures/tux-small.jpg")
-img = plt.imread("mypictures/tux-large.jpg")
+img = plt.imread("mypictures/tux-small.jpg")
+#img = plt.imread("mypictures/tux-large.jpg")
+#img = plt.imread("mypictures/smalltree.png")
 #
 # Be careful with the size of your image.
 # Try a fairly small image to begin with,
 # then come back here and try larger sizes.
-img = imresize(img, (100, 100))
+img = imresize(img, (100,100))
 plt.figure(figsize=(5, 5))
 plt.imshow(img)
 plt.title("(preparing the data)")
@@ -274,7 +275,8 @@ loss = error**2.0
 # first compute the error, the inner part of the summation.
 # This should be the l1-norm or l2-norm of the distance
 # between each color channel.
-error = tf.sub(Y, Y_pred)**2
+#error = tf.square(tf.sub(Y, Y_pred))
+error = tf.abs(tf.sub(Y, Y_pred))
 assert(error.get_shape().as_list() == [None, 3])
 print("error.shape: ", error.get_shape())
 
@@ -298,10 +300,10 @@ assert(cost.get_shape().as_list() == [])
 optimizer =tf.train.AdamOptimizer(0.001).minimize(cost)
 #
 # Create parameters for the number of iterations to run for (< 100)
-n_iterations = 20
+n_iterations = 200
 #
 # And how much data is in each minibatch (< 500)
-batch_size = 100
+batch_size = 500
 #
 # Then create a session
 sess = tf.Session()
@@ -319,7 +321,7 @@ step_i = 0
 
 for it_i in range(n_iterations):
 
-    print("iteration: ", it_i);
+    print("iteration: ", it_i, end="", flush=True);
     
     # Get a random sampling of the dataset
     idxs = np.random.permutation(range(len(xs)))
@@ -330,7 +332,7 @@ for it_i in range(n_iterations):
     # Now iterate over our stochastic minibatches:
     for batch_i in range(n_batches):
 
-        print(batch_i, end="", flush=True)
+        #print(batch_i, end="", flush=True)
          
         # Get just minibatch amount of data
         idxs_i = idxs[batch_i * batch_size: (batch_i + 1) * batch_size]
@@ -341,6 +343,8 @@ for it_i in range(n_iterations):
             [cost, optimizer],
             feed_dict={X: xs[idxs_i], Y: ys[idxs_i]})[0]
 
+    print(" cost: ", training_cost / n_batches);
+
     # Also, every 20 iterations, we'll draw the prediction of our
     # input xs, which should try to recreate our image!
     if (it_i + 1) % gif_step == 0:
@@ -348,6 +352,7 @@ for it_i in range(n_iterations):
         costs.append(training_cost / n_batches)
         ys_pred = Y_pred.eval(feed_dict={X: xs}, session=sess)
         img = np.clip(ys_pred.reshape(img.shape), 0, 1)
+        img = ys_pred.reshape(img.shape)
         imgs.append(img)
         # Plot the cost over time
         fig, ax = plt.subplots(1, 2)
