@@ -1,6 +1,7 @@
 
 #
 # Training a Network w/ Tensorflow
+
 #
 
 # First check the Python version
@@ -129,8 +130,8 @@ h, W = utils.linear(
 # TODO! COMPLETE THIS SECTION!
 # First load an image
 import matplotlib.pyplot as plt
-#img = plt.imread("mypictures/2000px-Tux.svg.png")
-img = plt.imread("mypictures/tux-small.jpg")
+#img = plt.imread("mypictures/tux-small.jpg")
+img = plt.imread("mypictures/tux-large.jpg")
 #
 # Be careful with the size of your image.
 # Try a fairly small image to begin with,
@@ -140,7 +141,7 @@ plt.figure(figsize=(5, 5))
 plt.imshow(img)
 plt.title("(preparing the data)")
 plt.show()
-plt.pause(5)
+plt.pause(3)
 plt.close()
 #
 # Make sure you save this image as "reference.png"
@@ -190,11 +191,11 @@ print(np.min(ys), np.max(ys))
 ys = ys / 255.0
 print(np.min(ys), np.max(ys))
 
-plt.imshow(ys.reshape(img.shape))
-plt.title("(reshape)")
+#plt.imshow(ys.reshape(img.shape))
+#plt.title("(reshape)")
 #plt.show()
 #plt.pause(2)
-plt.close()
+#plt.close()
 
 
 # TODO! COMPLETE THIS SECTION!
@@ -245,25 +246,25 @@ assert(Y.get_shape().as_list() == [None, 3])
 #
 error = np.linspace(0.0, 128.0**2, 100)
 loss = error**2.0
-plt.plot(error, loss)
-plt.xlabel('error')
-plt.ylabel('loss')
-plt.title("(cost function)")
+#plt.plot(error, loss)
+#plt.xlabel('error')
+#plt.ylabel('loss')
+#plt.title("(cost function)")
 #plt.show()
 #plt.pause(2)
-plt.close()
+#plt.close()
 
 
-error = np.linspace(0.0, 1.0, 100)
-plt.plot(error, error**2, label='l_2 loss')
-plt.plot(error, np.abs(error), label='l_1 loss')
-plt.xlabel('error')
-plt.ylabel('loss')
-plt.legend(loc='lower right')
-plt.title("(l1 vs l2 loss)")
+#error = np.linspace(0.0, 1.0, 100)
+#plt.plot(error, error**2, label='l_2 loss')
+#plt.plot(error, np.abs(error), label='l_1 loss')
+#plt.xlabel('error')
+#plt.ylabel('loss')
+#plt.legend(loc='lower right')
+#plt.title("(l1 vs l2 loss)")
 #plt.show()
 #plt.pause(2)
-plt.close()
+#plt.close()
 
 
 #-- hasta aqui todo ok
@@ -273,8 +274,9 @@ plt.close()
 # first compute the error, the inner part of the summation.
 # This should be the l1-norm or l2-norm of the distance
 # between each color channel.
-error = tf.abs(tf.sub(Y*Y, Y_pred*Y_pred))
+error = tf.sub(Y, Y_pred)**2
 assert(error.get_shape().as_list() == [None, 3])
+print("error.shape: ", error.get_shape())
 
 
 # TODO! COMPLETE THIS SECTION!
@@ -296,10 +298,10 @@ assert(cost.get_shape().as_list() == [])
 optimizer =tf.train.AdamOptimizer(0.001).minimize(cost)
 #
 # Create parameters for the number of iterations to run for (< 100)
-n_iterations = 500
+n_iterations = 20
 #
 # And how much data is in each minibatch (< 500)
-batch_size = 200
+batch_size = 100
 #
 # Then create a session
 sess = tf.Session()
@@ -316,6 +318,8 @@ gif_step = n_iterations // 10
 step_i = 0
 
 for it_i in range(n_iterations):
+
+    print("iteration: ", it_i);
     
     # Get a random sampling of the dataset
     idxs = np.random.permutation(range(len(xs)))
@@ -325,6 +329,8 @@ for it_i in range(n_iterations):
     
     # Now iterate over our stochastic minibatches:
     for batch_i in range(n_batches):
+
+        print(batch_i, end="", flush=True)
          
         # Get just minibatch amount of data
         idxs_i = idxs[batch_i * batch_size: (batch_i + 1) * batch_size]
@@ -338,6 +344,7 @@ for it_i in range(n_iterations):
     # Also, every 20 iterations, we'll draw the prediction of our
     # input xs, which should try to recreate our image!
     if (it_i + 1) % gif_step == 0:
+        plt.close()
         costs.append(training_cost / n_batches)
         ys_pred = Y_pred.eval(feed_dict={X: xs}, session=sess)
         img = np.clip(ys_pred.reshape(img.shape), 0, 1)
@@ -351,11 +358,13 @@ for it_i in range(n_iterations):
         fig.suptitle('Iteration {}'.format(it_i))
         plt.show()
         plt.pause(1)
-        plt.close()
+        #plt.close()
 
 # Save the images as a GIF
 _ = gif.build_gif(imgs, saveto='single_batch.gif', show_gif=False)
 
+plt.pause(10)
+plt.close()
 
 #ipyd.Image(url='single_batch.gif?{}'.format(np.random.rand()), height=500, width=500)
 
