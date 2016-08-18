@@ -1,67 +1,26 @@
 
 #
 # Training a Network w/ Tensorflow
-
 #
 
-# First check the Python version
 import sys
-if sys.version_info < (3,4):
-    print('You are running an older version of Python!\n\n' \
-          'You should consider updating to Python 3.4.0 or ' \
-          'higher as the libraries built for this course ' \
-          'have only been tested in Python 3.4 and higher.\n')
-    print('Try installing the Python 3.5 version of anaconda '
-          'and then restart `jupyter notebook`:\n' \
-          'https://www.continuum.io/downloads\n\n')
-
-# Now get necessary libraries
-try:
-    import os
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from skimage.transform import resize
-    from skimage import data
-    from scipy.misc import imresize
-except ImportError:
-    print('You are missing some packages! ' \
-          'We will try installing them before continuing!')
-    ###!pip install "numpy>=1.11.0" "matplotlib>=1.5.1" "scikit-image>=0.11.3" "scikit-learn>=0.17" "scipy>=0.17.0"
-    import os
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from skimage.transform import resize
-    from skimage import data
-    from scipy.misc import imresize
-    print('Done!')
-
-# Import Tensorflow
-try:
-    import tensorflow as tf
-except ImportError:
-    print("You do not have tensorflow installed!")
-    print("Follow the instructions on the following link")
-    print("to install tensorflow before continuing:")
-    print("")
-    print("https://github.com/pkmital/CADL#installation-preliminaries")
-
-# This cell includes the provided libraries from the zip file
-# and a library for displaying images from ipython, which
-# we will use to display the gif
-try:
-    from libs import utils, gif
-    import IPython.display as ipyd
-except ImportError:
-    print("Make sure you have started notebook in the same directory" +
-          " as the provided zip file which includes the 'libs' folder" +
-          " and the file 'utils.py' inside of it.  You will NOT be able"
-          " to complete this assignment unless you restart jupyter"
-          " notebook inside the directory created by extracting"
-          " the zip file or cloning the github repo.")
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+from skimage.transform import resize
+from skimage import data
+from scipy.misc import imresize
+import tensorflow as tf
+from libs import utils, gif
+import IPython.display as ipyd
 
 # We'll tell matplotlib to inline any drawn figures like so:
 ###%matplotlib inline
-plt.style.use('ggplot')
+
+#plt.style.use('ggplot')
+# ['seaborn-bright', 'seaborn-darkgrid', 'seaborn-ticks', 'classic', 'fivethirtyeight', 'dark_background', 'ggplot', 'seaborn-white', 'seaborn-paper', 'seaborn-poster', 'seaborn-pastel', 'seaborn-talk', 'seaborn-notebook', 'seaborn-dark', 'seaborn-deep', 'grayscale', 'bmh', 'seaborn-colorblind', 'seaborn-whitegrid', 'seaborn-muted', 'seaborn-dark-palette']
+plt.style.use('bmh')
+
 
 #--2
 # Bit of formatting because I don't like the default inline code style:
@@ -87,36 +46,7 @@ plt.ion()
 #plt.pause(2)
 plt.close()
 
-#
-# Code
-#
 
-
-# TODO! COMPLETE THIS SECTION!
-# Create a placeholder with None x 2 dimensions of dtype tf.float32, and name it "X":
-X = tf.placeholder(tf.float32, shape=(None, 2), name="X")
-
-
-# TODO! COMPLETE THIS SECTION!
-W = tf.get_variable("W", (2,20), initializer=tf.random_normal_initializer())
-h = tf.matmul(X, W)
-
-
-# TODO! COMPLETE THIS SECTION!
-b = tf.get_variable("b", 20, initializer=tf.constant_initializer(1.0))
-h = tf.nn.bias_add(h, b)
-
-
-# TODO! COMPLETE THIS SECTION!
-h = tf.nn.relu(h + b)
-
-
-#
-# Variable Scopes
-#
-
-h, W = utils.linear(
-    x=X, n_output=20, name='linear', activation=tf.nn.relu)
 
 #
 # Part Two - Image Painting Network
@@ -242,31 +172,6 @@ assert(X.get_shape().as_list() == [None, 2])
 assert(Y_pred.get_shape().as_list() == [None, 3])
 assert(Y.get_shape().as_list() == [None, 3])
 
-#
-# Cost Function
-#
-error = np.linspace(0.0, 128.0**2, 100)
-loss = error**2.0
-#plt.plot(error, loss)
-#plt.xlabel('error')
-#plt.ylabel('loss')
-#plt.title("(cost function)")
-#plt.show()
-#plt.pause(2)
-#plt.close()
-
-
-#error = np.linspace(0.0, 1.0, 100)
-#plt.plot(error, error**2, label='l_2 loss')
-#plt.plot(error, np.abs(error), label='l_1 loss')
-#plt.xlabel('error')
-#plt.ylabel('loss')
-#plt.legend(loc='lower right')
-#plt.title("(l1 vs l2 loss)")
-#plt.show()
-#plt.pause(2)
-#plt.close()
-
 
 #-- hasta aqui todo ok
 
@@ -297,7 +202,8 @@ assert(cost.get_shape().as_list() == [])
 
 # TODO! COMPLETE THIS SECTION!
 # Refer to the help for the function
-optimizer =tf.train.AdamOptimizer(0.001).minimize(cost)
+#optimizer =tf.train.AdamOptimizer(0.001).minimize(cost)
+optimizer=tf.train.GradientDescentOptimizer(learning_rate=0.001).minimize(cost)
 #
 # Create parameters for the number of iterations to run for (< 100)
 n_iterations = 200
@@ -318,6 +224,8 @@ imgs = []
 costs = []
 gif_step = n_iterations // 10
 step_i = 0
+
+fig, ax = plt.subplots(1, 2)
 
 for it_i in range(n_iterations):
 
@@ -348,14 +256,13 @@ for it_i in range(n_iterations):
     # Also, every 20 iterations, we'll draw the prediction of our
     # input xs, which should try to recreate our image!
     if (it_i + 1) % gif_step == 0:
-        plt.close()
         costs.append(training_cost / n_batches)
         ys_pred = Y_pred.eval(feed_dict={X: xs}, session=sess)
         img = np.clip(ys_pred.reshape(img.shape), 0, 1)
         img = ys_pred.reshape(img.shape)
         imgs.append(img)
         # Plot the cost over time
-        fig, ax = plt.subplots(1, 2)
+        #fig, ax = plt.subplots(1, 2)
         ax[0].plot(costs)
         ax[0].set_xlabel('Iteration')
         ax[0].set_ylabel('Cost')
