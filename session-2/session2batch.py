@@ -60,7 +60,7 @@ origimg = plt.imread("mypictures/tux-small.jpg")
 # Try a fairly small image to begin with,
 # then come back here and try larger sizes.
 
-scaledimg = imresize(origimg, (100,100))
+scaledimg = imresize(origimg, (64,64))
 #scaledimg=origimg
 if plotgraph:
   plt.figure(figsize=(5, 5))
@@ -142,7 +142,7 @@ Y = tf.placeholder(tf.float32, shape=[None, 3], name='Y')
 # We'll create 6 hidden layers.  Let's create a variable
 # to say how many neurons we want for each of the layers
 # (try 20 to begin with, then explore other values)
-LAYERSIZE=100
+LAYERSIZE=64
 n_neurons = [2, LAYERSIZE, LAYERSIZE, LAYERSIZE, LAYERSIZE, LAYERSIZE, LAYERSIZE,  3]
 #
 # Create the first linear + nonlinear layer which will
