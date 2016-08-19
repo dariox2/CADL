@@ -60,8 +60,8 @@ origimg = plt.imread("mypictures/tux-small.jpg")
 # Try a fairly small image to begin with,
 # then come back here and try larger sizes.
 
-#scaledimg = imresize(img, (100,100))
-scaledimg=origimg
+scaledimg = imresize(origimg, (100,100))
+#scaledimg=origimg
 if plotgraph:
   plt.figure(figsize=(5, 5))
   plt.imshow(scaledimg)
@@ -119,8 +119,9 @@ assert(np.min(xs) > -3.0 and np.max(xs) < 3.0)
 
 print("y min/max", np.min(ys), np.max(ys))
 
-if np.max(ys)>1.1:  # YA ESTA NORMALIZADO??
-  ys = ys / 255.0
+CLIPVALUE=255
+#if np.max(ys)>1.1:  # YA ESTA NORMALIZADO??
+#  ys = ys / 255.0
 print("norm. y min/max",np.min(ys), np.max(ys))
 
 
@@ -141,23 +142,24 @@ Y = tf.placeholder(tf.float32, shape=[None, 3], name='Y')
 # We'll create 6 hidden layers.  Let's create a variable
 # to say how many neurons we want for each of the layers
 # (try 20 to begin with, then explore other values)
-n_neurons = [2, 20,20,20,20,20,20, 3]
+LAYERSIZE=100
+n_neurons = [2, LAYERSIZE, LAYERSIZE, LAYERSIZE, LAYERSIZE, LAYERSIZE, LAYERSIZE,  3]
 #
 # Create the first linear + nonlinear layer which will
 # take the 2 input neurons and fully connects it to 20 neurons.
 # Use the `utils.linear` function to do this just like before,
 # but also remember to give names for each layer, such as
 # "1", "2", ... "5", or "layer1", "layer2", ... "layer6".
-h1, W1 = utils.linear(X, 20, activation=None, name='Lay1')
+h1, W1 = utils.linear(X, LAYERSIZE, activation=None, name='Lay1')
 #
 # Create another one:
-h2, W2 = utils.linear(h1, 20, activation=None, name='Lay2')
+h2, W2 = utils.linear(h1, LAYERSIZE, activation=None, name='Lay2')
 #
 # and four more (or replace all of this with a loop if you can!):
-h3, W3 = utils.linear(h2, 20, activation=None, name='Lay3')
-h4, W4 = utils.linear(h3, 20, activation=None, name='Lay4')
-h5, W5 = utils.linear(h4, 20, activation=None, name='Lay5')
-h6, W6 = utils.linear(h5, 20, activation=None, name='Lay6')
+h3, W3 = utils.linear(h2, LAYERSIZE, activation=None, name='Lay3')
+h4, W4 = utils.linear(h3, LAYERSIZE, activation=None, name='Lay4')
+h5, W5 = utils.linear(h4, LAYERSIZE, activation=None, name='Lay5')
+h6, W6 = utils.linear(h5, LAYERSIZE, activation=None, name='Lay6')
 #
 # Now, make one last layer to make sure your network has 3 outputs:
 Y_pred, W7 = utils.linear(h6, 3, activation=None, name='pred')
@@ -176,7 +178,7 @@ assert(Y.get_shape().as_list() == [None, 3])
 # This should be the l1-norm or l2-norm of the distance
 # between each color channel.
 #error = tf.square(tf.sub(Y, Y_pred))
-error = tf.abs(tf.sub(Y, Y_pred))
+error = tf.pow(tf.abs(tf.sub(Y_pred, Y)), 2)
 assert(error.get_shape().as_list() == [None, 3])
 print("error.shape: ", error.get_shape())
 
@@ -191,7 +193,7 @@ assert(sum_error.get_shape().as_list() == [None])
 # TODO! COMPLETE THIS SECTION!
 # Finally, compute the cost, as the mean error of the batch.
 # This should be a single value.
-cost = tf.reduce_mean(-sum_error)
+cost = tf.reduce_mean(sum_error)
 assert(cost.get_shape().as_list() == [])
 
 
@@ -204,7 +206,7 @@ optimizer =tf.train.AdamOptimizer(0.001).minimize(cost)
 n_iterations = 100
 #
 # And how much data is in each minibatch (< 500)
-batch_size = 500
+batch_size = 50
 #
 # Then create a session
 sess = tf.Session()
@@ -256,9 +258,9 @@ for it_i in range(n_iterations):
     if (it_i + 1) % gif_step == 0:
         costs.append(training_cost / n_batches)
         ys_pred = Y_pred.eval(feed_dict={X: xs}, session=sess)
-        print("ys_pred: ", ys_pred)
+        print("ys_pred: ", ys_pred, " ys_pred shape: ", ys_pred.shape)
         if plotgraph:
-          plotimg = np.clip(ys_pred.reshape(scaledimg.shape), 0, 1)
+          plotimg = np.clip(ys_pred.reshape(scaledimg.shape), 0, CLIPVALUE)
           #plotimg = ys_pred.reshape(img.shape)
           gifimgs.append(plotimg)
           # Plot the cost over time
