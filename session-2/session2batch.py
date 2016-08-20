@@ -52,9 +52,9 @@ plt.ion()
 # TODO! COMPLETE THIS SECTION!
 # First load an image
 import matplotlib.pyplot as plt
-origimg = plt.imread("mypictures/tux-small.jpg")
+#origimg = plt.imread("mypictures/tux-small.jpg")
 # = plt.imread("mypictures/tux-large.jpg")
-#origimg = plt.imread("mypictures/smalltree.png")
+origimg = plt.imread("mypictures/mediumtree.jpg")
 #
 # Be careful with the size of your image.
 # Try a fairly small image to begin with,

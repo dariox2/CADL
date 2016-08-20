@@ -42,7 +42,8 @@ plt.ion()
 
 from skimage.data import astronaut
 from scipy.misc import imresize
-img = imresize(astronaut(), (64, 64))
+#img = imresize(astronaut(), (64, 64))
+img = plt.imread("mypictures/mediumtree.jpg")
 #plt.imshow(img)
 #plt.show()
 
