@@ -88,10 +88,16 @@ plt.ion()
 
 # TODO! COMPLETE THIS SECTION!
 # First load an image
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 #origimg = plt.imread("mypictures/tux-small.jpg")
 # = plt.imread("mypictures/tux-large.jpg")
-origimg = plt.imread("mypictures/mediumtree.jpg")
+#origimg = plt.imread("mypictures/mediumtree.jpg")
+from skimage.data import astronaut
+from scipy.misc import imresize
+origimg = imresize(astronaut(), (64, 64))
+
+
+
 #
 # Be careful with the size of your image.
 # Try a fairly small image to begin with,
@@ -104,8 +110,8 @@ if plotgraph:
   plt.imshow(scaledimg)
   plt.title("(preparing the data)")
   plt.show()
-  plt.pause(3)
-  plt.close()
+  plt.pause(1)
+  #plt.close()
 
 #
 # Make sure you save this image as "reference.png"
@@ -216,28 +222,29 @@ assert(Y.get_shape().as_list() == [None, 3])
 # between each color channel.
 #error = tf.square(tf.sub(Y, Y_pred))
 #error = tf.pow(tf.abs(tf.sub(Y_pred, Y)), 2)
-error = tf.abs(tf.sub(Y_pred, Y))
-assert(error.get_shape().as_list() == [None, 3])
-print("error.shape: ", error.get_shape())
+#error = tf.abs(tf.sub(Y_pred, Y))
+errortot = tf.abs(Y_pred - Y)
+assert(errortot.get_shape().as_list() == [None, 3])
+print("error.shape: ", errortot.get_shape())
 
 
 # TODO! COMPLETE THIS SECTION!
 # Now sum the error for each feature in Y. 
 # If Y is [Batch, Features], the sum should be [Batch]:
-sum_error = tf.reduce_sum(error, 1)
-assert(sum_error.get_shape().as_list() == [None])
+sum_errorred = tf.reduce_sum(errortot, 1)
+assert(sum_errorred.get_shape().as_list() == [None])
 
 
 # TODO! COMPLETE THIS SECTION!
 # Finally, compute the cost, as the mean error of the batch.
 # This should be a single value.
-cost = tf.reduce_mean(sum_error)
-assert(cost.get_shape().as_list() == [])
+costtot = tf.reduce_mean(sum_errorred)
+assert(costtot.get_shape().as_list() == [])
 
 
 # TODO! COMPLETE THIS SECTION!
 # Refer to the help for the function
-optimizer =tf.train.AdamOptimizer(0.001).minimize(cost)
+myoptimizer =tf.train.AdamOptimizer(0.001).minimize(costtot)
 #optimizer=tf.train.GradientDescentOptimizer(learning_rate=0.001).minimize(cost)
 #
 # Create parameters for the number of iterations to run for (< 100)
@@ -261,9 +268,6 @@ gif_step = n_iterations // 10
 print("gif_step: ", gif_step)
 step_i = 0
 
-if plotgraph:
-  fig, ax = plt.subplots(1, 2)
-
 for it_i in range(n_iterations):
 
     print("iteration: ", it_i, end="", flush=True);
@@ -285,29 +289,30 @@ for it_i in range(n_iterations):
 
         # And optimize, also returning the cost so we can monitor
         # how our optimization is doing.
-        training_cost = sess.run(
-            [cost, optimizer],
-            feed_dict={X: xs[idxs_i], Y: ys[idxs_i]})[0]
+        #training_cost = sess.run([costtot, myoptimizer],feed_dict={X: xs[idxs_i], Y: ys[idxs_i]})[0]
+        sess.run(myoptimizer, feed_dict={X: xs[idxs_i], Y: ys[idxs_i]})
+    #OJO, indent
+    training_cost = sess.run(costtot, feed_dict={X: xs, Y: ys})
 
-    print("  cost: ", training_cost / n_batches);
+    #print("  cost: ", training_cost / n_batches);
+    print("  cost: ", training_cost);
 
     # Also, every 20 iterations, we'll draw the prediction of our
     # input xs, which should try to recreate our image!
-    if (it_i + 1) % gif_step == 0:
-        costs.append(training_cost / n_batches)
+    #if (it_i + 1) % gif_step == 0:
+    if (it_i + 1) % 20 == 0:
+        #costs.append(training_cost / n_batches)
+        costs.append(training_cost)
         ys_pred = Y_pred.eval(feed_dict={X: xs}, session=sess)
         print("ys_pred: ", ys_pred, " ys_pred shape: ", ys_pred.shape)
         if plotgraph:
-          plotimg = np.clip(ys_pred.reshape(scaledimg.shape), 0, CLIPVALUE)
-          #plotimg = ys_pred.reshape(img.shape)
+          #plotimg = np.clip(ys_pred.reshape(scaledimg.shape), 0, CLIPVALUE)
+          plotimg = ys_pred.reshape(scaledimg.shape)
           gifimgs.append(plotimg)
           # Plot the cost over time
           #fig, ax = plt.subplots(1, 2)
-          ax[0].plot(costs)
-          ax[0].set_xlabel('Iteration')
-          ax[0].set_ylabel('Cost')
-          ax[1].imshow(plotimg)
-          fig.suptitle('Iteration {}'.format(it_i))
+          plt.imshow(plotimg)
+          plt.title('Iteration {}'.format(it_i))
           plt.show()
           plt.pause(1)
   

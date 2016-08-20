@@ -35,8 +35,9 @@ plt.ion()
 
 from skimage.data import astronaut
 from scipy.misc import imresize
-#img = imresize(astronaut(), (64, 64))
-img = plt.imread("mypictures/mediumtree.jpg")
+img = imresize(astronaut(), (64, 64))
+#img = plt.imread("mypictures/mediumtree.jpg")
+
 #plt.imshow(img)
 #plt.show()
 
@@ -67,8 +68,8 @@ xs.shape, ys.shape
 plt.imshow(ys.reshape(img.shape))
 plt.title("(reshaped from array)")
 plt.show()
-plt.pause(2)
-plt.close()
+plt.pause(1)
+#plt.close()
 
 X = tf.placeholder(tf.float32, shape=[None, 2], name='X')
 Y = tf.placeholder(tf.float32, shape=[None, 3], name='Y')
@@ -96,7 +97,7 @@ optimizer = tf.train.AdamOptimizer(0.001).minimize(cost)
 n_iterations = 500
 batch_size = 50
 
-fig, ax = plt.subplots(1, 1)
+#fig, ax = plt.subplots(1, 1)
 
 with tf.Session() as sess:
     # Here we tell tensorflow that we want to initialize all
@@ -109,12 +110,13 @@ with tf.Session() as sess:
     for it_i in range(n_iterations):
         idxs = np.random.permutation(range(len(xs)))
         n_batches = len(idxs) // batch_size
+        print("  n_batches: ", n_batches, end="", flush=True);
         for batch_i in range(n_batches):
             idxs_i = idxs[batch_i * batch_size: (batch_i + 1) * batch_size]
             sess.run(optimizer, feed_dict={X: xs[idxs_i], Y: ys[idxs_i]})
 
         training_cost = sess.run(cost, feed_dict={X: xs, Y: ys})
-        print(it_i, training_cost)
+        print("  cost: ", it_i, training_cost)
 
         if (it_i + 1) % 20 == 0:
             ys_pred = Y_pred.eval(feed_dict={X: xs}, session=sess)
