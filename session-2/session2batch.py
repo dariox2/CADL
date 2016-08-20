@@ -11,8 +11,45 @@ from skimage.transform import resize
 from skimage import data
 from scipy.misc import imresize
 import tensorflow as tf
-from libs import utils, gif
+from libs import gif
 import IPython.display as ipyd
+
+
+# (from utils.py)
+def linear(x, n_output, name=None, activation=None, reuse=None):
+    if len(x.get_shape()) != 2:
+        x = flatten(x, reuse=reuse)
+
+    n_input = x.get_shape().as_list()[1]
+
+    with tf.variable_scope(name or "fc", reuse=reuse):
+        W = tf.get_variable(
+            name='W',
+            shape=[n_input, n_output],
+            dtype=tf.float32,
+            #initializer=tf.contrib.layers.xavier_initializer())
+            initializer=tf.random_normal_initializer(mean=0.0, stddev=0.1))
+
+        b = tf.get_variable(
+            name='b',
+            shape=[n_output],
+            dtype=tf.float32,
+            #initializer=tf.constant_initializer(0.0))
+            initializer=tf.constant_initializer())
+
+        #h = tf.nn.bias_add(
+        #    name='h',
+        #    value=tf.matmul(x, W),
+        #    bias=b)
+        #if activation:
+        #    h = activation(h)
+
+        h = tf.matmul(x, W) + b
+        if activation is not None: # esta linea da error: 'Tensor' object is not iterable
+            h = activation(h)
+        # return h
+
+        return h, W
 
 
 #dja
@@ -150,19 +187,19 @@ n_neurons = [2, LAYERSIZE, LAYERSIZE, LAYERSIZE, LAYERSIZE, LAYERSIZE, LAYERSIZE
 # Use the `utils.linear` function to do this just like before,
 # but also remember to give names for each layer, such as
 # "1", "2", ... "5", or "layer1", "layer2", ... "layer6".
-h1, W1 = utils.linear(X, LAYERSIZE, activation=None, name='Lay1')
+h1, W1 = linear(X, LAYERSIZE, activation=tf.nn.relu, name='Lay1')
 #
 # Create another one:
-h2, W2 = utils.linear(h1, LAYERSIZE, activation=None, name='Lay2')
+h2, W2 = linear(h1, LAYERSIZE, activation=tf.nn.relu, name='Lay2')
 #
 # and four more (or replace all of this with a loop if you can!):
-h3, W3 = utils.linear(h2, LAYERSIZE, activation=None, name='Lay3')
-h4, W4 = utils.linear(h3, LAYERSIZE, activation=None, name='Lay4')
-h5, W5 = utils.linear(h4, LAYERSIZE, activation=None, name='Lay5')
-h6, W6 = utils.linear(h5, LAYERSIZE, activation=None, name='Lay6')
+h3, W3 = linear(h2, LAYERSIZE, activation=tf.nn.relu, name='Lay3')
+h4, W4 = linear(h3, LAYERSIZE, activation=tf.nn.relu, name='Lay4')
+h5, W5 = linear(h4, LAYERSIZE, activation=tf.nn.relu, name='Lay5')
+h6, W6 = linear(h5, LAYERSIZE, activation=tf.nn.relu, name='Lay6')
 #
 # Now, make one last layer to make sure your network has 3 outputs:
-Y_pred, W7 = utils.linear(h6, 3, activation=None, name='pred')
+Y_pred, W7 = linear(h6, 3, activation=None, name='pred')
 
 
 assert(X.get_shape().as_list() == [None, 2])
@@ -178,7 +215,8 @@ assert(Y.get_shape().as_list() == [None, 3])
 # This should be the l1-norm or l2-norm of the distance
 # between each color channel.
 #error = tf.square(tf.sub(Y, Y_pred))
-error = tf.pow(tf.abs(tf.sub(Y_pred, Y)), 2)
+#error = tf.pow(tf.abs(tf.sub(Y_pred, Y)), 2)
+error = tf.abs(tf.sub(Y_pred, Y))
 assert(error.get_shape().as_list() == [None, 3])
 print("error.shape: ", error.get_shape())
 
@@ -203,7 +241,7 @@ optimizer =tf.train.AdamOptimizer(0.001).minimize(cost)
 #optimizer=tf.train.GradientDescentOptimizer(learning_rate=0.001).minimize(cost)
 #
 # Create parameters for the number of iterations to run for (< 100)
-n_iterations = 100
+n_iterations = 500
 #
 # And how much data is in each minibatch (< 500)
 batch_size = 50

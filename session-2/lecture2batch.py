@@ -13,13 +13,6 @@ def distance(p1, p2):
     return tf.abs(p1 - p2)
 
 
-#def linear(X, n_input, n_output, activation=None):
-#    W = tf.Variable(tf.random_normal([n_input, n_output], stddev=0.1), name='W')
-#    b = tf.Variable(
-#        tf.constant(0, dtype=tf.float32, shape=[n_output]), name='b')
-#    h = tf.nn.tanh(tf.matmul(X, W) + b, name='h')
-#    return h
-
 def linear(X, n_input, n_output, activation=None, scope=None):
     with tf.variable_scope(scope or "linear"):
         W = tf.get_variable(
