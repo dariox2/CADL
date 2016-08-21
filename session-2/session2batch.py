@@ -14,7 +14,7 @@ import tensorflow as tf
 from libs import gif
 import IPython.display as ipyd
 
-np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
+#np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
 
 # (from utils.py)
 def linear(x, n_output, name=None, activation=None, reuse=None):
@@ -64,9 +64,9 @@ plt.ion()
 #plt.show()
 #plt.pause(2)
 
-#origimg = plt.imread("mypictures/tux-small.jpg")
+origimg = plt.imread("mypictures/tux-small.jpg")
 # = plt.imread("mypictures/tux-large.jpg")
-origimg = plt.imread("mypictures/mediumtree.jpg")
+#origimg = plt.imread("mypictures/mediumtree.jpg")
 #from skimage.data import astronaut
 #from scipy.misc import imresize
 #origimg = imresize(astronaut(), (64, 64))
@@ -83,7 +83,7 @@ if plotgraph:
   #plt.close()
 
 
-#plt.imsave(fname='reference_batch.png', arr=scaledimg)
+plt.imsave(fname='session2_batch_reference.png', arr=scaledimg)
 
 print(scaledimg.shape)
 
@@ -121,11 +121,9 @@ CLIPVALUE=255
 #  ys = ys / 255.0
 print("norm. y min/max",np.min(ys), np.max(ys))
 
-
 tf.reset_default_graph()
 
 X = tf.placeholder(tf.float32, shape=[None, 2], name='X')
-
 Y = tf.placeholder(tf.float32, shape=[None, 3], name='Y')
 
 LAYERSIZE=64
@@ -159,7 +157,7 @@ costtot = tf.reduce_mean(sum_errorred)
 assert(costtot.get_shape().as_list() == [])
 
 myoptimizer =tf.train.AdamOptimizer(0.001).minimize(costtot)
-n_iterations = 2
+n_iterations = 500
 batch_size = 50
 
 sess = tf.Session()
@@ -168,7 +166,8 @@ sess.run(tf.initialize_all_variables())
 
 gifimgs = []
 costs = []
-gif_step = 1 ##n_iterations // 10
+#gif_step = n_iterations // 10
+gif_step=20
 print("gif_step: ", gif_step)
 step_i = 0
 
@@ -204,7 +203,7 @@ for it_i in range(n_iterations):
         print("============ ys_pred:")
         print(np.floor(ys_pred))
         if plotgraph:
-          #plotimg = np.clip(ys_pred.reshape(scaledimg.shape), 0, CLIPVALUE)
+          ###plotimg = np.clip(ys_pred.reshape(scaledimg.shape), 0, CLIPVALUE)
           plotimg = np.clip(ys_pred.reshape(scaledimg.shape), 0, CLIPVALUE).astype(np.uint8)
           gifimgs.append(plotimg)
           # Plot the cost over time
@@ -216,7 +215,9 @@ for it_i in range(n_iterations):
   
 if plotgraph:
   # Save the images as a GIF
-  #_ = gif.build_gif(gifimgs, saveto='single_batch.gif', show_gif=False)
+  _ = gif.build_gif(gifimgs, saveto='session2_batch_single.gif', show_gif=False)
+
+  plt.imsave(fname='session2_batch_predicted.png', arr=plotimg)
 
   plt.pause(5)
   plt.close()

@@ -1,4 +1,8 @@
 
+#
+# Training a Network w/ Tensorflow (lecture)
+#
+
 import os
 import tensorflow as tf
 import numpy as np
@@ -6,8 +10,10 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
 
+from libs import gif
 
-np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
+#np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
+
 
 # this function will measure the absolute distance, also known as the l1-norm
 def distance(p1, p2):
@@ -36,11 +42,15 @@ plt.ion()
 
 from skimage.data import astronaut
 from scipy.misc import imresize
-#img = imresize(astronaut(), (64, 64))
-img = plt.imread("mypictures/mediumtree.jpg")
+img = imresize(astronaut(), (64, 64))
+#img = plt.imread("mypictures/mediumtree.jpg")
+
+plt.imsave(fname='lecture2_batch_reference.png', arr=img)
 
 #plt.imshow(img)
 #plt.show()
+
+gifimgs = []
 
 # We'll first collect all the positions in the image in our list, xs
 xs = []
@@ -98,7 +108,7 @@ optimizer = tf.train.AdamOptimizer(0.001).minimize(cost)
 
 
 
-n_iterations = 2
+n_iterations = 500
 batch_size = 50
 
 #fig, ax = plt.subplots(1, 1)
@@ -122,18 +132,26 @@ with tf.Session() as sess:
         training_cost = sess.run(cost, feed_dict={X: xs, Y: ys})
         print("  it: ", it_i, "  cost: ", training_cost)
 
-        if (it_i + 1) % 1 == 0:
+        if (it_i + 1) % 20 == 0:
             ys_pred = Y_pred.eval(feed_dict={X: xs}, session=sess)
             print("============ ys_pred:")
             print(np.floor(ys_pred))
             #fig, ax = plt.subplots(1, 1)
             img = np.clip(ys_pred.reshape(img.shape), 0, 255).astype(np.uint8)
+
+            gifimgs.append(img)
+
             plt.title('Iteration {}'.format(it_i))
             plt.imshow(img)
             plt.show()
             plt.pause(1)
 
-plt.pause(5)
+# Save the images as a GIF
+_ = gif.build_gif(gifimgs, saveto='lecture2_batch_single.gif', show_gif=False)
+
+plt.imsave(fname='lecture2_batch_predicted.png', arr=img)
+
+plt.pause(10)
 plt.close()
 
 
