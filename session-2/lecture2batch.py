@@ -7,6 +7,7 @@ import matplotlib.colors as colors
 import matplotlib.cm as cmx
 
 
+np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
 
 # this function will measure the absolute distance, also known as the l1-norm
 def distance(p1, p2):
@@ -35,8 +36,8 @@ plt.ion()
 
 from skimage.data import astronaut
 from scipy.misc import imresize
-img = imresize(astronaut(), (64, 64))
-#img = plt.imread("mypictures/mediumtree.jpg")
+#img = imresize(astronaut(), (64, 64))
+img = plt.imread("mypictures/mediumtree.jpg")
 
 #plt.imshow(img)
 #plt.show()
@@ -58,6 +59,9 @@ for row_i in range(img.shape[0]):
 # we'll convert our lists to arrays
 xs = np.array(xs)
 ys = np.array(ys)
+
+print("========ys:")
+print(ys)
 
 # Normalizing the input by the mean and standard deviation
 xs = (xs - np.mean(xs)) / np.std(xs)
@@ -94,7 +98,7 @@ optimizer = tf.train.AdamOptimizer(0.001).minimize(cost)
 
 
 
-n_iterations = 500
+n_iterations = 2
 batch_size = 50
 
 #fig, ax = plt.subplots(1, 1)
@@ -116,10 +120,12 @@ with tf.Session() as sess:
             sess.run(optimizer, feed_dict={X: xs[idxs_i], Y: ys[idxs_i]})
 
         training_cost = sess.run(cost, feed_dict={X: xs, Y: ys})
-        print("  cost: ", it_i, training_cost)
+        print("  it: ", it_i, "  cost: ", training_cost)
 
-        if (it_i + 1) % 20 == 0:
+        if (it_i + 1) % 1 == 0:
             ys_pred = Y_pred.eval(feed_dict={X: xs}, session=sess)
+            print("============ ys_pred:")
+            print(np.floor(ys_pred))
             #fig, ax = plt.subplots(1, 1)
             img = np.clip(ys_pred.reshape(img.shape), 0, 255).astype(np.uint8)
             plt.title('Iteration {}'.format(it_i))
@@ -127,7 +133,7 @@ with tf.Session() as sess:
             plt.show()
             plt.pause(1)
 
-plt.pause(10)
+plt.pause(5)
 plt.close()
 
 
