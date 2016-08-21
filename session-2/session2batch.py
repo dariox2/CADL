@@ -146,7 +146,9 @@ assert(X.get_shape().as_list() == [None, 2])
 assert(Y_pred.get_shape().as_list() == [None, 3])
 assert(Y.get_shape().as_list() == [None, 3])
 
-errortot = tf.abs(Y_pred - Y)
+#errortot = tf.abs(Y_pred - Y)
+#errortot = tf.pow(tf.sub(Y_pred, Y), 2)
+errortot = (Y_pred - Y) ** 2
 assert(errortot.get_shape().as_list() == [None, 3])
 print("error.shape: ", errortot.get_shape())
 
