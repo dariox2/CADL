@@ -4,6 +4,11 @@
 #
 # PART 3 - Multiple images
 #
+# refer:
+#    4 imgs, 128x128, 10 iter:  38.9s
+#   16 imgs, 128x128,  3 iter:  46.8s
+#   16 imgs, 128x128, 10 iter: 151.8s
+#
 
 import sys
 import os
@@ -15,6 +20,7 @@ from scipy.misc import imresize
 import tensorflow as tf
 from libs import gif, utils
 import IPython.display as ipyd
+from datetime import datetime
 
 #np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
 
@@ -94,7 +100,7 @@ def build_model(xs, ys, n_neurons, n_layers, activation_fn,
 def train(imgs,
           learning_rate=0.0001,
           batch_size=200,
-          n_iterations=3, #10,
+          n_iterations=10,
           gif_step=2,
           n_neurons=30,
           n_layers=10,
@@ -191,17 +197,22 @@ def get_celeb_imgs(qpic):
     return [plt.imread(f_i) for f_i in get_celeb_files(qpic)]
 
 
+#############################################################
+#
+# MAIN
+#
 
-switchcelebs=True
 print("Reading images...")
-QNT=16
+QNT=4
+switchcelebs=False
 if switchcelebs:
-  celeb_imgs = get_celeb_imgs(QNT)
+  celeb_imgs = np.array(get_celeb_imgs(QNT))
   plt.figure(figsize=(6, 6))
+  print(celeb_imgs)
   print (np.array(celeb_imgs).shape)
-  #plt.imshow(utils.montage(celeb_imgs).astype(np.uint8))
-  plt.imshow(utils.montage(celeb_imgs, saveto='batch3_dataset.png').astype(np.uint8))
-  # It doesn't have to be 100 images, explore!
+  pltdataset=utils.montage(celeb_imgs, saveto="batch2_3_temp_dataset.png").astype(np.uint8)
+  plt.imshow(pltdataset)
+  plt.imsave(fname='batch2_3_dataset.png', arr=pltdataset)
   trainimgs = np.array(celeb_imgs).copy()
 else:
   dirname = "labdogs"
@@ -209,43 +220,45 @@ else:
             for fname in os.listdir(dirname)]
   filenames = filenames[:QNT]
   assert(len(filenames) == QNT)
-  myimgs = [plt.imread(fname)[..., :3] for fname in filenames]
+  #myimgs = [plt.imread(fname)[..., :3] for fname in filenames]
+  myimgs=np.array([plt.imread(fname) for fname in filenames])
   myimgs = [utils.imcrop_tosquare(img_i) for img_i in myimgs]
-  myimgs = [resize(img_i, (64, 64)) for img_i in myimgs]
-
-  plotimgs = np.array(myimgs).astype(np.float32)
-  plt.imshow(utils.montage(plotimgs, saveto='batch3_dataset.png'))
+  myimgs = [resize(img_i, (128,128)) for img_i in myimgs]
+  myimgs=np.clip(np.array(myimgs)*255, 0, 255).astype(np.uint8) # fix resize() conversion to 0..1
+  pltdataset=utils.montage(myimgs, saveto="batch2_3_temp_dataset.png").astype(np.uint8)
+  plt.imshow(pltdataset)
+  plt.imsave(fname='batch2_3_dataset.png', arr=pltdataset)
   trainimgs = np.array(myimgs).copy()
+
 
 plt.show()
 plt.pause(1)
 
 print("Training...")
-# Change the parameters of the train function and
-# explore changing the dataset
-trainedgifs = train(imgs=trainimgs)
-
-
-#montage_gifs = [np.clip(utils.montage((m * 127.5) + 127.5, saveto='batch3_train.png'), 0, 255).astype(np.uint8) for m in trainedgifs]
-#montage_gifs = [np.clip(utils.montage((m * 127.5) + 127.5), 0, 255).astype(np.float32) for m in trainedgifs]
-
-#_ = gif.build_gif(trainedgifs, saveto='batch3_multiple.gif')
-
-
+t1 = datetime.now()
+trainedgifs = train(imgs=trainimgs, n_iterations=3)
+t2 = datetime.now()
+delta = t2 - t1
+print("             Total training time: ", delta.total_seconds())
+plt.close()
+print("Saving results...")
 montage_gifs = [np.clip(utils.montage(
-                (m * 127.5) + 127.5), 0, 255).astype(np.uint8)
+                (m * 127.5) + 127.5, saveto='batch2_3_montage_temp.png'), 0, 255).astype(np.uint8)
                     for m in trainedgifs]
 _ = gif.build_gif(montage_gifs, saveto='batch2_3_multiple.gif')
 
+plt.show()
+plt.pause(5)
+plt.close()
 
 final = trainedgifs[-1]
 final_gif = [np.clip(((m * 127.5) + 127.5), 0, 255).astype(np.uint8) for m in final]
 gif.build_gif(final_gif, saveto='batch2_3_final.gif')
 
 #plt.imshow(_)
-#plt.show()
-#plt.pause(10)
-
+plt.show()
+plt.pause(5)
+plt.close()
 
 
 # eop
