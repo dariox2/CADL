@@ -18,6 +18,9 @@ import IPython.display as ipyd
 
 #np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
 
+plt.ion()
+
+
 def split_image(img):
     # We'll first collect all the positions in the image in our list, xs
     xs = []
@@ -157,43 +160,92 @@ def train(imgs,
                 gifs.append(img)
         return gifs
 
+import urllib
+def get_celeb_files(qfil):
+    if not os.path.exists('img_align_celeba'):
+        os.mkdir('img_align_celeba')
 
-#celeb_imgs = utils.get_celeb_imgs()
-#plt.figure(figsize=(10, 10))
-#plt.imshow(utils.montage(celeb_imgs).astype(np.uint8))
-# It doesn't have to be 100 images, explore!
-#imgs = np.array(celeb_imgs).copy()
+    for img_i in range(1, qfil+1):
 
-dirname = "labdogs"
-filenames = [os.path.join(dirname, fname)
+        f = '000%03d.jpg' % img_i
+
+        url = 'https://s3.amazonaws.com/cadl/celeb-align/' + f
+
+        print(url, end='\r')
+
+        urllib.request.urlretrieve(url, os.path.join('img_align_celeba', f))
+
+    files = [os.path.join('img_align_celeba', file_i)
+             for file_i in os.listdir('img_align_celeba')
+             if '.jpg' in file_i]
+    return files[0:qfil]
+
+
+def get_celeb_imgs(qpic):
+    """
+    Returns
+    -------
+    imgs : list of np.ndarray
+        List of the first <qpic> images from the celeb dataset
+    """
+    return [plt.imread(f_i) for f_i in get_celeb_files(qpic)]
+
+
+
+switchcelebs=True
+print("Reading images...")
+QNT=16
+if switchcelebs:
+  celeb_imgs = get_celeb_imgs(QNT)
+  plt.figure(figsize=(6, 6))
+  print (np.array(celeb_imgs).shape)
+  #plt.imshow(utils.montage(celeb_imgs).astype(np.uint8))
+  plt.imshow(utils.montage(celeb_imgs, saveto='batch3_dataset.png').astype(np.uint8))
+  # It doesn't have to be 100 images, explore!
+  trainimgs = np.array(celeb_imgs).copy()
+else:
+  dirname = "labdogs"
+  filenames = [os.path.join(dirname, fname)
             for fname in os.listdir(dirname)]
-filenames = filenames[:16]
-assert(len(filenames) == 16)
-myimgs = [plt.imread(fname)[..., :3] for fname in filenames]
-myimgs = [utils.imcrop_tosquare(img_i) for img_i in myimgs]
-myimgs = [resize(img_i, (100, 100)) for img_i in myimgs]
-myimgs = np.array(myimgs).astype(np.uint8) #.astype(np.float32)
-plt.figure(figsize=(10, 10))
-plt.imshow(utils.montage(myimgs, saveto='batch3_dataset.png'))
-#imgs = np.array(imgs).astype(np.float32)
-#imgs = np.array(myimgs).copy()
+  filenames = filenames[:QNT]
+  assert(len(filenames) == QNT)
+  myimgs = [plt.imread(fname)[..., :3] for fname in filenames]
+  myimgs = [utils.imcrop_tosquare(img_i) for img_i in myimgs]
+  myimgs = [resize(img_i, (64, 64)) for img_i in myimgs]
 
-# Plot the resulting dataset:
-# Make sure you "run" this cell after you create your `imgs` variable as a 4-D array!
-# Make sure we have a 100 x 100 x 100 x 3 dimension array
-#plt.figure(figsize=(10, 10))
-#plt.imshow(utils.montage(imgs, saveto='batch3_dataset.png'))
+  plotimgs = np.array(myimgs).astype(np.float32)
+  plt.imshow(utils.montage(plotimgs, saveto='batch3_dataset.png'))
+  trainimgs = np.array(myimgs).copy()
 
+plt.show()
+plt.pause(1)
 
 print("Training...")
 # Change the parameters of the train function and
 # explore changing the dataset
-gifs = train(imgs=myimgs)
+trainedgifs = train(imgs=trainimgs)
+
+
+#montage_gifs = [np.clip(utils.montage((m * 127.5) + 127.5, saveto='batch3_train.png'), 0, 255).astype(np.uint8) for m in trainedgifs]
+#montage_gifs = [np.clip(utils.montage((m * 127.5) + 127.5), 0, 255).astype(np.float32) for m in trainedgifs]
+
+#_ = gif.build_gif(trainedgifs, saveto='batch3_multiple.gif')
+
 
 montage_gifs = [np.clip(utils.montage(
-            (m * 127.5) + 127.5), 0, 255).astype(np.uint8)
-                for m in gifs]
-_ = gif.build_gif(montage_gifs, saveto='batch3_multiple.gif')
+                (m * 127.5) + 127.5), 0, 255).astype(np.uint8)
+                    for m in trainedgifs]
+_ = gif.build_gif(montage_gifs, saveto='batch2_3_multiple.gif')
+
+
+final = trainedgifs[-1]
+final_gif = [np.clip(((m * 127.5) + 127.5), 0, 255).astype(np.uint8) for m in final]
+gif.build_gif(final_gif, saveto='batch2_3_final.gif')
+
+#plt.imshow(_)
+#plt.show()
+#plt.pause(10)
+
 
 
 # eop

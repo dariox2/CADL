@@ -7,6 +7,7 @@ import socket
 import sys
 import pyglet
 import time
+import datetime
 
 def DoesServiceExist(host, port):
     captive_dns_addr = ""
@@ -49,6 +50,7 @@ prt=sys.argv[2]
 music = pyglet.media.load('/usr/share/sounds/purple/login.wav', streaming=False)
 
 while (True):
+  print(datetime.datetime.now().time(), end=" : ")
   r=DoesServiceExist(hst, prt)
   print(r)
   if (r!=0):
