@@ -5,9 +5,11 @@
 # PART 3 - Multiple images
 #
 # refer:
-#    4 imgs, 128x128, 10 iter:  38.9s
-#   16 imgs, 128x128,  3 iter:  46.8s
-#   16 imgs, 128x128, 10 iter: 151.8s
+#    4 imgs, 128x128, 10 iter: biswal home 38.9s;   cyclop (vm):  7.7s
+#   16 imgs, 128x128,  3 iter: biswal home 46.8s;   cyclop (vm):  8.3s
+#   16 imgs, 128x128, 10 iter: biswal home: 151.8s; cyclop (vm): 30.2s
+#   16 imgs, 128x128, 1k iter: cyclop (centos vm): 3058s (~51m)
+#                                                  2098s (bugfix gif too large)
 #
 
 import sys
@@ -203,7 +205,7 @@ def get_celeb_imgs(qpic):
 #
 
 print("Reading images...")
-QNT=4
+QNT=16
 switchcelebs=False
 if switchcelebs:
   celeb_imgs = np.array(get_celeb_imgs(QNT))
@@ -236,7 +238,7 @@ plt.pause(1)
 
 print("Training...")
 t1 = datetime.now()
-trainedgifs = train(imgs=trainimgs, n_iterations=3)
+trainedgifs = train(imgs=trainimgs, n_iterations=1000, gif_step=50)
 t2 = datetime.now()
 delta = t2 - t1
 print("             Total training time: ", delta.total_seconds())
