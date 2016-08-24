@@ -85,7 +85,7 @@ plt.ion()
 #plt.show()
 #plt.pause(2)
 
-filenames=["globorojo_fixed.png", "ondaverde.png"]
+filenames=["barvert.png", "barhoriz.png"]
 origimg = [plt.imread(fname)[..., :3] for fname in filenames]
 
 scaledimg = [imresize(origimg[0], (256,256)), imresize(origimg[1], (256,256))]
@@ -173,8 +173,7 @@ sess.run(tf.initialize_all_variables())
 
 gifimgs = []
 costs = []
-#gif_step = n_iterations // 10
-gif_step=20
+gif_step = n_iterations // 20
 print("gif_step: ", gif_step)
 step_i = 0
 
