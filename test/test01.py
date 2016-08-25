@@ -22,12 +22,15 @@ NHIDLAYERS=5
 tamimg=64
 #filenames=["barvert.png", "barvert.png"]
 #filenames=["barhoriz.png", "barhoriz.png"]
-filenames=["barhoriz.png", "barvert.png"]
+#filenames=["barhoriz.png", "barvert.png"]
+#filenames=["../../fot2.jpg", "fot1.jpg"]
+#filenames=["fot1.jpg", "fot1.jpg"]
+filenames=["../../fot2.jpg", "../../fot2.jpg"]
 
 gif_frames=50
 plot_step=1
 
-np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
+#np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
 
 # (from utils.py)
 def linear(x, n_output, name=None, activation=None, reuse=None):
@@ -98,7 +101,10 @@ plt.ion()
 #plt.show()
 #plt.pause(2)
 
-origimg = [plt.imread(fname)[..., :3] for fname in filenames]
+origimg = [plt.imread(fname)[..., :3] for fname in filenames] # falla con .jpg?
+#origimg=[plt.imread(filenames[0]), plt.imread(filenames[1])]
+
+print(origimg)
 
 imrsz0=imresize(origimg[0], (tamimg,tamimg))
 imrsz1=imresize(origimg[1], (tamimg,tamimg))
@@ -109,7 +115,7 @@ scaledimg = [imrsz0, imrsz1]
 
 if plotgraph:
   plt.figure(figsize=(5, 5))
-  plt.imshow(scaledimg[0])
+  plt.imshow(scaledimg[1])
   plt.title("(preparing the data)")
   plt.show()
   plt.pause(1)
@@ -243,7 +249,10 @@ for it_i in range(n_iterations):
     if (it_i + 1) % gif_step == 0 or (it_i + 1) % plot_step == 0:
         idxs_j=range(len(xs)//2)
         ys_pred = Y_pred.eval(feed_dict={X: xs[idxs_j]}, session=sess)
-        plotimg = np.clip(np.array(ys_pred.reshape(scaledimg[0].shape))*255, 0, CLIPVALUE).astype(np.uint8)
+        # PARA PNG:
+        #plotimg = np.clip(np.array(ys_pred.reshape(scaledimg[0].shape))*255, 0, CLIPVALUE).astype(np.uint8)
+        # PARA JPG:
+        plotimg = np.clip(np.array(ys_pred.reshape(scaledimg[0].shape)), 0, CLIPVALUE).astype(np.uint8)
     if (it_i + 1) % gif_step == 0:
         gifimgs.append(plotimg)
     if (it_i + 1) % plot_step == 0:
