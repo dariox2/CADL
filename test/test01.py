@@ -1,6 +1,8 @@
 
 #
-# test01
+# test01 - 2016.08.24
+#
+# toma 2 imagenes alternando la evaluacion
 #
 
 import sys
@@ -13,6 +15,7 @@ from scipy.misc import imresize
 import tensorflow as tf
 from libs import gif
 import IPython.display as ipyd
+from datetime import datetime
 
 #np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
 
@@ -85,14 +88,18 @@ plt.ion()
 #plt.show()
 #plt.pause(2)
 
-filenames=["globorojo_fixed.png", "ondaverde.png"]
+filenames=["franjhoriz.png", "franjvert.png"]
 origimg = [plt.imread(fname)[..., :3] for fname in filenames]
 
-scaledimg = [imresize(origimg[0], (256,256)), imresize(origimg[1], (256,256))]
+scaledimg = [imresize(origimg[0], (64,64)), imresize(origimg[1], (64,64))]
 if plotgraph:
   plt.figure(figsize=(5, 5))
   plt.imshow(scaledimg[0])
-  plt.title("(preparing the data)")
+  plt.title("data[0]")
+  plt.show()
+  plt.pause(1)
+  plt.imshow(scaledimg[1])
+  plt.title("data[1]")
   plt.show()
   plt.pause(1)
   #plt.close()
@@ -178,6 +185,7 @@ gif_step=20
 print("gif_step: ", gif_step)
 step_i = 0
 
+t1 = datetime.now()
 for it_i in range(n_iterations):
 
     print("iteration: ", it_i, end="", flush=True);
@@ -206,9 +214,8 @@ for it_i in range(n_iterations):
         #costs.append(training_cost / n_batches)
         costs.append(training_cost)
         ys_pred = Y_pred.eval(feed_dict={X: xs}, session=sess)
-        print( "ys_pred shape: ", ys_pred.shape)
-        print("============ ys_pred:")
-        print(np.floor(ys_pred))
+        #print( "ys_pred shape: ", ys_pred.shape)
+        #print("============ ys_pred:")
         if plotgraph:
           plotimg = np.clip(ys_pred.reshape(scaledimg[0].shape), 0, CLIPVALUE).astype(np.uint8)
           gifimgs.append(plotimg)
@@ -217,6 +224,10 @@ for it_i in range(n_iterations):
           plt.title('Iteration {}'.format(it_i))
           plt.show()
           plt.pause(1)
+
+t2 = datetime.now()
+delta = t2 - t1
+print("             Total training time: ", delta.total_seconds())
   
 if plotgraph:
   # Save the images as a GIF
