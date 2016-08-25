@@ -17,7 +17,20 @@ from libs import gif
 import IPython.display as ipyd
 from datetime import datetime
 
-#np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
+
+n_iterations = 100
+LAYERSIZE=64
+NHIDLAYERS=5
+
+tamimg=64
+#filenames=["barvert.png", "barvert.png"]
+#filenames=["barhoriz.png", "barhoriz.png"]
+filenames=["barhoriz.png", "barvert.png"]
+
+gif_frames=50
+plot_step=1
+
+np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
 
 # (from utils.py)
 def linear(x, n_output, name=None, activation=None, reuse=None):
@@ -88,10 +101,22 @@ plt.ion()
 #plt.show()
 #plt.pause(2)
 
+<<<<<<< HEAD
 filenames=["franjhoriz.png", "franjvert.png"]
 origimg = [plt.imread(fname)[..., :3] for fname in filenames]
 
 scaledimg = [imresize(origimg[0], (64,64)), imresize(origimg[1], (64,64))]
+=======
+origimg = [plt.imread(fname)[..., :3] for fname in filenames]
+
+imrsz0=imresize(origimg[0], (tamimg,tamimg))
+imrsz1=imresize(origimg[1], (tamimg,tamimg))
+#print("imrsz0=",imrsz0)
+#print("imrsz1=",imrsz1)
+scaledimg = [imrsz0, imrsz1]
+#print("scaledimg=",scaledimg)
+
+>>>>>>> testcentos
 if plotgraph:
   plt.figure(figsize=(5, 5))
   plt.imshow(scaledimg[0])
@@ -110,11 +135,30 @@ if plotgraph:
 #print(scaledimg.shape)
 
 
-xs, ys0 = split_image(scaledimg[0])
-xs, ys1 = split_image(scaledimg[1])
-ys = [ys0, ys1]
+xs0, ys0 = split_image(scaledimg[0])
+xs1, ys1 = split_image(scaledimg[1])
 
-print("x, y(0), y(1) shape:" , xs.shape, ys[0].shape, ys[1].shape)
+#print(xs0.__class__)
+
+xs=np.asarray([xs0, xs1])
+ys=np.asarray([ys0, ys1])
+
+#print("xs=",xs)
+#print("ys=",ys)
+
+
+#print(xs.__class__)
+#print(xs.shape)
+
+#print(xs.shape)
+
+xs=xs.reshape(xs.shape[0]*xs.shape[1], 2)
+ys=ys.reshape(ys.shape[0]*ys.shape[1], 3)
+
+print("xs, ys shape:" , xs.shape, ys.shape)
+
+#print("xs=",xs)
+#print("ys=",ys)
 
 #print("============ ys:")
 #print(ys)
@@ -126,20 +170,18 @@ print("norm. x min/max", np.min(xs), np.max(xs))
 assert(np.min(xs) > -3.0 and np.max(xs) < 3.0)
 
 # don't look next line
-print("y min/max", min(np.min(ys[0]), np.min(ys[1])), max(np.max(ys[0]), np.max(ys[1])))
+print("y min/max", np.min(ys), np.max(ys))
 
 CLIPVALUE=255
 #if np.max(ys)>1.1:  # YA ESTA NORMALIZADO??
 #  ys = ys / 255.0
-print("norm. y min/max",np.min(ys), np.max(ys))
+#print("norm. y min/max",np.min(ys), np.max(ys))
 
 tf.reset_default_graph()
 
 X = tf.placeholder(tf.float32, shape=[None, 2], name='X')
 Y = tf.placeholder(tf.float32, shape=[None, 3], name='Y')
 
-LAYERSIZE=64
-NHIDLAYERS=5
 n_neurons = [2, LAYERSIZE, LAYERSIZE, LAYERSIZE, LAYERSIZE, LAYERSIZE, LAYERSIZE,  3]
 
 print("LAYERSIZE=",LAYERSIZE)
@@ -171,8 +213,6 @@ costtot = tf.reduce_mean(sum_errorred)
 assert(costtot.get_shape().as_list() == [])
 
 myoptimizer =tf.train.AdamOptimizer(0.001).minimize(costtot)
-n_iterations = 100
-batch_size = 50
 
 sess = tf.Session()
 
@@ -180,18 +220,23 @@ sess.run(tf.initialize_all_variables())
 
 gifimgs = []
 costs = []
-#gif_step = n_iterations // 10
-gif_step=20
+gif_step = max(n_iterations // gif_frames, 1)
 print("gif_step: ", gif_step)
 step_i = 0
+<<<<<<< HEAD
 
 t1 = datetime.now()
+=======
+batch_size = int(np.sqrt(len(xs)))
+>>>>>>> testcentos
 for it_i in range(n_iterations):
 
     print("iteration: ", it_i, end="", flush=True);
     
     # Get a random sampling of the dataset
     idxs = np.random.permutation(range(len(xs)))
+  
+    ###print("idxs=",idxs)
     
     # The number of batches we have to iterate over
     n_batches = max(len(idxs) // batch_size, 1)
@@ -202,38 +247,51 @@ for it_i in range(n_iterations):
 
         idxs_i = idxs[batch_i * batch_size: (batch_i + 1) * batch_size]
 
-        #training_cost = sess.run([costtot, myoptimizer],feed_dict={X: xs[idxs_i], Y: ys[idxs_i]})[0]
-        sess.run(myoptimizer, feed_dict={X: xs[idxs_i], Y: ys[it_i % 2][idxs_i]})
+        #print("===============================")
+        #print("xs feed: ", xs[idxs_i])
+        #print("ys feed: ", ys[idxs_i])
+ 
+        sess.run(myoptimizer, feed_dict={X: xs[idxs_i], Y: ys[idxs_i]})
+
     #OJO, indent
-    training_cost = sess.run(costtot, feed_dict={X: xs, Y: ys[it_i % 2]})
+    training_cost = sess.run(costtot, feed_dict={X: xs, Y: ys})
 
     #print("  cost: ", training_cost / n_batches);
     print("  cost: ", training_cost);
 
+    if (it_i + 1) % gif_step == 0 or (it_i + 1) % plot_step == 0:
+        idxs_j=range(len(xs)//2)
+        ys_pred = Y_pred.eval(feed_dict={X: xs[idxs_j]}, session=sess)
+        plotimg = np.clip(np.array(ys_pred.reshape(scaledimg[0].shape))*255, 0, CLIPVALUE).astype(np.uint8)
     if (it_i + 1) % gif_step == 0:
-        #costs.append(training_cost / n_batches)
+        gifimgs.append(plotimg)
+    if (it_i + 1) % plot_step == 0:
         costs.append(training_cost)
+<<<<<<< HEAD
         ys_pred = Y_pred.eval(feed_dict={X: xs}, session=sess)
         #print( "ys_pred shape: ", ys_pred.shape)
         #print("============ ys_pred:")
+=======
+>>>>>>> testcentos
         if plotgraph:
-          plotimg = np.clip(ys_pred.reshape(scaledimg[0].shape), 0, CLIPVALUE).astype(np.uint8)
-          gifimgs.append(plotimg)
-
           plt.imshow(plotimg)
           plt.title('Iteration {}'.format(it_i))
           plt.show()
           plt.pause(1)
 
+<<<<<<< HEAD
 t2 = datetime.now()
 delta = t2 - t1
 print("             Total training time: ", delta.total_seconds())
+=======
+#print(ys_pred)
+>>>>>>> testcentos
   
 if plotgraph:
   # Save the images as a GIF
   _ = gif.build_gif(gifimgs, saveto='test01_single.gif', show_gif=False)
 
-  plt.imsave(fname='test01_predicted.png', arr=plotimg)
+  plt.imsave(fname='test01_predicted.png', arr=plotimg, interval=0.3)
 
   plt.pause(5)
   plt.close()
