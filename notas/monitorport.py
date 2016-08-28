@@ -44,13 +44,19 @@ def DoesServiceExist(host, port):
 # main
 #
 
-hst=sys.argv[1]
-prt=sys.argv[2]
+if len(sys.argv)>1:
+  hst=sys.argv[1]
+else:
+  hst="www.google.com"
+if len(sys.argv)>2:
+  prt=sys.argv[2]
+else:
+  prt="80"
 
 music = pyglet.media.load('/usr/share/sounds/purple/login.wav', streaming=False)
 
 while (True):
-  print(datetime.datetime.now().time(), end=" : ")
+  print(hst,":",prt, "  ", datetime.datetime.now().time(), end=" : ")
   r=DoesServiceExist(hst, prt)
   print(r)
   if (r!=0):
