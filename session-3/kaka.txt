@@ -1,0 +1,782 @@
+* commit 791d1ac8372cc55c34dc3519b58632a5370a9f75
+| Author: dariox2 <dariox2@github.com>
+| Date:   Sun Aug 28 10:18:16 2016 -0300
+| 
+|     Fix build_gif interval
+|  
+* commit b96d5b9d7533dc9389010a5f55ad6e9d4b0cf5c3
+| Author: pkm <parag@pkmital.com>
+| Date:   Thu Aug 25 09:31:02 2016 -0700
+| 
+|     remove allclose check
+|  
+* commit 6a8099fe5893aa98d548421f5f8909463996ef26
+| Author: pkm <parag@pkmital.com>
+| Date:   Sun Aug 21 13:18:35 2016 -0700
+| 
+|     update readme
+|    
+| * commit 1fabad56b2475ac53c897de4d23dd049e60ac678
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Sun Aug 28 00:24:55 2016 -0300
+| | 
+| |     session 3 begin; falta reducir DS para acelerar debug. zzzzzzz...
+| |   
+| * commit edbfaee2972d3bc2152489587d207309398856dc
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Fri Aug 26 09:26:53 2016 -0300
+| | 
+| |     test morphing
+| |   
+| * commit a15c86246e4b80bbe6fb2edb70f873e9f2f5eb12
+| | Author: dariox2 <dariox2@localhost.localdomain>
+| | Date:   Thu Aug 25 19:42:04 2016 -0200
+| | 
+| |     correction: source omitted
+| |   
+| * commit 538562ccd9a5f21e5ca33409b884e5a22d483355
+| | Author: dariox2 <dariox2@localhost.localdomain>
+| | Date:   Thu Aug 25 17:45:00 2016 -0200
+| | 
+| |     bugfix, ahora si, jpg+png
+| |   
+| * commit b4ed29f2afba7742c6465a699d82237ac2036eca
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Thu Aug 25 09:34:19 2016 -0300
+| | 
+| |     fuck git
+| |     
+| *   commit 8a253343fa1c128423ea1bc098c8133d5ee06fbf
+| |\  Merge: 0bdd7fb fced164
+| | | Author: dariox2 <dariox2@github.com>
+| | | Date:   Thu Aug 25 09:33:25 2016 -0300
+| | | 
+| | |     garompa 2
+| | |    
+| * | commit 0bdd7fb73fb676e9da891d9911d6195ae5b0baf4
+| | | Author: dariox2 <dariox2@github.com>
+| | | Date:   Thu Aug 25 09:30:44 2016 -0300
+| | | 
+| | |     provi patch para jpg
+| | |        
+| | | *   commit 59a3221c16bbc267efc44e5d2f58f8861a19b7de
+| | | |\  Merge: fced164 2a1491b
+| | |/ /  Author: dariox2 <dariox2@github.com>
+| | | |   Date:   Thu Aug 25 08:40:35 2016 -0300
+| | | |   
+| | | |       WIP on master: fced164 mix 2 images: how to piss a NN off (master)
+| | | |     
+| | | * commit 2a1491bdf4b95f7a31ff3173ddeddd48ca18b30a
+| | |/  Author: dariox2 <dariox2@github.com>
+| | |   Date:   Thu Aug 25 08:40:35 2016 -0300
+| | |   
+| | |       index on master: fced164 mix 2 images: how to piss a NN off (master)
+| | |      
+| | *   commit fced16495246e385f5d514305553960a6c30485e
+| | |\  Merge: 090a7d2 35a6f24
+| | |/  Author: dariox2 <dariox2@github.com>
+| |/|   Date:   Thu Aug 25 08:27:27 2016 -0300
+| | |   
+| | |       mix 2 images: how to piss a NN off (master)
+| | |    
+| * | commit 35a6f241713fe435682f284262abd43039aae62f
+| | | Author: dariox2 <dariox2@github.com>
+| | | Date:   Thu Aug 25 08:26:18 2016 -0300
+| | | 
+| | |     mix 2 images: how to piss a NN off
+| | |    
+| * | commit 75f0c0877fe6d94951ee7842de847c50f2bccfde
+| | | Author: dariox2 <dariox2@github.com>
+| | | Date:   Thu Aug 25 01:11:45 2016 -0300
+| | | 
+| | |     mix 2 img, undecided (moar data needed)
+| | |    
+| * | commit 26d84a76a6de1770dcece16b1f5d6d3c9f426adb
+| | | Author: dariox2 <dariox2@localhost.localdomain>
+| | | Date:   Wed Aug 24 20:34:22 2016 -0200
+| | | 
+| | |     test
+| | |    
+| | * commit 090a7d26e469e9d4557d917d1929521d8e90f2a1
+| |/  Author: dariox2 <dariox2@github.com>
+| |   Date:   Wed Aug 24 22:39:17 2016 -0300
+| |   
+| |       test mix 2 img, provi, downstream mie 24 morning
+| |   
+| * commit 83a22f09aa5cce052f86e248cf9d9c960e1a26cd
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Wed Aug 24 10:04:55 2016 -0300
+| | 
+| |     test01 - mix 2 images
+| |   
+| * commit 1fcbf0754d2071617931ac6f9b8a81d307661f6c
+| | Author: dariox2 <dariox2@localhost.localdomain>
+| | Date:   Mon Aug 22 23:48:49 2016 -0200
+| | 
+| |     speed test 1000 iter.
+| |   
+| * commit 692beaf3243480caefa4a5dff1fcf923c11a7d12
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Mon Aug 22 09:51:50 2016 -0300
+| | 
+| |     Session 2, part 3: multiple images complete OK
+| |   
+| * commit 508e79bd2131b33f9bb4a1e24f8bbcfaa11d80b1
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Sun Aug 21 23:49:20 2016 -0300
+| | 
+| |     session 2, part 3, train 4x4=16 celebrities OK
+| |     OJO, iteraciones reducidad para debug;
+| |     montage not working, but train OK
+| |     falta testear con labdogs
+| |   
+| * commit b339ab3cd43f652252fa29af3d13173ea1c05bf8
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Sun Aug 21 14:52:16 2016 -0300
+| | 
+| |     master, session 2, part 3, not working
+| |     
+| *   commit c104c1e663b5e793fc127960b67505c05454076e
+| |\  Merge: 4de49a5 f260561
+| |/  Author: dariox2 <dariox2@github.com>
+|/|   Date:   Sun Aug 21 10:41:25 2016 -0300
+| |   
+| |       Merge remote-tracking branch 'upstream/master'
+| |       
+| |       Update with new session 3 material (DJA)
+| |   
+* | commit f2605612ea2a6fa52c9f12d6cdb9a219789d3461
+| | Author: pkm <parag@pkmital.com>
+| | Date:   Sat Aug 20 23:01:54 2016 -0700
+| | 
+| |     typos; missing session 3 on overview
+| |   
+* | commit edec37f8fa828726c62bd34e096b5b6733058dd4
+| | Author: pkm <parag@pkmital.com>
+| | Date:   Thu Aug 18 15:32:36 2016 -0700
+| | 
+| |     missing gifs
+| |   
+* | commit 6f77c7d0aec8ee68cf6ebb359653d2f9dbe2c68d
+| | Author: pkm <parag@pkmital.com>
+| | Date:   Thu Aug 18 15:18:05 2016 -0700
+| | 
+| |     update hw
+| |   
+* | commit 5a81d41434ef1a516997373765bc891e6c3be645
+| | Author: pkm <parag@pkmital.com>
+| | Date:   Wed Aug 17 11:45:17 2016 -0700
+| | 
+| |     adding session 3
+| |   
+* | commit be931f366cac39764b5c2f757ce14762cff7026a
+| | Author: pkm <parag@pkmital.com>
+| | Date:   Wed Aug 17 08:39:26 2016 -0700
+| | 
+| |     cleanup
+| |   
+* | commit 4589bccd1ddf81f4861ef360ba3fcf83dcfb0f65
+| | Author: pkm <parag@pkmital.com>
+| | Date:   Wed Aug 17 08:33:26 2016 -0700
+| | 
+| |     cleanup
+| |   
+* | commit 462e79348a8c674af89e8d854af44e9b2da15386
+| | Author: pkm <parag@pkmital.com>
+| | Date:   Wed Aug 17 08:30:48 2016 -0700
+| | 
+| |     removing broken cell from pr
+| |     
+* |   commit 40c57f852619a3ffc3a6b17eefbb2fc60e757017
+|\ \  Merge: 9093513 1200083
+| | | Author: pkm <parag@pkmital.com>
+| | | Date:   Wed Aug 17 08:28:21 2016 -0700
+| | | 
+| | |     Merge branch 'master' of https://github.com/pkmital/CADL
+| | |      
+| * |   commit 1200083460a9ffc4d28f18d8c2db589a001d6245
+| |\ \  Merge: 08f0c7b be77f18
+| | | | Author: Parag K Mital <pkmital@users.noreply.github.com>
+| | | | Date:   Tue Aug 16 23:14:20 2016 -0700
+| | | | 
+| | | |     Merge pull request #6 from smarques/master
+| | | |     
+| | | |     Update session-2.ipynb
+| | | |     
+| | * | commit be77f186bd8f818b7ef89c8bca36ea31d9b31415
+| |/ /  Author: sergio marchesini <sergio.marchesini@gmail.com>
+| | |   Date:   Thu Aug 11 00:17:38 2016 +0200
+| | |   
+| | |       Update session-2.ipynb
+| | |       
+| | |       Add info for keeping RGB range value when resizing your own images
+| | |    
+* | | commit 9093513e454602ba3a9a4cd144848f01e865ac32
+| | | Author: pkm <parag@pkmital.com>
+| | | Date:   Tue Aug 16 23:03:26 2016 -0700
+| | | 
+| | |     cleanup
+| | |    
+* | | commit 75e971b1fa3664ce66f1bb6a25bccfd8a7ce7db2
+| | | Author: pkm <parag@pkmital.com>
+| | | Date:   Tue Aug 16 23:01:22 2016 -0700
+| | | 
+| | |     init sess 3 commit
+| | |    
+* | | commit 58f3c8a1ca32ac4712df54646744a3e587d99bb7
+|/ /  Author: pkm <parag@pkmital.com>
+| |   Date:   Mon Aug 15 20:41:03 2016 -0700
+| |   
+| |       init sess 3 commit
+| |   
+| * commit 4de49a5ee578301a47a31dca2771507f5de8444d
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Sun Aug 21 10:11:12 2016 -0300
+| | 
+| |     merged debug3, both batches working OK
+| |   
+| * commit 716d0f054df381b2110639a6e8bb3c92ed175ae7
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Sun Aug 21 00:03:54 2016 -0300
+| | 
+| |     debug3 - FIXED, en las ultimas versiones todo estaba bien,
+| |              fallaba al momento de convertir a imagen:
+| |              se habia omitido conversion a uint8
+| |   
+| * commit 545b688fcafb392858c1bb9819a84671df884dba
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Sat Aug 20 17:54:12 2016 -0300
+| | 
+| |     debug 3, psycho, sigo descartando diferencias
+| |   
+| * commit 3d8c62d68fe0c9e02e8aecbffdda31359d60fc24
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Sat Aug 20 13:47:10 2016 -0300
+| | 
+| |     debug 3, fixed ReLU, learns but psychodelic
+| |     
+| | * commit 710ad6daa6267461a29c102e5f34c0c4c4dcf7d5
+| | | Author: dariox2 <dariox2@github.com>
+| | | Date:   Sat Aug 20 12:21:05 2016 -0300
+| | | 
+| | |     debug2, 1 batch, fixed w/activ.relu
+| | |    
+| | * commit 235c34d44e1674607b497184e75d1046e9c2fc20
+| |/  Author: dariox2 <dariox2@github.com>
+| |   Date:   Sat Aug 20 10:20:29 2016 -0300
+| |   
+| |       debug2 - only 1 batch
+| |   
+| * commit 91c2f07a94c544cd4d77cfed7b7804eb9dbc903c
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Sat Aug 20 07:57:20 2016 -0300
+| | 
+| |     debug2 init status; lecture vs session (lecture working ok)
+| |     
+| | * commit 603fcb7c64fd93c07b9beeb8e681c712a616356c
+| | | Author: dariox2 <dariox2@github.com>
+| | | Date:   Sat Aug 20 11:17:43 2016 -0300
+| | | 
+| | |     FIXED: activation. now learns but it looks psychodelic...
+| | |    
+| | * commit b022351eadb31f88b8976451d35ba2c7f364adba
+| | | Author: dariox2 <dariox2@github.com>
+| | | Date:   Fri Aug 19 23:19:29 2016 -0300
+| | | 
+| | |     ZZZZZZZZZ NO FUNCA
+| | |    
+| | * commit cf8044649e3a32f5d0f3c2e2ada97d55352d6279
+| |/  Author: dariox2 <dariox2@github.com>
+| |   Date:   Fri Aug 19 09:40:30 2016 -0300
+| |   
+| |       debug interchg linear(), no funca ninguno
+| |   
+| * commit 6377eefffb447753fd8296500378e6eded5884b0
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Thu Aug 18 22:55:10 2016 -0300
+| | 
+| |     debug 4 keeps failing, BUT...
+| |     added lecture 2 example, which WORKS OK.
+| |     PENDING: compare and fix homework
+| |   
+| * commit f4bd66164eddb436adf26c991aad4109f483f246
+| | Author: dariox2 <dariox2@localhost.localdomain>
+| | Date:   Thu Aug 18 22:40:36 2016 -0200
+| | 
+| |     hay diff?
+| |   
+| * commit 0e77ec38230dd8dad2e8b9162d0c951f978012f9
+| | Author: dariox2 <dariox2@localhost.localdomain>
+| | Date:   Thu Aug 18 16:36:44 2016 -0200
+| | 
+| |     debug keep failing
+| |   
+| * commit 07893de50f16ba1e5edd65ba7e7dc10e261c820a
+| | Author: dariox2 <dariox2@localhost.localdomain>
+| | Date:   Thu Aug 18 15:14:26 2016 -0200
+| | 
+| |     debug 2 - keep plotting over same picture
+| |   
+| * commit 4e991f12bad8ba07df57c3decf4e1b8fc01db354
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Thu Aug 18 10:18:05 2016 -0300
+| | 
+| |     debug 1, training fails
+| |   
+| * commit 956cc71df0cd37648d6d428f27082bee74ed4538
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Wed Aug 17 23:22:50 2016 -0300
+| | 
+| |     zzzzzz
+| |   
+| * commit a4a16f1b9b1dd4de55814ea5ae9d8a512bef8cfd
+| | Author: dariox2 <dariox2@localhost.localdomain>
+| | Date:   Wed Aug 17 20:10:00 2016 -0200
+| | 
+| |     abs() added to cost
+| |   
+| * commit b9bd684fb94f831376b45fe9f74267b8b140d72f
+| | Author: dariox2 <dariox2@localhost.localdomain>
+| | Date:   Wed Aug 17 18:36:48 2016 -0200
+| | 
+| |     session2 plot ok, training not
+| |   
+| * commit 1253db24a86fe3e50d7923d5697cf82f09534026
+| | Author: dariox2 <dariox2@localhost.localdomain>
+| | Date:   Wed Aug 17 18:17:39 2016 -0200
+| | 
+| |     session2 train batch test provi nofunca
+| |   
+| * commit f94bc9fdd111fe1bed3f21ce249f42cddd3e40a0
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Wed Aug 17 09:52:21 2016 -0300
+| | 
+| |     painter does not learn :-(
+| |   
+| * commit e99b024fafac92b55c1171cdaece99f2469d0586
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Wed Aug 17 00:20:11 2016 -0300
+| | 
+| |     session 2 provi 2, halfway-through
+| |   
+| * commit 47797fbf614103f23f2d117d273583cccdb56776
+| | Author: dariox2 <dariox2@localhost.localdomain>
+| | Date:   Tue Aug 16 23:01:41 2016 -0200
+| | 
+| |     session 2, provisorio
+| |   
+| * commit e9968500c38165b3737dbf9e4ea565e0a915305f
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Tue Aug 16 09:34:01 2016 -0300
+| | 
+| |     session 2 started
+| |   
+| * commit 657647279854700e6f8c1788c78be72f4c018420
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Tue Aug 16 00:30:12 2016 -0300
+| | 
+| |     session 1 completed
+| |   
+| * commit 775c53bee56b86510c52907aa33a3a131a27bf8f
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Mon Aug 15 14:26:45 2016 -0300
+| | 
+| |     perritos; sess1, task 1-4
+| |   
+| * commit 1c66c4fb2b117a8667e9a9cd30266f6c22aae402
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Sun Aug 14 23:47:36 2016 -0300
+| | 
+| |     unrelated: python sockets test
+| |   
+| * commit 886992b0ac05fa6e3f7bf6f7a5180eda1370b311
+| | Author: dariox2 <dariox2@github.com>
+| | Date:   Sat Aug 13 19:17:54 2016 -0300
+| | 
+| |     test celeb img; show img in no-jupyter mode
+| |   
+| * commit 0d8cb34e169b9ab86ec2d2b9006a14bd55daad13
+| | Author: dario <dariox2@github.com>
+| | Date:   Sat Aug 13 13:37:18 2016 -0300
+| | 
+| |     practice session 0
+| |   
+| * commit 64f465ad3105ec1c1fa8fc7e3d962feb862f3544
+| | Author: dario <dariox2@github.com>
+| | Date:   Sat Aug 13 08:34:16 2016 -0300
+| | 
+| |     renamed .txt's
+| |   
+| * commit 0f129c6c18dfa30b917976c9fc67954b32f02ecd
+|/  Author: root <root@localhost.localdomain>
+|   Date:   Fri Aug 12 15:21:24 2016 -0200
+|   
+|       agrega directorio notas
+|  
+* commit 08f0c7b3740a5cbbeed65293509dcfdb507881ce
+| Author: pkm <parag@pkmital.com>
+| Date:   Fri Aug 5 00:03:15 2016 -0700
+| 
+|     adding lecture material as notebooks
+|  
+* commit 11acddce613cfbd4a994020da35d497b67d053af
+| Author: pkm <parag@pkmital.com>
+| Date:   Thu Aug 4 16:19:11 2016 -0700
+| 
+|     instructions on imagemagick download
+|    
+*   commit 671993bfc632bd7de7a776c940dfaf613ecd840d
+|\  Merge: eb129c2 3d8a29b
+| | Author: pkm <parag@pkmital.com>
+| | Date:   Tue Aug 2 15:46:48 2016 -0700
+| | 
+| |     Merge branch 'master' of https://github.com/pkmital/CADL
+| |   
+| * commit 3d8a29bbb004677c4f487b1a02a1eb42232bf4a7
+| | Author: Parag K Mital <pkmital@users.noreply.github.com>
+| | Date:   Tue Aug 2 15:22:10 2016 -0700
+| | 
+| |     updated readme.md
+| |     
+| |     pip install setuptools
+| |     
+| *   commit 918c3e8bed234b2690d4b713f8b8e81b5bc47691
+| |\  Merge: 5a11349 b8565ce
+| | | Author: Parag K Mital <pkmital@users.noreply.github.com>
+| | | Date:   Sat Jul 30 11:28:24 2016 -0700
+| | | 
+| | |     Merge pull request #3 from Arn-O/patch-1
+| | |     
+| | |     typo
+| | |    
+| | * commit b8565ce42b2377bbbd189a483f43bd7681bc00a2
+| | | Author: Arnaud Bertrand <rnd.bertrand@gmail.com>
+| | | Date:   Tue Jul 26 22:49:24 2016 +0200
+| | | 
+| | |     typo
+| | |      
+| * |   commit 5a11349a33f1a76353e7b861d7001436526ee95e
+| |\ \  Merge: d9e0b28 9a692cc
+| | | | Author: Parag K Mital <pkmital@users.noreply.github.com>
+| | | | Date:   Sat Jul 30 11:18:07 2016 -0700
+| | | | 
+| | | |     Merge pull request #5 from iashris/patch-2
+| | | |     
+| | | |     Resume where download failed
+| | | |     
+| | * | commit 9a692cc1c7e7e38cee7e20aafa663eaf3800c957
+| |/ /  Author: Ashris Choudhury <ashris.me@gmail.com>
+| | |   Date:   Sat Jul 30 19:11:17 2016 +0530
+| | |   
+| | |       Resume where download failed
+| | |       
+| | |       In case of interrupted download, the next download resumes from where download failed.
+| | |    
+* | | commit eb129c2f15f66bc61817d9f4367d550666fd80ce
+| | | Author: pkm <parag@pkmital.com>
+| | | Date:   Tue Aug 2 15:46:04 2016 -0700
+| | | 
+| | |     missing init
+| | |    
+* | | commit 68bbe24cc697759d2365ddf30eda8690a062862b
+|/ /  Author: pkm <parag@pkmital.com>
+| |   Date:   Tue Aug 2 15:45:04 2016 -0700
+| |   
+| |       updating for session 2
+| |   
+* | commit d9e0b28d81cb9175de88a330c858175ee6a047f3
+| | Author: Parag K Mital <pkmital@users.noreply.github.com>
+| | Date:   Fri Jul 29 10:43:28 2016 -0700
+| | 
+| |     Update README.md
+| |   
+* | commit 0b8e542fe7a2a2161f5463a31dd82df12ad5628a
+| | Author: Parag K Mital <pkmital@users.noreply.github.com>
+| | Date:   Thu Jul 28 16:13:52 2016 -0700
+| | 
+| |     conda restart
+| |   
+* | commit b3feb29798f05148a06d51bec9a1dc049388bbab
+| | Author: Parag K Mital <pkmital@users.noreply.github.com>
+| | Date:   Thu Jul 28 15:41:46 2016 -0700
+| | 
+| |     move instructions around
+| |   
+* | commit 4e39ea967ac3315f488d9dead0b7bfb71f2302bc
+| | Author: Parag K Mital <pkmital@users.noreply.github.com>
+| | Date:   Thu Jul 28 15:39:48 2016 -0700
+| | 
+| |     guide on windows vs. docker machine paths
+| |   
+* | commit d0b705c560723f59879cc8f1127d4ed8948e24a5
+| | Author: Parag K Mital <pkmital@users.noreply.github.com>
+| | Date:   Thu Jul 28 14:44:20 2016 -0700
+| | 
+| |     Firewall instructions for windows users
+| |     
+| |     Crazy.
+| |   
+* | commit f9b47a05bf9ac3a06ff1e63da79cd157402ae736
+|/  Author: Parag K Mital <pkmital@users.noreply.github.com>
+|   Date:   Thu Jul 28 11:42:55 2016 -0700
+|   
+|       Clearer instructions
+|       
+|       updating instructions to make it clear that windows/docker users should not install anaconda
+|  
+* commit bef71869b845022c09d96758b2face97cb2120ac
+| Author: pkm <parag@pkmital.com>
+| Date:   Tue Jul 26 11:01:42 2016 -0700
+| 
+|     adding slack channel registration
+|  
+* commit 987fc91703eebf71af322c4df8316a6e7731a2c1
+| Author: Parag K Mital <pkmital@users.noreply.github.com>
+| Date:   Tue Jul 26 10:17:35 2016 -0700
+| 
+|     updated readme.md install
+|     
+|     Use conda's command line install rather than gui
+|  
+* commit 11c3e054519e0ef5da070a4329870ab152988726
+| Author: pkm <parag@pkmital.com>
+| Date:   Mon Jul 25 14:46:47 2016 -0700
+| 
+|     updating crop fn
+|  
+* commit d59aad666877a3e4beba9e25d594cf4937ee5c61
+| Author: pkm <parag@pkmital.com>
+| Date:   Mon Jul 25 13:54:31 2016 -0700
+| 
+|     updating crop function bug
+|  
+* commit e0e41bc0112cad9da5de7110dd9df479dcd1e53a
+| Author: pkm <parag@pkmital.com>
+| Date:   Sun Jul 24 19:08:57 2016 -0700
+| 
+|     updated session-1 description of reduction indices
+|  
+* commit 4fb6e03ce66d5c141015e578a3d9cc6b9a0ebd29
+| Author: pkm <parag@pkmital.com>
+| Date:   Sun Jul 24 15:05:41 2016 -0700
+| 
+|     updating docker instructions
+|  
+* commit b936afaca2dc287a11c746e1ce65127175482395
+| Author: pkm <parag@pkmital.com>
+| Date:   Sat Jul 23 13:59:14 2016 -0700
+| 
+|     troubleshooting
+|  
+* commit 60f130ac21c055cc56c7d50b06bf12285f5a2b92
+| Author: pkm <parag@pkmital.com>
+| Date:   Sat Jul 23 13:48:46 2016 -0700
+| 
+|     adding instructions for hyper-v users
+|  
+* commit afc08b328ae0b84e8dfbe97b491b9c6d7d9b8d01
+| Author: pkm <parag@pkmital.com>
+| Date:   Fri Jul 22 14:31:59 2016 -0700
+| 
+|     updated session-1 to point to install/saves kernel.png
+|  
+* commit 891e38b93990e41aaa1ed86565a7b68a04c97ba8
+| Author: pkm <parag@pkmital.com>
+| Date:   Fri Jul 22 11:26:17 2016 -0700
+| 
+|     added missing init
+|  
+* commit f3638f097f3e2c67695d5317c83ec96bfd26334f
+| Author: Parag K Mital <pkmital@users.noreply.github.com>
+| Date:   Fri Jul 22 10:03:35 2016 -0700
+| 
+|     Better description of Docker/tensorflow folder
+|     
+|     Empty folder to begin with, place hw files in there
+|    
+*   commit 6a26ecc11357cfc99d883861feaa5287cd2eeacd
+|\  Merge: fcf3a57 c0099cc
+| | Author: Parag K Mital <pkmital@users.noreply.github.com>
+| | Date:   Thu Jul 21 22:08:25 2016 -0700
+| | 
+| |     Merge pull request #2 from xuv/typos
+| |     
+| |     Small typos.
+| |   
+| * commit c0099ccdec9e4c708e2fca4d9a20b104d7d5421a
+| | Author: Julien Deswaef <juego@requiem4tv.com>
+| | Date:   Thu Jul 21 21:51:01 2016 -0400
+| | 
+| |     Small typos.
+| |   
+* | commit fcf3a57c74931aea720b61085a28af19c1815f71
+|/  Author: Parag K Mital <pkmital@users.noreply.github.com>
+|   Date:   Thu Jul 21 18:46:07 2016 -0700
+|   
+|       instructions w/ possible errors w/ kernel
+|       
+|       "ipython3 kernel install" when no kernel is installed
+|  
+* commit 88dd1cce93e631091c3c23634da8bdbec193020d
+| Author: pkm <parag@pkmital.com>
+| Date:   Wed Jul 20 10:32:21 2016 -0700
+| 
+|     updates
+|  
+* commit f42d3eeaf52c663fca4b17ede681dd9b8c50a890
+| Author: pkm <parag@pkmital.com>
+| Date:   Tue Jul 19 14:47:01 2016 -0700
+| 
+|     updated assignment instructions
+|  
+* commit 01fa9f75ec0b51ae7b25da6207e57cb033910057
+| Author: pkm <parag@pkmital.com>
+| Date:   Tue Jul 19 13:48:12 2016 -0700
+| 
+|     no more extra credit :\
+|  
+* commit 06e20fd8c2d7771016b08a0a8abf1fba318b9bfe
+| Author: pkm <parag@pkmital.com>
+| Date:   Fri Jul 15 17:04:47 2016 -0700
+| 
+|     updates
+|  
+* commit 884c103680c0a64cc084e2257397bb2b92ca9508
+| Author: pkm <parag@pkmital.com>
+| Date:   Fri Jul 15 15:18:51 2016 -0700
+| 
+|     changes
+|  
+* commit 55f578100b734748f735da0fe7ed3ced860c2ec5
+| Author: pkm <parag@pkmital.com>
+| Date:   Fri Jul 15 13:33:35 2016 -0700
+| 
+|     updates
+|  
+* commit 3df6dc09a54dcd2254f7edd46ec98b015126f96a
+| Author: pkm <parag@pkmital.com>
+| Date:   Fri Jul 15 13:29:44 2016 -0700
+| 
+|     updates
+|  
+* commit d6a8c6856f5d673f49afe5ce758af6b7b640b341
+| Author: pkm <parag@pkmital.com>
+| Date:   Thu Jul 14 20:03:33 2016 -0700
+| 
+|     updates
+|  
+* commit ec219235e813f4e2683e69855a6f14de172ea49b
+| Author: pkm <parag@pkmital.com>
+| Date:   Thu Jul 14 16:34:52 2016 -0700
+| 
+|     changes
+|  
+* commit 935bc04e24d4edb7db1738910e365e816e3f9d45
+| Author: pkm <parag@pkmital.com>
+| Date:   Thu Jul 14 16:29:28 2016 -0700
+| 
+|     changes
+|  
+* commit 5940781f62ba595f969cd675d716511f4a9b01fa
+| Author: pkm <parag@pkmital.com>
+| Date:   Thu Jul 14 16:20:02 2016 -0700
+| 
+|     updates
+|  
+* commit c7cedd74ee05b5948bfa609a109229f80ce6edf5
+| Author: pkm <parag@pkmital.com>
+| Date:   Thu Jul 14 16:17:20 2016 -0700
+| 
+|     updates
+|  
+* commit 90a74621b9b2f220a9f9388e23bc3de94cd79ec4
+| Author: pkm <parag@pkmital.com>
+| Date:   Thu Jul 14 16:11:39 2016 -0700
+| 
+|     restructuring
+|  
+* commit 6127fcb6ee396401b03b4f76cead12e5feadd193
+| Author: pkm <parag@pkmital.com>
+| Date:   Thu Jul 14 16:10:41 2016 -0700
+| 
+|     restructuring
+|  
+* commit 64b3ebf9bcdb05a8f79de9445d9f14431ab82395
+| Author: pkm <parag@pkmital.com>
+| Date:   Thu Jul 14 15:57:38 2016 -0700
+| 
+|     updates
+|  
+* commit dab1a4dcc5cffb8e401ad7f9889f704540a5777e
+| Author: pkm <parag@pkmital.com>
+| Date:   Thu Jul 14 15:54:36 2016 -0700
+| 
+|     updates
+|  
+* commit b8cdb662f65633623f3f4e319fdbe0d1bd685501
+| Author: pkm <parag@pkmital.com>
+| Date:   Thu Jul 14 15:52:37 2016 -0700
+| 
+|     updates
+|  
+* commit 980f54652234700c82a60eb57a061cbc7c31d23d
+| Author: pkm <parag@pkmital.com>
+| Date:   Thu Jul 14 15:19:05 2016 -0700
+| 
+|     updates
+|    
+*   commit aed72e72645703a94ca70366cb599abff43a30f0
+|\  Merge: 1370ce4 cfd498b
+| | Author: KingWalrus <chonigman@gmail.com>
+| | Date:   Thu Jul 14 13:42:58 2016 -0700
+| | 
+| |     Fix merge conflicts
+| |   
+| * commit cfd498bd050c895be295816387ac6ab60b8ab9a8
+| | Author: pkm <parag@pkmital.com>
+| | Date:   Thu Jul 14 12:18:48 2016 -0700
+| | 
+| |     updates
+| |   
+| * commit 202f6c03c9ba7170121649ec7ac6ee7683506f28
+| | Author: pkm <parag@pkmital.com>
+| | Date:   Thu Jul 14 12:13:19 2016 -0700
+| | 
+| |     updates
+| |   
+| * commit 7d76c8c08a4b26e5f611942168274863cb966215
+| | Author: pkm <parag@pkmital.com>
+| | Date:   Thu Jul 14 10:00:52 2016 -0700
+| | 
+| |     updates
+| |   
+* | commit 1370ce4f6e755a5d8e5d83074ee43d8a623a0087
+| | Author: KingWalrus <chonigman@gmail.com>
+| | Date:   Thu Jul 14 13:40:36 2016 -0700
+| | 
+| |     typo
+| |   
+* | commit e525fe756f5f75ada28e8516295b30ce12cfb9dd
+|/  Author: KingWalrus <chonigman@gmail.com>
+|   Date:   Thu Jul 14 12:06:36 2016 -0700
+|   
+|       Fix various typos. (wrong date, extra words, misspelled upgrade and jupyter
+|    
+*   commit 044d5f14559256fb254f58e474b24e59403dea48
+|\  Merge: 9ac1ea3 ad799fd
+| | Author: pkm <parag@pkmital.com>
+| | Date:   Wed Jul 13 11:25:59 2016 -0700
+| | 
+| |     Merge branch 'master' of https://github.com/pkmital/CADL
+| |   
+| * commit ad799fd090a9e1de25a0dfdb974cdb02b56c8856
+|   Author: Parag K Mital <pkmital@users.noreply.github.com>
+|   Date:   Wed Jul 6 15:07:56 2016 -0700
+|   
+|       Initial commit
+|  
+* commit 9ac1ea34cde05066146dcda62ec9f5504f32646f
+  Author: pkm <parag@pkmital.com>
+  Date:   Wed Jul 13 11:20:51 2016 -0700
+  
+      first commit
