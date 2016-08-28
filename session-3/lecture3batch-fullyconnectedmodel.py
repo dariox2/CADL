@@ -194,7 +194,7 @@ t2 = datetime.datetime.now()
 delta = t2 - t1
 print("             Total training time: ", delta.total_seconds())
 
-gif.build_gif(imgs, saveto='lecture3_mnist_'+TID+'.gif', cmap='gray', interval=0.3, show_gif=False)
+gif.build_gif(imgs, saveto='lecture3_fullyconnectedmodel_'+TID+'.gif', cmap='gray', interval=0.3, show_gif=False)
 
 plt.pause(10)
 input("press enter...")
