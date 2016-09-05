@@ -1,6 +1,6 @@
 
 #
-# Lecture 3 - Protobuf
+# Lecture 3 - Checkpoint
 #
 
 
@@ -21,13 +21,13 @@ init_op = tf.initialize_all_variables()
 saver = tf.train.Saver()
 sess.run(init_op)
 print("Restoring checkpoint...")
-if os.path.exists("model_batch.ckpt"):
-    saver.restore(sess, "model_batch.ckpt")
+if os.path.exists("model_batch_checkpoint.ckpt"):
+    saver.restore(sess, "model_batch_checkpoint.ckpt")
     print("Model restored.")
 
 
 print("Saving checkpoint...")
-save_path = saver.save(sess, "./model_batch.ckpt")
+save_path = saver.save(sess, "./model_batch_checkpoint.ckpt")
 print("Model saved in file: %s" % save_path)
 
 # eop
