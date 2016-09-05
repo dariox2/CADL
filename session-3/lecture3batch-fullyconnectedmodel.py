@@ -1,6 +1,7 @@
 
 #
-# Unsupervised learning (lecture)
+# Lecture 3
+# Autoencoders - fully connected model
 #
 
 #import os

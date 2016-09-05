@@ -1,6 +1,7 @@
 
 #
-# Unsupervised learning (lecture)
+# Lecture 3 - autoencoders
+# Convolutional autoencoder
 #
 
 #import os
@@ -87,6 +88,7 @@ for layer_i, n_output in enumerate(n_filters):
         # next iteration, our new number inputs will be correct.
         n_input = n_output
 
+print("BEFORE - n_filters: ", n_filters, "  filter_sizes: ", filter_sizes, "  shapes: ", shapes)
 
 # We'll first reverse the order of our weight matrices
 Ws.reverse()
@@ -97,7 +99,7 @@ n_filters.reverse()
 # and append the last filter size which is our input image's number of channels
 n_filters = n_filters[1:] + [1]
 
-print("n_filters: ", n_filters, "  filter_sizes: ", filter_sizes, "  shapes: ", shapes)
+print("AFTER - n_filters: ", n_filters, "  filter_sizes: ", filter_sizes, "  shapes: ", shapes)
 
 
 # and then loop through our convolution filters and get back our input image
@@ -144,6 +146,9 @@ n_epochs = 5
 # The network does over the course of training.
 examples = ds.X[:100]
 
+print("Begin training...")
+t1 = datetime.datetime.now()
+
 # We'll store the reconstructions in a list
 imgs = []
 ##fig, ax = plt.subplots(1, 1)
@@ -155,13 +160,15 @@ for epoch_i in range(n_epochs):
     img_i = montage(recon).astype(np.uint8)
     imgs.append(img_i)
     plt.imshow(img_i, cmap='gray')
+    plt.pause(1)
     ##fig.canvas.draw()
     print(epoch_i, sess.run(cost, feed_dict={X: batch_X - mean_img}))
-gif.build_gif(imgs, saveto='lecture3_convolutionautoencoder.gif', cmap='gray', interval=0.5)
+gif.build_gif(imgs, saveto='lecture3_convolutionautoencoder_'+TID+'.gif', cmap='gray', interval=0.5, show_gif=False)
 
 
-
-
+t2 = datetime.datetime.now()
+delta = t2 - t1
+print("             Total training time: ", delta.total_seconds())
 
 
 plt.pause(10)
