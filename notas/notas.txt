@@ -4,3 +4,19 @@
 libs/gif.py:
 
   build_gif: interval is milliseconds, or multiply*1000
+
+-----  
+
+sync with upstream remote forked branch:
+
+1)
+#git remote add upstream https://github.com/whoever/whatever.git
+
+2)
+#git fetch upstream
+#git merge upstream/master  
+
+-----
+
+
+

@@ -139,7 +139,9 @@ def encode(X, dimensions, activation=tf.nn.tanh):
             # TODO: Create a weight matrix which will increasingly reduce
             # down the amount of information in the input by performing
             # a matrix multiplication.  You can use the utils.linear function.
-            h, W = utils.linear(x=X, n_output=n_output, activation=tf.nn.softmax) ##, name="lay_"+str(layer_i))
+            #h, W = utils.linear(x=X, n_output=n_output, activation=tf.nn.softmax) ##, name="lay_"+str(layer_i))
+            #h, W = utils.linear(x=X, n_output=n_output, activation=tf.nn.relu, name="enclay_"+str(layer_i))
+            h, W = utils.linear(x=X, n_output=n_output, activation=activation, name="enclay_"+str(layer_i))
 
             # Finally we'll store the weight matrix.
             # We need to keep track of all
@@ -261,7 +263,7 @@ sess.run(tf.initialize_all_variables())
 # Some parameters for training
 batch_size = QNT
 n_epochs = 7 #31
-step = 2
+step = 1
 
 # We'll try to reconstruct the same first 100 images and show how
 # The network does over the course of training.
@@ -329,7 +331,7 @@ for epoch_i in range(n_epochs):
         #axs[1].imshow(recon)
         #axs[1].set_title('Synthesis')
         #fig.canvas.draw()
-        plt.title("recon")
+        plt.title("recon "+str(epoch_i))
         plt.imshow(recon)
         plt.show()
         plt.pause(1)
@@ -364,7 +366,10 @@ zs = sess.run(z, feed_dict={X:test_examples})
 print("zs.shape: ", zs.shape)
 
 
+plt.title("scatter")
 plt.scatter(zs[:, 0], zs[:, 1])
+plt.show()
+plt.pause(3)
 
 
 n_images = 100
@@ -393,18 +398,19 @@ print("indexes: ", indexes)
 
 
 plt.title("indexes")
-plt.figure(figsize=(5, 5))
+plt.figure(figsize=(3, 3))
 for i in range(len(zs)):
     plt.plot([zs[indexes[1][i], 0], grid[i, 0]],
              [zs[indexes[1][i], 1], grid[i, 1]], 'r')
 plt.xlim([-3, 3])
 plt.ylim([-3, 3])
-
+plt.show()
+plt.pause(3)
 
 examples_sorted = []
 for i in indexes[1]:
     examples_sorted.append(examples[i])
-plt.figure(figsize=(15, 15))
+plt.figure(figsize=(5, 5))
 img = utils.montage(np.array(examples_sorted)).astype(np.uint8)
 plt.title("sorted imgs")
 plt.imshow(img,
@@ -443,7 +449,7 @@ clipped = np.clip(unnorm_img, 0, 255)
 img_i = utils.montage(clipped).astype(np.uint8)
 
 
-plt.figure(figsize=(15, 15))
+plt.figure(figsize=(5, 5))
 plt.title("manifold")
 plt.imshow(img_i)
 plt.imsave(arr=img_i, fname='manifold_s3b01_'+TID+'.png')
