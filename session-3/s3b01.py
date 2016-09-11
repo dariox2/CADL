@@ -38,7 +38,7 @@ print("Loading pictures...")
 #import os
 dirname = "../session-1/labdogs"
 #dirname = "../../myrandompictures"
-QNT=100
+QNT=16
 filenames = [os.path.join(dirname, fname) for fname in os.listdir(dirname)]
 filenames = filenames[:QNT]
 assert(len(filenames) == QNT)
@@ -259,13 +259,13 @@ sess = tf.Session()
 sess.run(tf.initialize_all_variables())
 
 # Some parameters for training
-batch_size = 100
-n_epochs = 31
+batch_size = QNT
+n_epochs = 7 #31
 step = 2
 
 # We'll try to reconstruct the same first 100 images and show how
 # The network does over the course of training.
-examples = ds.X[:100]
+examples = ds.X[:QNT]
 
 print("preprocess...")
 # We have to preprocess the images before feeding them to the network.
@@ -323,12 +323,14 @@ for epoch_i in range(n_epochs):
         # Store for gif
         gifs.append(recon)
 
-        fig, axs = plt.subplots(1, 2, figsize=(10, 10))
-        axs[0].imshow(test_images)
-        axs[0].set_title('Original')
-        axs[1].imshow(recon)
-        axs[1].set_title('Synthesis')
-        fig.canvas.draw()
+        #fig, axs = plt.subplots(1, 2, figsize=(10, 10))
+        #axs[0].imshow(test_images)
+        #axs[0].set_title('Original')
+        #axs[1].imshow(recon)
+        #axs[1].set_title('Synthesis')
+        #fig.canvas.draw()
+        plt.title("recon")
+        plt.imshow(recon)
         plt.show()
         plt.pause(1)
 
@@ -340,13 +342,18 @@ print("             Total training time: ", delta.total_seconds())
 _ = gif.build_gif(gifs, saveto='gif_training_'+TID+'.gif', interval=0.3, show_gif=False)
 
 
-fig, axs = plt.subplots(1, 2, figsize=(10, 10))
-axs[0].imshow(test_images)
-axs[0].set_title('Original')
-axs[1].imshow(recon)
-axs[1].set_title('Synthesis')
-fig.canvas.draw()
+#fig, axs = plt.subplots(1, 2, figsize=(10, 10))
+#axs[0].imshow(test_images)
+#axs[0].set_title('Original')
+#axs[1].imshow(recon)
+#axs[1].set_title('Synthesis')
+#fig.canvas.draw()
+plt.title("Synthesis")
+plt.imshow(recon)
 plt.show()
+plt.pause(5)
+plt.close()
+
 plt.imsave(arr=test_images, fname='test_s3b01_'+TID+'.png')
 plt.imsave(arr=recon, fname='recon_s3b01_'+TID+'.png')
 
