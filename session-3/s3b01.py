@@ -112,7 +112,7 @@ print("n_features: ", n_features)
 encoder_dimensions = [2048, 512, 128, 2]
 
 
-X = tf.placeholder(tf.float32, [None, n_features])
+X = tf.placeholder(tf.float32, [None, n_features], 'X')
 assert(X.get_shape().as_list() == [None, n_features])
 
 
@@ -170,10 +170,13 @@ assert(len(Ws) == len(encoder_dimensions))
 
 
 
-[W_i.get_shape().as_list() for W_i in Ws]
+#[W_i.get_shape().as_list() for W_i in Ws]
+print("Ws shape:")
+for W_i in Ws:
+  print("    ",W_i.get_shape().as_list()) 
 
 
-z.get_shape().as_list()
+print("z shape: ", z.get_shape().as_list())
 
 
 # We'll first reverse the order of our weight matrices
@@ -231,19 +234,26 @@ def decode(z, dimensions, Ws, activation=tf.nn.tanh):
 Y = decode(z, decoder_dimensions, decoder_Ws)
 
 
-[op.name for op in tf.get_default_graph().get_operations()
- if op.name.startswith('decoder')]
+##[op.name for op in tf.get_default_graph().get_operations()
+## if op.name.startswith('decoder')]
+#print("decoder operations:")
+#for op in tf.get_default_graph().get_operations():
+#	if op.name.startswith('decoder'):
+#		print("    ", op.name)
 
 
-Y.get_shape().as_list()
+print("Y shape: ", Y.get_shape().as_list())
 
 
 # Calculate some measure of loss, e.g. the pixel to pixel absolute difference or squared difference
 loss =tf.reduce_mean(tf.squared_difference(X, Y), 1)
+print("loss shape: ", loss.get_shape().as_list() )
+print("loss: ", loss)
 
 # Now sum over every pixel and then calculate the mean over the batch dimension (just like session 2!)
 # hint, use tf.reduce_mean and tf.reduce_sum
 cost = tf.reduce_mean(loss)
+print("cost shape: ", cost.get_shape().as_list() )
 
 
 learning_rate = 0.001
@@ -359,6 +369,9 @@ plt.close()
 plt.imsave(arr=test_images, fname='test_s3b01_'+TID+'.png')
 plt.imsave(arr=recon, fname='recon_s3b01_'+TID+'.png')
 
+#
+# Visualize the Embedding
+#
 
 zs = sess.run(z, feed_dict={X:test_examples})
 
@@ -372,7 +385,7 @@ plt.show()
 plt.pause(3)
 
 
-n_images = 100
+n_images = QNT
 idxs = np.linspace(np.min(zs) * 2.0, np.max(zs) * 2.0,
                    int(np.ceil(np.sqrt(n_images))))
 xs, ys = np.meshgrid(idxs, idxs)
@@ -387,6 +400,8 @@ axs[1].scatter(grid[:,0], grid[:,1],
                edgecolors='none', marker='o', s=2)
 axs[1].set_title('Ideal Grid')
 
+plt.show()
+plt.pause(3)
 
 from scipy.spatial.distance import cdist
 cost = cdist(grid[:, :], zs[:, :], 'sqeuclidean')
@@ -426,15 +441,19 @@ input("End part 1 - press Enter...")
 
 # This is a quick way to do what we could have done as
 # a nested for loop:
-zs = np.meshgrid(np.linspace(-1, 1, 10),
-                 np.linspace(-1, 1, 10))
+SQ=int(np.sqrt(QNT))
+zs = np.meshgrid(np.linspace(-1, 1, SQ),
+                 np.linspace(-1, 1, SQ))
 
 # Now we have 100 x 2 values of every possible position
 # in a 2D grid from -1 to 1:
 zs = np.c_[zs[0].ravel(), zs[1].ravel()]
 
+print("zs: ", zs)
+print("")
 
-recon = sess.run(Y, feed_dict={X:zs})
+recon = sess.run(Y, feed_dict={z:zs})
+#recon = decode(zs, decoder_dimensions, decoder_Ws)
 
 # reshape the result to an image:
 rsz = recon.reshape(examples.shape)
