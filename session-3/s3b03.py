@@ -20,15 +20,14 @@ import tensorflow as tf
 
 from libs import utils, gif, datasets, dataset_utils, vae, dft
 
-#plt.style.use('ggplot')
 plt.style.use('bmh')
 
 import datetime
 
 # dja
 #np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
-plt.ion()
-plt.figure(figsize=(3, 3))
+#plt.ion()
+#plt.figure(figsize=(3, 3))
 TID=datetime.date.today().strftime("%Y%m%d")+"_"+datetime.datetime.now().time().strftime("%H%M%S")
 
 #
@@ -63,6 +62,7 @@ file_i = music[0]
 s = utils.load_audio(file_i)
 plt.plot(s)
 
+plt.pause(5)
 
 # Parameters for our dft transform.  Sorry we can't go into the
 # details of this in this course.  Please look into DSP texts or the
@@ -184,7 +184,7 @@ for i in speech:
         Xs.append(this_X)
         
         # Make sure we use the right label (TODO!)!
-        ys.append...
+        ys.append(...)
         
 # Convert them to an array:
 Xs = np.array(Xs)
@@ -263,11 +263,11 @@ for layer_i, n_filters_i in enumerate(n_filters):
 
 # TODO
 # Connect the last convolutional layer to a fully connected network (TODO)!
-fc, W = utils.linear(H, ...
+fc, W = utils.linear(H, ...)
 
 # And another fully connceted network, now with just 2 outputs, the number of outputs that our
 # one hot encoding has (TODO)!
-Y_pred, W = utils.linear(fc, ...
+Y_pred, W = utils.linear(fc, ...)
 
 
 loss = utils.binary_cross_entropy(Y_pred, Y)
@@ -275,15 +275,15 @@ cost = tf.reduce_mean(tf.reduce_sum(loss, 1))
 
 
 # TODO
-predicted_y = tf.argmax(...
-actual_y = tf.argmax(...
-correct_prediction = tf.equal(...
-accuracy = tf.reduce_mean(...
+predicted_y = tf.argmax(...)
+actual_y = tf.argmax(...)
+correct_prediction = tf.equal(...)
+accuracy = tf.reduce_mean(...)
 
 
 # TODO
 learning_rate = ...
-optimizer = tf.train.AdamOptimizer(...
+optimizer = tf.train.AdamOptimizer(...)
 
 
 # Explore these parameters: (TODO)

@@ -39,7 +39,12 @@ some_dir = "../session-1/labdogs"
 input_shape=[100,100,3]
 
 # Get a list of jpg file (Only JPG works!)
-files = [os.path.join(some_dir, file_i) for file_i in os.listdir(some_dir) if file_i.endswith('.jpg')]
+files = [os.path.join(some_dir, file_i)
+         for file_i in os.listdir(some_dir)
+             if (file_i.endswith('.jpg') or file_i.endswith('.jpeg'))]
+
+print("files:")
+print(files)
 
 print("Training...")
 t1 = datetime.datetime.now()

@@ -18,5 +18,10 @@ sync with upstream remote forked branch:
 
 -----
 
+undo a commit; keep files untouched
+
+  git reset HEAD~
+
+
 
 
