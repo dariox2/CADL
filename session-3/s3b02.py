@@ -34,14 +34,14 @@ TID=datetime.date.today().strftime("%Y%m%d")+"_"+datetime.datetime.now().time().
 
 print("Loading pictures...")
 
-some_dir = "../session-1/labdogs"
-#dirname = "../../myrandompictures"
+#some_dir = "../session-1/labdogs"
+some_dir = "../../myrandompictures"
 input_shape=[100,100,3]
 
 # Get a list of jpg file (Only JPG works!)
 files = [os.path.join(some_dir, file_i)
          for file_i in os.listdir(some_dir)
-             if (file_i.endswith('.jpg') or file_i.endswith('.jpeg'))]
+             if (file_i.endswith('.jpg') or file_i.endswith('.jpeg') or file_i.endswith('.png'))]
 
 print("files:")
 print(files)
@@ -54,8 +54,8 @@ t1 = datetime.datetime.now()
 vae.train_vae(files,
               input_shape,
               learning_rate=0.0001,
-              batch_size=100,
-              n_epochs=50,
+              batch_size=10,
+              n_epochs=40,
               n_examples=10,
               crop_shape=[64, 64, 3],
               crop_factor=0.8,
@@ -68,9 +68,9 @@ vae.train_vae(files,
               dropout=True,
               keep_prob=0.8,
               activation=tf.nn.relu,
-              img_step=100,
-              save_step=100,
-              ckpt_name="vae.ckpt")
+              img_step=20,
+              save_step=20,
+              ckpt_name="vae2.ckpt")
 
 
 t2 = datetime.datetime.now()
