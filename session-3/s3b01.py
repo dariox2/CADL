@@ -4,6 +4,8 @@
 #
 # Encoder/decoder
 #
+# Biswal home, Total training time:  321.489693
+#
 
 import sys
 
@@ -38,7 +40,7 @@ print("Loading pictures...")
 #import os
 dirname = "../session-1/labdogs"
 #dirname = "../../myrandompictures"
-QNT=16
+QNT=100
 filenames = [os.path.join(dirname, fname) for fname in os.listdir(dirname)]
 filenames = filenames[:QNT]
 assert(len(filenames) == QNT)
@@ -272,7 +274,7 @@ sess.run(tf.initialize_all_variables())
 
 # Some parameters for training
 batch_size = QNT
-n_epochs = 7 #31
+n_epochs = 31
 step = 1
 
 # We'll try to reconstruct the same first 100 images and show how
@@ -434,10 +436,9 @@ plt.imsave(arr=img, fname='sorted_s3b01_'+TID+'.png')
 plt.pause(3)
 
 
-input("End part 1 - press Enter...")
-
-
+#
 #2D Latent Manifold
+#
 
 # This is a quick way to do what we could have done as
 # a nested for loop:
@@ -449,8 +450,8 @@ zs = np.meshgrid(np.linspace(-1, 1, SQ),
 # in a 2D grid from -1 to 1:
 zs = np.c_[zs[0].ravel(), zs[1].ravel()]
 
-print("zs: ", zs)
-print("")
+#print("zs: ", zs)
+#print("")
 
 recon = sess.run(Y, feed_dict={z:zs})
 #recon = decode(zs, decoder_dimensions, decoder_Ws)
