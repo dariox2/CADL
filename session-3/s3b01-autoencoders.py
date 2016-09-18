@@ -276,8 +276,8 @@ sess.run(tf.initialize_all_variables())
 
 # Some parameters for training
 batch_size = QNT
-n_epochs = 31
-step = 1
+n_epochs = 180
+step = 6
 
 # We'll try to reconstruct the same first 100 images and show how
 # The network does over the course of training.
