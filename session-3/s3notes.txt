@@ -1,0 +1,39 @@
+
+NOTAS S3B03
+
+each sound/speech file: 661500 samples, shape == (661500,)
+
+ejemplo, tomando X[0:15], da 15 archivos (por que no son 16?)
+
+fft_size = 512
+hop_size = 256
+
+len(s) == 661500
+
+re, im = dft.dft_np(s, hop_size=256, fft_size=512)
+mag, phs = dft.ztoc(re, im)
+
+mag.shape == (2583, 256)
+(# tot.frames == tot_samples/hop_size == 661500/256 == 2583)
+
+sr = 22050
+(segundos = 661500/22050 == 30)
+
+
+# We can calculate how many hops there are in a second
+# which will tell us how many frames of magnitudes
+# we have per second
+n_frames_per_second = sr // hop_size  ==  86
+
+# We want 500 milliseconds of audio in our window
+n_frames = n_frames_per_second // 2  ==  43 (# frames por window?? )
+
+# And we'll move our window by 250 ms at a time
+frame_hops = n_frames_per_second // 4 == 21
+
+# We'll therefore have this many sliding windows:
+n_hops = (len(mag) - n_frames) // frame_hops == 120 # WRONG WRONG WRONG
+n_hops = len(mag) // frame_hops - 1 == 122
+
+
+

@@ -2,7 +2,7 @@
 #
 # Session 3, part 3
 #
-# VAE
+# Audio classification w/convolutional network
 #
 
 import sys
@@ -56,11 +56,12 @@ speech = [os.path.join(speech_dir, file_i)
           if file_i.endswith('.wav')]
 
 # dja - debug with fewer files
-#music=music[0:15]
-#speech=speech[0:15]
+print("len(music): ", len(music), "  len(speech): ", len(speech))
+music=music[0:15]
+speech=speech[0:15]
 
 # Let's see all the file names
-print(len(music), len(speech))
+print("new length: ", len(music), len(speech))
 
 
 file_i = music[0]
@@ -109,7 +110,8 @@ n_frames = n_frames_per_second // 2
 frame_hops = n_frames_per_second // 4
 
 # We'll therefore have this many sliding windows:
-n_hops = (len(mag) - n_frames) // frame_hops
+#n_hops = (len(mag) - n_frames) // frame_hops # WRONG!
+n_hops = len(mag) // frame_hops - 1 # dja
 
 print("frames/s: ", n_frames_per_second)
 print("# frames: ", n_frames)
@@ -146,7 +148,7 @@ Xs, ys = [], []
 
 # Let's start with the music files
 for idx, fn in enumerate(music):
-    print("music #",idx, fn)
+    print("music #",idx, " ", fn)
     # Load the ith file:
     s = utils.load_audio(fn)
     
@@ -157,7 +159,8 @@ for idx, fn in enumerate(music):
     mag, phs = dft.ztoc(re, im)
     
     # This is how many sliding windows we have:
-    n_hops = (len(mag) - n_frames) // frame_hops
+    #n_hops = (len(mag) - n_frames) // frame_hops # WRONG!
+    n_hops = len(mag) // frame_hops - 1 # dja
     
     # Let's extract them all:
     for hop_i in range(n_hops):
@@ -176,7 +179,7 @@ for idx, fn in enumerate(music):
         
 # Now do the same thing with speech (TODO)!
 for idx, fn in enumerate(music):
-    print("speech #",idx, fn)
+    print("speech #",idx, " ", fn)
     # Load the ith file:
     s = utils.load_audio(fn)
     
@@ -187,7 +190,8 @@ for idx, fn in enumerate(music):
     mag, phs = dft.ztoc(re, im)
     
     # This is how many sliding windows we have:
-    n_hops = (len(mag) - n_frames) // frame_hops
+    #n_hops = (len(mag) - n_frames) // frame_hops # WRONG!
+    n_hops = len(mag) // frame_hops - 1 # dja
 
     # Let's extract them all:
     for hop_i in range(n_hops):
@@ -231,12 +235,13 @@ print("Creating dataset object...")
 ds = datasets.Dataset(Xs=Xs, ys=ys, split=[0.8, 0.1, 0.1], one_hot=True)
 
 
+print("obtaining minibatch...")
 Xs_i, ys_i = next(ds.train.next_batch())
 
 # Notice the shape this returns.  This will become the shape of our input and output of the network:
 print("batch shapes, Xs: ", Xs_i.shape, " ys: ", ys_i.shape)
 
-assert(ys_i.shape == (100, 2))
+assert(ys_i.shape == (batch_size, 2))
 
 
 plt.imshow(Xs_i[0, :, :, 0])
@@ -291,7 +296,7 @@ fc, W = utils.linear(x=H, n_output=ys_i.shape[0], activation=tf.nn.relu, name="l
 
 # And another fully connceted network, now with just 2 outputs, the number of outputs that our
 # one hot encoding has (TODO)!
-Y_pred, W = utils.linear(x=fc, n_output=2, activation=tf.nn.relu, name="layer_last_out")
+Y_pred, W = utils.linear(x=fc, n_output=2, activation=tf.nn.softmax, name="layer_last_out")
 
 
 loss = utils.binary_cross_entropy(Y_pred, Y)
