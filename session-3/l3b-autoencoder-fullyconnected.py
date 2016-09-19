@@ -161,6 +161,7 @@ optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
 
 # dja
 sess = tf.Session()
+#pend#sess = tf.Session(tf.ConfigProto(inter_op_parallelism_threads=1, intra_op_parallelism_threads=1))
 sess.run(tf.initialize_all_variables())
 print("Training...")
 t1 = datetime.datetime.now()
