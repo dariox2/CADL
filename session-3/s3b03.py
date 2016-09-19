@@ -19,6 +19,7 @@ print("Loading tensorflow...")
 import tensorflow as tf
 
 from libs import utils, gif, datasets, dataset_utils, vae, dft
+from libs.utils import montage_filters
 
 plt.style.use('bmh')
 
@@ -27,7 +28,7 @@ import datetime
 # dja
 #np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
 plt.ion()
-plt.figure(figsize=(3, 3))
+plt.figure(figsize=(5, 5))
 TID=datetime.date.today().strftime("%Y%m%d")+"_"+datetime.datetime.now().time().strftime("%H%M%S")
 
 #
@@ -55,8 +56,8 @@ speech = [os.path.join(speech_dir, file_i)
           if file_i.endswith('.wav')]
 
 # dja - debug with fewer files
-music=music[0:15]
-speech=speech[0:15]
+#music=music[0:15]
+#speech=speech[0:15]
 
 # Let's see all the file names
 print(len(music), len(speech))
@@ -86,7 +87,7 @@ plt.imshow(phs)
 plt.pause(3)
 
 
-plt.figure(figsize=(10, 4))
+#plt.figure(figsize=(10, 4))
 plt.title("log(mag)")
 plt.imshow(np.log(mag.T))
 plt.xlabel('Time')
@@ -118,7 +119,7 @@ print("# hops: ", n_hops)
 Xs = []
 ys = []
 for hop_i in range(n_hops):
-    print("hop: ", hop_i)
+    #print("hop: ", hop_i)
     # Creating our sliding window
     frames = mag[(hop_i * frame_hops):(hop_i * frame_hops + n_frames)]
     
@@ -257,10 +258,10 @@ tf.reset_default_graph()
 
 # Create the input to the network.  This is a 4-dimensional tensor!
 # Recall that we are using sliding windows of our magnitudes (TODO):
-X = tf.placeholder(name='X', shape=[None, Xs_i.shape[1:3]], dtype=tf.float32)
+X = tf.placeholder(name='X', shape=[None, n_frames, hop_size, 1], dtype=tf.float32)
 
 # Create the output to the network.  This is our one hot encoding of 2 possible values (TODO)!
-Y = tf.placeholder(name='Y', shape=[None, ys_i.shape[0]], dtype=tf.float32)
+Y = tf.placeholder(name='Y', shape=[None, 2], dtype=tf.float32)
 
 
 # TODO:  Explore different numbers of layers, and sizes of the network
@@ -270,8 +271,6 @@ n_filters = [9, 9, 9, 9]
 H = X
 for layer_i, n_filters_i in enumerate(n_filters):
     
-    print("creating layer: ", layer_i)
-
     # Let's use the helper function to create our connection to the next layer:
     # TODO: explore changing the parameters here:
     H, W = utils.conv2d(
@@ -283,7 +282,7 @@ for layer_i, n_filters_i in enumerate(n_filters):
     H = tf.nn.relu(H)
     
     # Just to check what's happening:
-    print(H.get_shape().as_list())
+    print("layer ", layer_i, " shape: ", H.get_shape().as_list())
 
 
 # TODO
@@ -320,6 +319,9 @@ batch_size = 100#200
 sess = tf.Session()
 sess.run(tf.initialize_all_variables())
 
+print("Training...")
+t1 = datetime.datetime.now()
+
 # Now iterate over our dataset n_epoch times
 for epoch_i in range(n_epochs):
     print('Epoch: ', epoch_i)
@@ -335,7 +337,7 @@ for epoch_i in range(n_epochs):
         this_accuracy += sess.run([accuracy, optimizer], feed_dict={
                 X:Xs_i, Y:ys_i})[0]
         its += 1
-        print(this_accuracy / its)
+        #print(this_accuracy / its)
     print('Training accuracy: ', this_accuracy / its)
     
     # Validation (see how the network does on unseen data).
@@ -351,29 +353,35 @@ for epoch_i in range(n_epochs):
         its += 1
     print('Validation accuracy: ', this_accuracy / its)
 
+t2 = datetime.datetime.now()
+delta = t2 - t1
+print("             Total training time: ", delta.total_seconds())
 
-print("graph:")
-g = tf.get_default_graph()
-[op.name for op in g.get_operations()]
-
+#print("graph:")
+#g = tf.get_default_graph()
+#for op in g.get_operations():
+#  print(op.name)
 
 # TODO
 g = tf.get_default_graph()
-W = ...
+W = W = sess.run(g.get_tensor_by_name('0/W:0'))
 
 assert(W.dtype == np.float32)
 m = montage_filters(W)
-plt.figure(figsize=(5, 5))
+#plt.figure(figsize=(5, 5))
+plt.title("first layer weights")
 plt.imshow(m)
 plt.imsave(arr=m, fname='audio.png')
-
+plt.pause(3)
 
 g = tf.get_default_graph()
 for layer_i in range(len(n_filters)):
     W = sess.run(g.get_tensor_by_name('{}/W:0'.format(layer_i)))
-    plt.figure(figsize=(5, 5))
+    #plt.figure(figsize=(5, 5))
     plt.imshow(montage_filters(W))
     plt.title('Layer {}\'s Learned Convolution Kernels'.format(layer_i))
+    plt.pause(1)
 
+plt.pause(3)
 
 #eop
