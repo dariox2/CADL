@@ -219,6 +219,8 @@ print(Xs.shape, ys.shape)
 # parameters of the dft/hop size, then this will fail.  If that's what you
 # wanted to do, then don't worry about this assertion.
 #assert(Xs.shape == (15360, 43, 256, 1) and ys.shape == (15360,))
+print("Xs/ys shapes: ", Xs.shape, ys.shape)
+print("Expected: ", ((len(music)+len(speech))*n_hops, n_frames, hop_size, 1), ((len(music)+len(speech))*n_hops,))
 assert(Xs.shape == ((len(music)+len(speech))*n_hops, n_frames, hop_size, 1) \
        and ys.shape == ((len(music)+len(speech))*n_hops,))
 
@@ -241,7 +243,7 @@ Xs_i, ys_i = next(ds.train.next_batch())
 # Notice the shape this returns.  This will become the shape of our input and output of the network:
 print("batch shapes, Xs: ", Xs_i.shape, " ys: ", ys_i.shape)
 
-assert(ys_i.shape == (batch_size, 2))
+assert(ys_i.shape == (100, 2)) # 100 es default en next_batch()
 
 
 plt.imshow(Xs_i[0, :, :, 0])
@@ -296,7 +298,7 @@ fc, W = utils.linear(x=H, n_output=ys_i.shape[0], activation=tf.nn.relu, name="l
 
 # And another fully connceted network, now with just 2 outputs, the number of outputs that our
 # one hot encoding has (TODO)!
-Y_pred, W = utils.linear(x=fc, n_output=2, activation=tf.nn.softmax, name="layer_last_out")
+Y_pred, W = utils.linear(x=fc, n_output=2, activation=tf.nn.relu, name="layer_last_out")
 
 
 loss = utils.binary_cross_entropy(Y_pred, Y)
