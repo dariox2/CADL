@@ -90,7 +90,7 @@ plt.style.use('bmh')
 import datetime
 #np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
 plt.ion()
-plt.figure(figsize=(5, 5))
+plt.figure(figsize=(4, 4))
 TID=datetime.date.today().strftime("%Y%m%d")+"_"+datetime.datetime.now().time().strftime("%H%M%S")
 
 # Start an interactive session:
@@ -122,13 +122,13 @@ net = inception.get_inception_model()
 
 tf.import_graph_def(net['graph_def'], name='inception')
 
-print("net labels: ", net['labels'])
+print("inception net labels: ", net['labels'])
 
 # Let's have a look at the graph:
 
 g = tf.get_default_graph()
 names = [op.name for op in g.get_operations()]
-print("names: ", names)
+print("inception graph names: ", names)
 
 # The input to the graph is stored in the first tensor output, and
 # the probability of the 1000 possible objects is in the last layer:
@@ -162,8 +162,8 @@ print("og.shape: ", og.shape), print("img.shapw: ", img.shape)
 print("img min,max: ", img.min(), img.max())
 
 # As we've seen from the last session, our images must be shaped as a
-# 4-dimensional shape describing the number of images, height, width, and
-# number of channels. So our original 3-dimensional image of height,
+# 4-dimensional shape describing the number of images, height, width,
+# and number of channels. So our original 3-dimensional image of height,
 # width, channels needs an additional dimension on the 0th axis.
 
 img_4d = img[np.newaxis]
@@ -191,7 +191,8 @@ print("result shape: ", res.shape)
 # element. We can sort these and use the labels of the 1000 classes to
 # see what the top 5 predicted probabilities and labels are:
 
-# Note that this is one way to aggregate the different probabilities.  We # could also take the argmax.
+# Note that this is one way to aggregate the different probabilities.  We 
+# could also take the argmax.
 res = np.mean(res, 0)
 res = res / np.sum(res)
 
@@ -249,8 +250,8 @@ plt.pause(3)
 # or some kind of contrast of two things, like red, green, blue yellow,
 # which interestingly is also what neuroscience of vision tells us about
 # how the human vision identifies color, which is through opponency of
-# red/green and blue/yellow. To get a better sense, we can try to look at
-# the output of the convolution:
+# red/green and blue/yellow. To get a better sense, we can try to look
+# at the output of the convolution:
 
 feature = g.get_tensor_by_name('inception/conv2d0_pre_relu:0')
 
