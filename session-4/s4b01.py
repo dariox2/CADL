@@ -1,5 +1,80 @@
 
+#
+# Session 4 - Visualizing Representations
+
 print("Begin...")
+
+#
+# Introduction
+#
+
+# So far, we've seen that a deep convolutional network can get very 
+# high accuracy in classifying the MNIST dataset, a dataset of 
+# handwritten digits numbered 0 - 9. What happens when the number 
+# of classes grows higher than 10 possibilities? Or the images get
+# much larger? We're going to explore a few new datasets and bigger
+# and better models to try and find out. We'll then explore a few 
+# interesting visualization tehcniques to help us understand what
+# the networks are representing in its deeper layers and how these 
+# techniques can be used for some very interesting creative 
+# applications.
+
+#
+# Deep Convolutional Networks
+#
+
+# Almost 30 years of computer vision and machine learning research 
+# based on images takes an approach to processing images like what 
+# we saw at the end of Session 1: you take an image, convolve it
+# with a set of edge detectors like the gabor filter we created, 
+# and then find some thresholding of this image to find more 
+# interesting features, such as corners, or look at histograms 
+# of the number of some orientation of edges in a particular window.
+# In the previous session, we started to see how Deep Learning has 
+# allowed us to move away from hand crafted features such as 
+# Gabor-like filters to letting data discover representations. 
+# Though, how well does it scale?
+# 
+# A seminal shift in the perceived capabilities of deep neural 
+# networks occurred in 2012. A network dubbed AlexNet, after its 
+# primary author, Alex Krizevsky, achieved remarkable performance
+# on one of the most difficult computer vision datasets at the time,
+# ImageNet. . ImageNet is a dataset used in a yearly challenge 
+# called the ImageNet Large Scale Visual Recognition Challenge 
+# (ILSVRC), started in 2010. The dataset contains nearly 1.2 million
+# images composed of 1000 different types of objects. Each object
+# has anywhere between 600 - 1200 different images.
+#
+# Up until now, the most number of labels we've considered is 10!
+# The image sizes were also very small, only 28 x 28 pixels, and it
+# didn't even have color.
+#
+# Let's look at a state-of-the-art network that has already been 
+# trained on ImageNet.
+
+#
+# Loading a Pretrained Network
+#
+
+# We can use an existing network that has been trained by loading 
+# the model's weights into a network definition. The network
+# definition is basically saying what are the set of operations
+# in the tensorflow graph. So how is the image manipulated, 
+# filtered, in order to get from an input image to a probability
+# saying which 1 of 1000 possible objects is the image describing? 
+# It also restores the model's weights. Those are the values of 
+# every parameter in the network learned through gradient descent.
+# Luckily, many researchers are releasing their model definitions 
+# and weights so we don't have to train them! We just have to load
+# them up and then we can use the model straight away. That's very
+# lucky for us because these models take a lot of time, cpu, memory,
+# and money to train.
+# 
+# To get the files required for these models, you'll need to 
+# download them from the resources page.
+#
+# First, let's import some necessary libraries.
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -15,22 +90,41 @@ plt.style.use('bmh')
 import datetime
 #np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
 plt.ion()
-#plt.figure(figsize=(5, 5))
+plt.figure(figsize=(5, 5))
 TID=datetime.date.today().strftime("%Y%m%d")+"_"+datetime.datetime.now().time().strftime("%H%M%S")
 
-
+# Start an interactive session:
 sess = tf.InteractiveSession()
 
+# Now we'll load Google's Inception model, which is a pretrained
+# network for classification built using the ImageNet database. 
+# I've included some helper functions for getting this model
+# loaded and setup w/ Tensorflow.
 from libs import inception
 print("Loading inception...")
 net = inception.get_inception_model()
 
+# Here's a little extra that wasn't in the lecture. We can visualize
+# the graph definition using the nb_utils module's show_graph
+# function. This function is taken from an example in the Tensorflow
+# repo so I can't take credit for it! It uses Tensorboard, which we
+# didn't get a chance to discuss, Tensorflow's web interface for
+# visualizing graphs and training performance. It is very useful but
+# we sadly did not have enough time to discuss this!
+
 # REQUIERE TENSORBOARD
 #nb_utils.show_graph(net['graph_def'])
+
+# We'll now get the graph from the storage container, and tell 
+# tensorflow to use this as its own graph. This will add all the
+# computations we need to compute the entire deep net, as well as
+# all of the pre-trained parameters.
 
 tf.import_graph_def(net['graph_def'], name='inception')
 
 print("net labels: ", net['labels'])
+
+# Let's have a look at the graph:
 
 g = tf.get_default_graph()
 names = [op.name for op in g.get_operations()]
@@ -48,9 +142,9 @@ softmax = g.get_tensor_by_name(names[-1] + ':0')
 # Let's try to use the network to predict now:
 from skimage.data import coffee
 og = coffee()
+plt.title("original coffee")
 plt.imshow(og)
-#plt.show()
-plt.title("coffee")
+plt.show()
 plt.pause(3)
 print("og min, max: ", og.min(), og.max())
 
@@ -75,14 +169,12 @@ print("img min,max: ", img.min(), img.max())
 img_4d = img[np.newaxis]
 print("img_4d.shape: ", img_4d.shape)
 
-fig, axs = plt.subplots(1, 2)
-axs[0].imshow(img)
 
 # Note that unlike the lecture, we have to call the `inception.deprocess`
 # function so that it adds back the mean!
 plt.title("deprocess")
-axs[1].imshow(inception.deprocess(img))
-#plt.show()
+plt.imshow(inception.deprocess(img))
+plt.show()
 plt.pause(3)
 
 
@@ -127,17 +219,19 @@ print("W_eval.shape: ", W_eval.shape)
 
 from libs import utils
 W_montage = utils.montage_filters(W_eval)
-plt.figure(figsize=(10,10))
+plt.title("filters montage")
 plt.imshow(W_montage, interpolation='nearest')
-plt.pause(5)
+plt.show()
+plt.pause(3)
 
 # Or, we can also try to look at them as RGB filters, showing the
 # influence of each color channel, for each neuron or output filter.
 
 Ws = [utils.montage_filters(W_eval[:, :, [i], :]) for i in range(3)]
 Ws = np.rollaxis(np.array(Ws), 0, 3)
-plt.figure(figsize=(10,10))
+plt.title("as rgb filters")
 plt.imshow(Ws, interpolation='nearest')
+plt.show()
 plt.pause(5)
 
 # In order to better see what these are doing, let's normalize the
@@ -145,9 +239,10 @@ plt.pause(5)
 
 np.min(Ws), np.max(Ws)
 Ws = (Ws / np.max(np.abs(Ws)) * 128 + 128).astype(np.uint8)
-plt.figure(figsize=(10,10))
+plt.title("normalized filters")
 plt.imshow(Ws, interpolation='nearest')
-plt.pause(5)
+plt.show()
+plt.pause(3)
 
 # Like with our MNIST example, we can probably guess what some of these
 # are doing. They are responding to edges, corners, and center-surround
@@ -172,14 +267,20 @@ print("layer_shape: ", layer_shape)
 
 f = feature.eval(feed_dict={x: img_4d})
 montage = utils.montage_filters(np.rollaxis(np.expand_dims(f[0], 3), 3, 2))
-fig, axs = plt.subplots(1, 3, figsize=(20, 10))
-axs[0].imshow(inception.deprocess(img))
-axs[0].set_title('Original Image')
-axs[1].imshow(Ws, interpolation='nearest')
-axs[1].set_title('Convolution Filters')
-axs[2].imshow(montage, cmap='gray')
-axs[2].set_title('Convolution Outputs')
-plt.pause(5)
+plt.title('deprocess orig')
+plt.imshow(inception.deprocess(img))
+plt.show()
+plt.pause(3)
+
+plt.title('Convolution Filters')
+plt.imshow(Ws, interpolation='nearest')
+plt.show()
+plt.pause(3)
+
+plt.title('Convolution Outputs')
+plt.imshow(montage, cmap='gray')
+plt.show()
+plt.pause(3)
 
 # it's a little hard to see what's happening here but let's try. The
 # third filter for instance seems to be a lot like the gabor filter we
@@ -228,9 +329,15 @@ res = sess.run(gradient, feed_dict={x: img_4d})[0]
 # Let's visualize the original image and the output of the backpropagated
 # gradient:
 
-fig, axs = plt.subplots(1, 2)
-axs[0].imshow(inception.deprocess(img))
-axs[1].imshow(res[0])
+plt.title("inception deprocess")
+plt.imshow(inception.deprocess(img))
+plt.show()
+plt.pause(3)
+
+plt.title("result 0")
+plt.imshow(res[0])
+plt.show()
+plt.pause(3)
 
 # Well that looks like a complete mess! What we can do is normalize the
 # activations in a way that let's us see it more in terms of the normal
@@ -245,9 +352,15 @@ def normalize(img, s=0.1):
 
 
 r = normalize(res)
-fig, axs = plt.subplots(1, 2)
-axs[0].imshow(inception.deprocess(img))
-axs[1].imshow(r[0])
+plt.title("normalized deprocess")
+plt.imshow(inception.deprocess(img))
+plt.show()
+plt.pause(3)
+
+plt.title("normalized result")
+plt.imshow(r[0])
+plt.show()
+plt.pause(3)
 
 # Much better! This sort of makes sense! There are some strong edges and
 # we can really see what colors are changing along those edges.
@@ -281,9 +394,10 @@ gradients = compute_gradients(x, img_4d, 'inception/conv2d1_pre_relu:0')
 gradients_norm = [normalize(gradient_i[0]) for gradient_i in gradients]
 montage = utils.montage(np.array(gradients_norm))
 
-plt.figure(figsize=(12, 12))
+plt.title("gradients norm montage")
 plt.imshow(montage)
-plt.pause(5)
+plt.show()
+plt.pause(3)
 
 # So it's clear that each neuron is responding to some type of feature.
 # It looks like a lot of them are interested in the texture of the cup,
@@ -311,16 +425,20 @@ print("features: ", features)
 # and then calculate its gradient with respect to the input image.
 
 n_plots = len(features) + 1
-fig, axs = plt.subplots(1, n_plots, figsize=(20, 5))
 base = img_4d
-axs[0].imshow(inception.deprocess(img))
+plt.title("feature loop")
+plt.imshow(inception.deprocess(img))
+plt.show()
+plt.pause(3)
 for feature_i, featurename in enumerate(features):
     feature = g.get_tensor_by_name(featurename + ':0')
     neuron = tf.reduce_max(feature, len(feature.get_shape())-1)
     gradient = tf.gradients(tf.reduce_sum(neuron), x)
     this_res = sess.run(gradient[0], feed_dict={x: base})[0]
-    axs[feature_i+1].imshow(normalize(this_res))
-    axs[feature_i+1].set_title(featurename)
+    plt.title("feature: "+featurename)
+    plt.imshow(normalize(this_res))
+    plt.show()
+    plt.pause(3)
 
 # To really understand what's happening in these later layers, we're
 # going to have to experiment with some other visualization techniques.
@@ -394,7 +512,9 @@ gif_step = 10
 
 # Storage for our GIF
 imgs = []
+print("deep dreaming:")
 for it_i in range(n_iterations):
+
     print(it_i, end=', ')
 
     # This will calculate the gradient of the layer we chose with respect to the input image.
@@ -410,8 +530,11 @@ for it_i in range(n_iterations):
     if it_i % gif_step == 0:
         imgs.append(normalize(img_copy[0]))
 
+print("")
+
 # Build the gif
-gif.build_gif(imgs, saveto='1-simplest-mean-layer_' + TID + '.gif')
+gif.build_gif(imgs, saveto='1-simplest-mean-layer_' +
+ TID + '.gif', interval=0.3, show_gif=False)
 
 
 # What we can see is pretty quickly, the activations tends to pick up the
@@ -432,15 +555,18 @@ gradient = tf.gradients(tf.reduce_mean(neuron), x)
 
 img_copy = img_4d.copy()
 imgs = []
+print("gif max neuron:")
 for it_i in range(n_iterations):
-    print(it_i, end=', ')
+    print(it_i,  end=', ')
     this_res = sess.run(gradient[0], feed_dict={x: img_copy})[0]
     this_res /= (np.max(np.abs(this_res)) + 1e-8)
     img_copy += this_res * step
     if it_i % gif_step == 0:
         imgs.append(normalize(img_copy[0]))
+print("")
 
-gif.build_gif(imgs, saveto='1-simplest-max-neuron_' + TID + '.gif')
+gif.build_gif(imgs, saveto='1-simplest-max-neuron_' + TID + '.gif',
+   interval=0.3, show_gif=False)
 
 # What we should see here is how the maximal neuron in a layer's
 # activation is slowly maximized through gradient ascent. So over time,
@@ -452,7 +578,7 @@ gif.build_gif(imgs, saveto='1-simplest-max-neuron_' + TID + '.gif')
 
 # For each max pooling feature, we'll produce a GIF
 for feature_i in features:
-    print("gif feature ", feature_i)
+    print("gif feature: ", feature_i)
     layer = g.get_tensor_by_name(feature_i + ':0')
     gradient = tf.gradients(tf.reduce_mean(layer), x)
     img_copy = img_4d.copy()
@@ -464,8 +590,10 @@ for feature_i in features:
         img_copy += this_res * step
         if it_i % gif_step == 0:
             imgs.append(normalize(img_copy[0]))
-    gif.build_gif(
-        imgs, saveto='1-simplest-' + feature_i.split('/')[-1] + '_' + TID + '.gif')
+    print(" build gif")
+    gif.build_gif(imgs, saveto='1-simplest-' + 
+        feature_i.split('/')[-1] + '_' + TID + '.gif',
+         interval=0.3, show_gif=False)
 
 input("End")
 
