@@ -594,6 +594,359 @@ for feature_i in features:
     gif.build_gif(imgs, saveto='1-simplest-' + 
         feature_i.split('/')[-1] + '_' + TID + '.gif',
          interval=0.3, show_gif=False)
+    plt.pause(1)
+# When we look at the outputs of these, we should see the representations
+# in corresponding layers being amplified on the original input image.
+# As we get to later layers, it really starts to appear to hallucinate,
+# and the patterns start to get more complex. That's not all though. 
+# The patterns also seem to grow larger. What that means is that at 
+# later layers, the representations span a larger part of the image.
+# In neuroscience, we might say that this has a larger receptive field,
+# since it is receptive to the content in a wider visual field.
+#
+# Let's try the same thing except now we'll feed in noise instead of
+# an image:
+
+# Create some noise, centered at gray
+img_noise = inception.preprocess(
+    (np.random.randint(100, 150, size=(224, 224, 3))))[np.newaxis]
+print("img noise min/max: ", img_noise.min(), img_noise.max())
+# ERROR
+#  File "l4b01.py", line 612, in <module>
+#    (np.random.randint(100, 150, size=(224, 224, 3))))[np.newaxis]
+#  File "/home/dario/cadl/session-4/libs/inception.py", line 83, in # preprocess
+#    img *= 255.0
+# TypeError: Cannot cast ufunc multiply output from dtype('float64') 
+# to dtype('int64') with casting rule 'same_kind'
+
+
+# And the rest is the same:
+
+print("Feeding noise:")
+for feature_i in features:
+    print("feature: ", feature_i)
+    layer = g.get_tensor_by_name(feature_i + ':0')
+    gradient = tf.gradients(tf.reduce_mean(layer), x)
+    img_copy = img_noise.copy()
+    imgs = []
+    for it_i in range(n_iterations):
+        print(it_i, end=', ')
+        this_res = sess.run(gradient[0], feed_dict={x: img_copy})[0]
+        this_res /= (np.max(np.abs(this_res)) + 1e-8)
+        img_copy += this_res * step
+        if it_i % gif_step == 0:
+            imgs.append(normalize(img_copy[0]))
+    print(" build_gif")
+    gif.build_gif(
+        imgs, saveto='1-simplest-noise-' + feature_i.split('/')[-1] + '_' + TID + '.gif', interval=0.3, show_gif=False)
+
+# What we should see is that patterns start to emerge, and with 
+# higher and higher complexity as we get deeper into the network!
+
+# Think back to when we were trying to hand engineer a convolution 
+# kernel in the first session. This should seem pretty amazing to 
+# you now. We've just seen that a network trained in the same way 
+# that we trained on MNIST in the last session, just with more 
+# layers, and a lot more data, can represent so much detail, and 
+# such complex patterns.
+
+#
+# Specifying the Objective
+#
+
+# Let's summarize a bit what we've done. What we're doing is let the 
+# input image's activation at some later layer or neuron determine 
+# what we want to optimize. We feed an image into the network and 
+# see what its activations are for a given neuron or entire layer 
+# are by backproping the gradient of that activation back to the 
+# input image. Remember, the gradient is just telling us how things 
+# change. So by following the direction of the gradient, we're going 
+# up the gradient, or ascending, and maximizing the selected layer 
+# or neuron's activation by changing our input image.
+#
+# By going up the gradient, we're saying, let's maximize this neuron 
+# or layer's activation. That's different to what we we're doing 
+# with gradient descent of a cost function. Because that was a cost 
+# function, we wanted to minimize it, and we were following the 
+# negative direction of our gradient. So the only difference now is 
+# we are following the positive direction of our gradient, and 
+# performing gradient ascent.
+# 
+# We can also explore specifying a particular gradient activation 
+# that we want to maximize. So rather than simply maximizing its 
+# activation, we'll specify what we want the activation to look 
+# like, and follow the gradient to get us there. For instance, let's 
+# say we want to only have a particular neuron active, and nothing 
+# else. We can do that by creating an array of 0s the shape of one 
+# of our layers, and then filling in 1s for the output of that 
+# neuron:
+
+# Let's pick one of the later layers
+layer = g.get_tensor_by_name('inception/mixed5b_pool_reduce_pre_relu:0')
+
+# And find its shape
+layer_shape = tf.shape(layer).eval(feed_dict={x:img_4d})
+
+# We can find out how many neurons it has by feeding it an image and
+# calculating the shape.  The number of output channels is the last dimension.
+n_els = tf.shape(layer).eval(feed_dict={x:img_4d})[-1]
+
+# Let's pick a random output channel
+neuron_i = np.random.randint(n_els)
+
+# And we'll create an activation of this layer which is entirely 0
+layer_vec = np.zeros(layer_shape)
+
+# Except for the randomly chosen neuron which will be full of 1s
+layer_vec[..., neuron_i] = 1
+
+# We'll go back to finding the maximal neuron in a layer
+neuron = tf.reduce_max(layer, len(layer.get_shape())-1)
+
+# And finding the mean over this neuron
+gradient = tf.gradients(tf.reduce_mean(neuron), x)
+
+# We then feed this into our feed_dict parameter and do the same 
+# thing as before, ascending the gradient. We'll try this for a few 
+# different neurons to see what they look like. Again, this will 
+# take a long time depending on your computer!
+
+n_iterations = 30
+print("Objective, ascending the gradient...")
+for i in range(5):
+    print("i: ", i)
+    neuron_i = np.random.randint(n_els)
+    layer_vec = np.zeros(layer_shape)
+    layer_vec[..., neuron_i] = 1
+    img_copy = img_noise.copy() / 255.0
+    imgs = []
+    for it_i in range(n_iterations):
+        print(it_i, end=', ')
+        this_res = sess.run(gradient[0], feed_dict={
+            x: img_copy,
+            layer: layer_vec})[0]
+        this_res /= (np.max(np.abs(this_res)) + 1e-8)
+        img_copy += this_res * step
+        if it_i % gif_step == 0:
+            imgs.append(normalize(img_copy[0]))
+    print(" build_gif")
+    gif.build_gif(imgs, saveto='2-objective-' + str(neuron_i) + 
+        '_' + TID + '.gif', interval=0.3, show_gif=False)
+
+# So there is definitely something very interesting happening in 
+# each of these neurons. Even though each image starts off exactly 
+# the same, from the same noise image, they each end up in a very 
+# different place. What we're seeing is how each neuron we've chosen 
+# seems to be encoding something complex. They even somehow trigger 
+# our perception in a way that says, "Oh, that sort of looks like... 
+# maybe a house, or a dog, or a fish, or person...something"
+#
+# Since our network is trained on objects, we know what each neuron 
+# of the last layer should represent. So we can actually try this 
+# with the very last layer, the final layer which we know should 
+# represent 1 of 1000 possible objects. Let's see how to do this. 
+# Let's first find a good neuron:
+
+print(net['labels'])
+
+# let's try a school bus.
+neuron_i = 962
+print(net['labels'][neuron_i])
+
+# We'll pick the very last layer
+layer = g.get_tensor_by_name(names[-1] + ':0')
+
+# Then find the max activation of this layer
+gradient = tf.gradients(tf.reduce_max(layer), x)
+
+# We'll find its shape and create the activation we want to maximize w/ gradient ascent
+layer_shape = tf.shape(layer).eval(feed_dict={x: img_noise})
+layer_vec = np.zeros(layer_shape)
+layer_vec[..., neuron_i] = 1
+
+# And then train just like before:
+
+n_iterations = 100
+gif_step = 10
+
+img_copy = img_noise.copy()
+imgs = []
+for it_i in range(n_iterations):
+    print(it_i, end=', ')
+    this_res = sess.run(gradient[0], feed_dict={
+        x: img_copy,
+        layer: layer_vec})[0]
+    this_res /= (np.max(np.abs(this_res)) + 1e-8)
+    img_copy += this_res * step
+    if it_i % gif_step == 0:
+        imgs.append(normalize(img_copy[0]))
+gif.build_gif(imgs, saveto='2-object-' + str(neuron_i) + '_' + TID + '.gif', interval=0.3, show_gif=False)
+
+# So what we should see is the noise image become more like patterns 
+# that might appear on a school bus.
+
+#
+# Decaying the Gradient
+#
+
+# There is a lot we can explore with this process to get a clearer 
+# picture. Some of the more interesting visualizations come about 
+# through regularization techniques such as smoothing the 
+# activations every so often, or clipping the gradients to a certain 
+# range. We'll see how all of these together can help us get a much 
+# cleaner image. We'll start with decay. This will slowly reduce the 
+# range of values:
+
+decay = 0.95
+
+img_copy = img_noise.copy()
+imgs = []
+print("Decaying...")
+for it_i in range(n_iterations):
+    print(it_i, end=', ')
+    this_res = sess.run(gradient[0], feed_dict={
+        x: img_copy,
+        layer: layer_vec})[0]
+    this_res /= (np.max(np.abs(this_res)) + 1e-8)
+    img_copy += this_res * step
+    img_copy *= decay
+    if it_i % gif_step == 0:
+        imgs.append(normalize(img_copy[0]))
+print(" build_gif...")
+gif.build_gif(imgs, saveto='3-decay-' + str(neuron_i) + '_' + TID + 
+    '.gif', interval=0.3, show_gif=False)
+
+
+#
+# Blurring the Gradient
+#
+
+# Let's now try and see how blurring with a gaussian changes the 
+# visualization.
+
+# Let's get a gaussian filter
+from scipy.ndimage.filters import gaussian_filter
+
+# Which we'll smooth with a standard deviation of 0.5
+sigma = 1.0
+
+# And we'll smooth it every 4 iterations
+blur_step = 5
+
+# Now during our training, we'll smooth every blur_step iterations 
+# with the given sigma.
+
+img_copy = img_noise.copy()
+imgs = []
+print("Gaussian blurring...")
+for it_i in range(n_iterations):
+    print(it_i, end=', ')
+    this_res = sess.run(gradient[0], feed_dict={
+        x: img_copy,
+        layer: layer_vec})[0]
+    this_res /= (np.max(np.abs(this_res)) + 1e-8)
+    img_copy += this_res * step
+    img_copy *= decay
+    if it_i % blur_step == 0:
+        for ch_i in range(3):
+            img_copy[..., ch_i] = gaussian_filter(img_copy[..., ch_i], sigma)
+    if it_i % gif_step == 0:
+        imgs.append(normalize(img_copy[0]))
+print(" build_gif...")
+gif.build_gif(imgs, saveto='4-gaussian-' + str(neuron_i) + '_' + 
+    TID + '.gif', interval=0.3, show_gif=False)
+
+# Now we're really starting to get closer to something that 
+# resembles a school bus, or maybe a school bus double rainbow.
+
+
+#
+# Clipping the Gradient
+#
+
+# Let's now see what happens if we clip the gradient's activations:
+
+pth = 5
+img_copy = img_noise.copy()
+imgs = []
+print("Clipping...")
+for it_i in range(n_iterations):
+    print(it_i, end=', ')
+    this_res = sess.run(gradient[0], feed_dict={
+        x: img_copy,
+        layer: layer_vec})[0]
+    this_res /= (np.max(np.abs(this_res)) + 1e-8)
+    img_copy += this_res * step
+    img_copy *= decay
+    if it_i % blur_step == 0:
+        for ch_i in range(3):
+            img_copy[..., ch_i] = gaussian_filter(img_copy[..., ch_i], sigma)
+
+    mask = (abs(img_copy) < np.percentile(abs(img_copy), pth))
+    img_copy = img_copy - img_copy*mask
+
+    if it_i % gif_step == 0:
+        imgs.append(normalize(img_copy[0]))
+
+print(" build_gif...")
+gif.build_gif(imgs, saveto='5-clip-' + str(neuron_i) + '_' + 
+    TID + '.gif', interval=0.3, show_gif=False)
+
+plt.title("Clipping")
+plt.imshow(normalize(img_copy[0]))
+plt.pause(3)
+
+
+#
+# Infinite Zoom / Fractal
+#
+
+# Some of the first visualizations to come out would infinitely zoom 
+# into the image, creating a fractal image of the deep dream. We can 
+# do this by cropping the image with a 1 pixel border, and then 
+# resizing that image back to the original size.
+
+from skimage.transform import resize
+img_copy = img_noise.copy()
+crop = 1
+n_iterations = 1000
+imgs = []
+n_img, height, width, ch = img_copy.shape
+print("Zoom/fractal...")
+for it_i in range(n_iterations):
+    print(it_i, end=', ')
+    this_res = sess.run(gradient[0], feed_dict={
+        x: img_copy,
+        layer: layer_vec})[0]
+    this_res /= (np.max(np.abs(this_res)) + 1e-8)
+    img_copy += this_res * step
+    img_copy *= decay
+
+    if it_i % blur_step == 0:
+        for ch_i in range(3):
+            img_copy[..., ch_i] = gaussian_filter(img_copy[..., ch_i], sigma)
+
+    mask = (abs(img_copy) < np.percentile(abs(img_copy), pth))
+    img_copy = img_copy - img_copy * mask
+
+    # Crop a 1 pixel border from height and width
+    img_copy = img_copy[:, crop:-crop, crop:-crop, :]
+
+    # Resize (Note: in the lecture, we used scipy's resize which
+    # could not resize images outside of 0-1 range, and so we had
+    # to store the image ranges.  This is a much simpler resize
+    # method that allows us to `preserve_range`.)
+    img_copy = resize(img_copy[0], (height, width), order=3,
+                 clip=False, preserve_range=True
+                 )[np.newaxis].astype(np.float32)
+
+    if it_i % gif_step == 0:
+        imgs.append(normalize(img_copy[0]))
+print(" build_gif")
+gif.build_gif(imgs, saveto='6-fractal_' +  TID + '.gif',
+    interval=0.3, show_gif=False)
+
+
 
 input("End")
 
