@@ -79,8 +79,15 @@ def get_inception_model(data_dir='inception', version='v5'):
 
 
 def preprocess(img, crop=True, resize=True, dsize=(299, 299)):
-    if img.dtype != np.uint8:
-        img = img * 255.0 # fix djaimg *= 255.0, TypeError: Cannot cast
+    #if img.dtype != np.uint8:
+    #    img = img * 255.0
+    # bugfix dja TypeError: Cannot cast
+    if img.dtype == np.uint8:
+        pass
+    elif img.dtype == np.int64:
+        img = img.astype(np.uint8)
+    else:
+        img= img * 255.0
 
     if crop:
         crop = np.min(img.shape[:2])
