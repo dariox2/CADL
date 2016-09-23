@@ -1,6 +1,6 @@
 
 #
-# Session 4 - Visualizing Representations
+# Lecture 4 - Visualizing Representations
 
 print("Begin...")
 
@@ -92,6 +92,10 @@ import datetime
 plt.ion()
 plt.figure(figsize=(4, 4))
 TID=datetime.date.today().strftime("%Y%m%d")+"_"+datetime.datetime.now().time().strftime("%H%M%S")
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from matplotlib.cbook import MatplotlibDeprecationWarning 
+warnings.filterwarnings("ignore", category=MatplotlibDeprecationWarning) 
 
 # Start an interactive session:
 sess = tf.InteractiveSession()
@@ -180,19 +184,20 @@ plt.pause(3)
 
 res = np.squeeze(softmax.eval(feed_dict={x: img_4d}))
 
-# Note that this network is slightly different than the one used in the
-# lecture. Instead of just 1 output, there will be 16 outputs of 1008
-# probabilities. We only use the first 1000 probabilities (the extra ones
-# are for negative/unseen labels)
+# Note that this network is slightly different than the one used in 
+# the lecture. Instead of just 1 output, there will be 16 outputs of 
+# 1008 probabilities. We only use the first 1000 probabilities (the 
+# extra ones are for negative/unseen labels)
 print("result shape: ", res.shape)
 
-# The result of the network is a 1000 element vector, with probabilities
-# of each class. Inside our net dictionary are the labels for every
-# element. We can sort these and use the labels of the 1000 classes to
-# see what the top 5 predicted probabilities and labels are:
+# The result of the network is a 1000 element vector, with 
+# probabilities of each class. Inside our net dictionary are the 
+# labels for every element. We can sort these and use the labels of 
+# the 1000 classes to see what the top 5 predicted probabilities and 
+# labels are:
 
-# Note that this is one way to aggregate the different probabilities.  We 
-# could also take the argmax.
+# Note that this is one way to aggregate the different 
+# probabilities.  We  could also take the argmax.
 res = np.mean(res, 0)
 res = res / np.sum(res)
 
@@ -202,21 +207,21 @@ print([(res[idx], net['labels'][idx])
 
 # Visualizing Filters
 #
-# Wow so it works! But how!? Well that's an ongoing research question.
-# There has been a lot of great developments in the last few years to
-# help us understand what might be happening. Let's try to first
-# visualize the weights of the convolution filters, like we've done with
-# our MNIST network before.
+# Wow so it works! But how!? Well that's an ongoing research 
+# question. There has been a lot of great developments in the last 
+# few years to help us understand what might be happening. Let's try 
+# to first visualize the weights of the convolution filters, like 
+# we've done with our MNIST network before.
 
 W = g.get_tensor_by_name('inception/conv2d0_w:0')
 W_eval = W.eval()
 print("W_eval.shape: ", W_eval.shape)
 
-# With MNIST, our input number of filters was 1, since our input number
-# of channels was also 1, as all of MNIST is grayscale. But in this case,
-# our input number of channels is 3, and so the input number of
-# convolution filters is also 3. We can try to see every single
-# individual filter using the library tool I've provided:
+# With MNIST, our input number of filters was 1, since our input 
+# number of channels was also 1, as all of MNIST is grayscale. But 
+# in this case, our input number of channels is 3, and so the input 
+# number of convolution filters is also 3. We can try to see every 
+# single individual filter using the library tool I've provided:
 
 from libs import utils
 W_montage = utils.montage_filters(W_eval)
@@ -245,13 +250,13 @@ plt.imshow(Ws, interpolation='nearest')
 plt.show()
 plt.pause(3)
 
-# Like with our MNIST example, we can probably guess what some of these
-# are doing. They are responding to edges, corners, and center-surround
-# or some kind of contrast of two things, like red, green, blue yellow,
-# which interestingly is also what neuroscience of vision tells us about
-# how the human vision identifies color, which is through opponency of
-# red/green and blue/yellow. To get a better sense, we can try to look
-# at the output of the convolution:
+# Like with our MNIST example, we can probably guess what some of 
+# these are doing. They are responding to edges, corners, and 
+# center-surround or some kind of contrast of two things, like red, 
+# green, blue yellow, which interestingly is also what neuroscience 
+# of vision tells us about how the human vision identifies color, 
+# which is through opponency of red/green and blue/yellow. To get a 
+# better sense, we can try to look at the output of the convolution:
 
 feature = g.get_tensor_by_name('inception/conv2d0_pre_relu:0')
 
@@ -260,11 +265,12 @@ feature = g.get_tensor_by_name('inception/conv2d0_pre_relu:0')
 layer_shape = tf.shape(feature).eval(feed_dict={x:img_4d})
 print("layer_shape: ", layer_shape)
 
-# So our original image which was 1 x 224 x 224 x 3 color channels, now
-# has 64 new channels of information. The image's height and width are
-# also halved, because of the stride of 2 in the convolution. We've just
-# seen what each of the convolution filters look like. Let's try  to see
-# how they filter the image now by looking at the resulting convolution.
+# So our original image which was 1 x 224 x 224 x 3 color channels, 
+# now has 64 new channels of information. The image's height and 
+# width are also halved, because of the stride of 2 in the 
+# convolution. We've just seen what each of the convolution filters 
+# look like. Let's try  to see how they filter the image now by 
+# looking at the resulting convolution.
 
 f = feature.eval(feed_dict={x: img_4d})
 montage = utils.montage_filters(np.rollaxis(np.expand_dims(f[0], 3), 3, 2))
@@ -284,51 +290,53 @@ plt.show()
 plt.pause(3)
 
 # it's a little hard to see what's happening here but let's try. The
-# third filter for instance seems to be a lot like the gabor filter we
-# created in the first session. It respond to horizontal edges, since it
-# has a bright component at the top, and a dark component on the bottom.
-# Looking at the output of the convolution, we can see that the
-# horizontal edges really pop out.
+# third filter for instance seems to be a lot like the gabor filter 
+# we created in the first session. It respond to horizontal edges, 
+# since it has a bright component at the top, and a dark component 
+# on the bottom. Looking at the output of the convolution, we can 
+# see that the horizontal edges really pop out.
 
 #
 #Visualizing the Gradient
 #
 
-# So this is a pretty useful technique for the first convolution layer.
-# But when we get to the next layer, all of sudden we have 64 different
-# channels of information being fed to more convolution filters of some
-# very high dimensions. It's very hard to conceptualize that many
-# dimensions, let alone also try and figure out what it could be doing
-# with all the possible combinations it has with other neurons in other
-# layers.
+# So this is a pretty useful technique for the first convolution 
+# layer. But when we get to the next layer, all of sudden we have 64 
+# different channels of information being fed to more convolution 
+# filters of some very high dimensions. It's very hard to 
+# conceptualize that many dimensions, let alone also try and figure 
+# out what it could be doing with all the possible combinations it 
+# has with other neurons in other layers.
 #
-# If we want to understand what the deeper layers are really doing, we're
-# going to have to start to use backprop to show us the gradients of a
-# particular neuron with respect to our input image. Let's visualize the
-# network's gradient activation when backpropagated to the original input
-# image. This is effectively telling us which pixels are responding to the
-# predicted class or given neuron.
+# If we want to understand what the deeper layers are really doing, 
+# we're going to have to start to use backprop to show us the 
+# gradients of a particular neuron with respect to our input image. 
+# Let's visualize the network's gradient activation when 
+# backpropagated to the original input image. This is effectively 
+# telling us which pixels are responding to the predicted class or 
+# given neuron.
 #
-# We use a forward pass up to the layer that we are interested in, and
-# then a backprop to help us understand what pixels in particular
+# We use a forward pass up to the layer that we are interested in, 
+# and then a backprop to help us understand what pixels in particular
 # contributed to the final activation of that layer. We will need to
-# create an operation which will find the max neuron of all activations
-# in a layer, and then calculate the gradient of that objective with
-# respect to the input image.
+# create an operation which will find the max neuron of all 
+# activations in a layer, and then calculate the gradient of that 
+# objective with respect to the input image.
 
 feature = g.get_tensor_by_name('inception/conv2d0_pre_relu:0')
 gradient = tf.gradients(tf.reduce_max(feature, 3), x)
 
-# When we run this network now, we will specify the gradient operation
-# we've created, instead of the softmax layer of the network. This will
-# run a forward prop up to the layer we asked to find the gradient with,
-# and then run a back prop all the way to the input image.
+# When we run this network now, we will specify the gradient 
+# operation we've created, instead of the softmax layer of the 
+# network. This will run a forward prop up to the layer we asked to 
+# find the gradient with, and then run a back prop all the way to 
+# the input image.
 
 print("Running prop up, finding gradient...")
 res = sess.run(gradient, feed_dict={x: img_4d})[0]
 
-# Let's visualize the original image and the output of the backpropagated
-# gradient:
+# Let's visualize the original image and the output of the 
+# backpropagated gradient:
 
 plt.title("inception deprocess")
 plt.imshow(inception.deprocess(img))
@@ -340,9 +348,9 @@ plt.imshow(res[0])
 plt.show()
 plt.pause(3)
 
-# Well that looks like a complete mess! What we can do is normalize the
-# activations in a way that let's us see it more in terms of the normal
-# range of color values.
+# Well that looks like a complete mess! What we can do is normalize 
+# the activations in a way that let's us see it more in terms of the 
+# normal range of color values.
 
 def normalize(img, s=0.1):
     '''Normalize the image range for visualization'''
@@ -363,13 +371,13 @@ plt.imshow(r[0])
 plt.show()
 plt.pause(3)
 
-# Much better! This sort of makes sense! There are some strong edges and
-# we can really see what colors are changing along those edges.
+# Much better! This sort of makes sense! There are some strong edges 
+# and we can really see what colors are changing along those edges.
 #
 # We can try within individual layers as well, pulling out individual
-# neurons to see what each of them are responding to. Let's first create
-# a few functions which will help us visualize a single neuron in a
-# layer, and every neuron of a layer:
+# neurons to see what each of them are responding to. Let's first 
+# create a few functions which will help us visualize a single 
+# neuron in a layer, and every neuron of a layer:
 
 def compute_gradient(input_placeholder, img, layer_name, neuron_i):
     feature = g.get_tensor_by_name(layer_name)
@@ -386,44 +394,48 @@ def compute_gradients(input_placeholder, img, layer_name):
         gradients.append(compute_gradient(input_placeholder, img, layer_name, neuron_i))
     return gradients
 
-# Now we can pass in a layer name, and see the gradient of every neuron
-# in that layer with respect to the input image as a montage. Let's try
-# the second convolutional layer. This can take awhile depending on your
-# computer:
+# Now we can pass in a layer name, and see the gradient of every 
+# neuron in that layer with respect to the input image as a montage. 
+# Let's try the second convolutional layer. This can take awhile 
+# depending on your computer:
 
+print("compute gradients...")
 gradients = compute_gradients(x, img_4d, 'inception/conv2d1_pre_relu:0')
 gradients_norm = [normalize(gradient_i[0]) for gradient_i in gradients]
-montage = utils.montage(np.array(gradients_norm))
+montage = utils.montage(np.array(gradients_norm), 
+            saveto='gradients_montage_'+TID+'.png')
 
 plt.title("gradients norm montage")
 plt.imshow(montage)
 plt.show()
 plt.pause(3)
 
-# So it's clear that each neuron is responding to some type of feature.
-# It looks like a lot of them are interested in the texture of the cup,
-# and seem to respond in different ways across the image. Some seem to be
-# more interested in the shape of the cup, responding pretty strongly to
-# the circular opening, while others seem to catch the liquid in the cup
-# more. There even seems to be one that just responds to the spoon, and
-# another which responds to only the plate.
+# So it's clear that each neuron is responding to some type of 
+# feature. It looks like a lot of them are interested in the texture 
+# of the cup, and seem to respond in different ways across the 
+# image. Some seem to be more interested in the shape of the cup, 
+# responding pretty strongly to the circular opening, while others 
+# seem to catch the liquid in the cup more. There even seems to be 
+# one that just responds to the spoon, and another which responds to 
+# only the plate.
 #
-# Let's try to get a sense of how the activations in each layer progress.
-# We can get every max pooling layer like so:
+# Let's try to get a sense of how the activations in each layer 
+# progress. We can get every max pooling layer like so:
 
 features = [name for name in names if 'maxpool' in name.split()[-1]]
 print("features: ", features)
 
-# So I didn't mention what max pooling is. But it 's a simple operation.
-# You can think of it like a convolution, except instead of using a
-# learned kernel, it will just find the maximum value in the window, for
-# performing "max pooling", or find the average value, for performing 
-# "average pooling".
+# So I didn't mention what max pooling is. But it 's a simple 
+# operation. You can think of it like a convolution, except instead 
+# of using a learned kernel, it will just find the maximum value in 
+# the window, for performing "max pooling", or find the average 
+# value, for performing  "average pooling".
 #
-# We'll now loop over every feature and create an operation that first
-# will find the maximally activated neuron. It will then find the sum of
-# all activations across every pixel and input channel of this neuron,
-# and then calculate its gradient with respect to the input image.
+# We'll now loop over every feature and create an operation that 
+# first will find the maximally activated neuron. It will then find 
+# the sum of all activations across every pixel and input channel of 
+# this neuron, and then calculate its gradient with respect to the 
+# input image.
 
 n_plots = len(features) + 1
 base = img_4d
@@ -450,45 +462,44 @@ for feature_i, featurename in enumerate(features):
 
 # Deep Dreaming
 #
-# Sometime in May of 2015, A researcher at Google, Alexander Mordvintsev,
-# took a deep network meant to recognize objects in an image, and instead
-# used it to *generate new objects in an image. The internet quickly
-# exploded after seeing one of the images it produced. Soon after, Google
-# posted a blog entry on how to perform the technique they re-dubbed
-# "Inceptionism", and tons of interesting outputs were soon created.
-# Somehow the name Deep Dreaming caught on, and tons of new creative
-# applications came out, from twitter bots (DeepForger), to streaming
-# television (twitch.tv), to apps, it was soon everywhere.
+# Sometime in May of 2015, A researcher at Google, Alexander 
+# Mordvintsev, took a deep network meant to recognize objects in an 
+# image, and instead  used it to *generate new objects in an image. 
+# The internet quickly exploded after seeing one of the images it 
+# produced. Soon after, Google posted a blog entry on how to perform 
+# the technique they re-dubbed "Inceptionism", and tons of 
+# interesting outputs were soon created. Somehow the name Deep 
+# Dreaming caught on, and tons of new creative applications came 
+# out, from twitter bots (DeepForger), to streaming television 
+# (twitch.tv), to apps, it was soon everywhere.
 #
 # What Deep Dreaming is doing is taking the backpropagated gradient
-# activations and simply adding it back to the image, running the same
-# process again and again in a loop. I think "dreaming" is a great
-# description of what's going on. We're really pushing the network in a
-# direction, and seeing what happens when left to its devices. What it is
-# effectively doing is amplifying whatever our objective is, but we get
-# to see how that objective is optimized in the input space rather than
-# deep in the network in some arbitrarily high dimensional space that no
-# one can understand.
+# activations and simply adding it back to the image, running the 
+# same process again and again in a loop. I think "dreaming" is a 
+# great description of what's going on. We're really pushing the 
+# network in a direction, and seeing what happens when left to its 
+# devices. What it is effectively doing is amplifying whatever our 
+# objective is, but we get to see how that objective is optimized in 
+# the input space rather than deep in the network in some 
+# arbitrarily high dimensional space that no one can understand.
 #
 # There are many tricks one can add to this idea, such as blurring,
 # adding constraints on the total activations, decaying the gradient,
 # infinitely zooming into the image by cropping and scaling, adding
-# jitter by randomly moving the image around, or plenty of other ideas
-# waiting to be explored.
+# jitter by randomly moving the image around, or plenty of other 
+# ideas waiting to be explored.
 #
 # Simplest Approach
 #
 # Let's try the simplest approach for deep dream using a few of these
-# layers. We're going to try the first max pooling layer to begin with.
-# We'll specify our objective which is to follow the gradient of the mean
-# of the selected layers's activation. What we should see is that same
-# objective being amplified so that we can start to understand in terms
-# of the input image what the mean activation of that layer tends to
-# like, or respond to. We'll also produce a gif of every few frames. For
-# the remainder of this section, we'll need to rescale our 0-255 range
-# image to 0-1 as it will speed up things:
-
-print("DEEP DREAMING")
+# layers. We're going to try the first max pooling layer to begin 
+# with. We'll specify our objective which is to follow the gradient 
+# of the mean of the selected layers's activation. What we should 
+# see is that same objective being amplified so that we can start to 
+# understand in terms of the input image what the mean activation of 
+# that layer tends to like, or respond to. We'll also produce a gif 
+# of every few frames. For the remainder of this section, we'll need 
+# to rescale our 0-255 range image to 0-1 as it will speed up things:
 
 # Rescale to 0-1 range
 img_4d = img_4d / np.max(img_4d)
@@ -505,7 +516,8 @@ img_copy = img_4d.copy()
 # We'll run it for 50 iterations
 n_iterations = 50
 
-# Think of this as our learning rate.  This is how much of the gradient we'll add to the input image
+# Think of this as our learning rate.  This is how much of the 
+# gradient we'll add to the input image
 step = 1.0
 
 # Every 10 iterations, we'll add an image to a GIF
@@ -516,9 +528,10 @@ imgs = []
 print("deep dreaming:")
 for it_i in range(n_iterations):
 
-    print(it_i, end=', ')
+    print(it_i, end=', ', flush=True)
 
-    # This will calculate the gradient of the layer we chose with respect to the input image.
+    # This will calculate the gradient of the layer we chose with 
+    # respect to the input image.
     this_res = sess.run(gradient[0], feed_dict={x: img_copy})[0]
 
     # Let's normalize it by the maximum activation
@@ -531,20 +544,20 @@ for it_i in range(n_iterations):
     if it_i % gif_step == 0:
         imgs.append(normalize(img_copy[0]))
 
-print("")
+print(" build_gif...")
 
 # Build the gif
 gif.build_gif(imgs, saveto='1-simplest-mean-layer_' +
  TID + '.gif', interval=0.3, show_gif=False)
 
 
-# What we can see is pretty quickly, the activations tends to pick up the
-# fine detailed edges of the cup, plate, and spoon. Their structure is
-# very local, meaning they are really describing information at a very
-# small scale.
+# What we can see is pretty quickly, the activations tends to pick 
+# up the fine detailed edges of the cup, plate, and spoon. Their 
+# structure is very local, meaning they are really describing 
+# information at a very small scale.
 #
-# We could also specify the maximal neuron's mean activation, instead of
-# the mean of the entire layer:
+# We could also specify the maximal neuron's mean activation, 
+# instead of the mean of the entire layer:
 #
 
 # Find the maximal neuron in a layer
@@ -564,14 +577,15 @@ for it_i in range(n_iterations):
     img_copy += this_res * step
     if it_i % gif_step == 0:
         imgs.append(normalize(img_copy[0]))
-print("")
+print(" build_gif...")
 
 gif.build_gif(imgs, saveto='1-simplest-max-neuron_' + TID + '.gif',
    interval=0.3, show_gif=False)
 
 # What we should see here is how the maximal neuron in a layer's
-# activation is slowly maximized through gradient ascent. So over time,
-# we're increasing the overall activation of the neuron we asked for.
+# activation is slowly maximized through gradient ascent. So over 
+# time, we're increasing the overall activation of the neuron we 
+# asked for.
 #
 # Let's try doing this for each of our max pool layers, in increasing
 # depth, and let it run a little longer. This will take a long time
@@ -585,25 +599,26 @@ for feature_i in features:
     img_copy = img_4d.copy()
     imgs = []
     for it_i in range(n_iterations):
-        print(it_i, end=', ')
+        print(it_i, end=', ', flush=True)
         this_res = sess.run(gradient[0], feed_dict={x: img_copy})[0]
         this_res /= (np.max(np.abs(this_res)) + 1e-8)
         img_copy += this_res * step
         if it_i % gif_step == 0:
             imgs.append(normalize(img_copy[0]))
-    print(" build gif")
+    print(" build gif...")
     gif.build_gif(imgs, saveto='1-simplest-' + 
         feature_i.split('/')[-1] + '_' + TID + '.gif',
          interval=0.3, show_gif=False)
     plt.pause(1)
-# When we look at the outputs of these, we should see the representations
-# in corresponding layers being amplified on the original input image.
-# As we get to later layers, it really starts to appear to hallucinate,
-# and the patterns start to get more complex. That's not all though. 
-# The patterns also seem to grow larger. What that means is that at 
-# later layers, the representations span a larger part of the image.
-# In neuroscience, we might say that this has a larger receptive field,
-# since it is receptive to the content in a wider visual field.
+# When we look at the outputs of these, we should see the 
+# representations in corresponding layers being amplified on the 
+# original input image. As we get to later layers, it really starts 
+# to appear to hallucinate, and the patterns start to get more 
+# complex. That's not all though.  The patterns also seem to grow 
+# larger. What that means is that at  later layers, the 
+# representations span a larger part of the image. In neuroscience, 
+# we might say that this has a larger receptive field, since it is 
+# receptive to the content in a wider visual field.
 #
 # Let's try the same thing except now we'll feed in noise instead of
 # an image:
@@ -612,7 +627,7 @@ for feature_i in features:
 img_noise = inception.preprocess(
     (np.random.randint(100, 150, size=(224, 224, 3))))[np.newaxis]
 print("img noise min/max: ", img_noise.min(), img_noise.max())
-# ERROR
+# NEEDS PATCH IN inception.py:
 #  File "l4b01.py", line 612, in <module>
 #    (np.random.randint(100, 150, size=(224, 224, 3))))[np.newaxis]
 #  File "/home/dario/cadl/session-4/libs/inception.py", line 83, in # preprocess
@@ -631,13 +646,13 @@ for feature_i in features:
     img_copy = img_noise.copy()
     imgs = []
     for it_i in range(n_iterations):
-        print(it_i, end=', ')
+        print(it_i, end=', ', flush=True)
         this_res = sess.run(gradient[0], feed_dict={x: img_copy})[0]
         this_res /= (np.max(np.abs(this_res)) + 1e-8)
         img_copy += this_res * step
         if it_i % gif_step == 0:
             imgs.append(normalize(img_copy[0]))
-    print(" build_gif")
+    print(" build_gif...")
     gif.build_gif(
         imgs, saveto='1-simplest-noise-' + feature_i.split('/')[-1] + '_' + TID + '.gif', interval=0.3, show_gif=False)
 
@@ -722,7 +737,7 @@ for i in range(5):
     img_copy = img_noise.copy() / 255.0
     imgs = []
     for it_i in range(n_iterations):
-        print(it_i, end=', ')
+        print(it_i, end=', ', flush=True)
         this_res = sess.run(gradient[0], feed_dict={
             x: img_copy,
             layer: layer_vec})[0]
@@ -730,7 +745,7 @@ for i in range(5):
         img_copy += this_res * step
         if it_i % gif_step == 0:
             imgs.append(normalize(img_copy[0]))
-    print(" build_gif")
+    print(" build_gif...")
     gif.build_gif(imgs, saveto='2-objective-' + str(neuron_i) + 
         '_' + TID + '.gif', interval=0.3, show_gif=False)
 
@@ -772,8 +787,9 @@ gif_step = 10
 
 img_copy = img_noise.copy()
 imgs = []
+print("Training...")
 for it_i in range(n_iterations):
-    print(it_i, end=', ')
+    print(it_i, end=', ', flush=True)
     this_res = sess.run(gradient[0], feed_dict={
         x: img_copy,
         layer: layer_vec})[0]
@@ -781,6 +797,7 @@ for it_i in range(n_iterations):
     img_copy += this_res * step
     if it_i % gif_step == 0:
         imgs.append(normalize(img_copy[0]))
+print(" build_gif...")
 gif.build_gif(imgs, saveto='2-object-' + str(neuron_i) + '_' + TID + '.gif', interval=0.3, show_gif=False)
 
 # So what we should see is the noise image become more like patterns 
@@ -804,7 +821,7 @@ img_copy = img_noise.copy()
 imgs = []
 print("Decaying...")
 for it_i in range(n_iterations):
-    print(it_i, end=', ')
+    print(it_i, end=', ', flush=True)
     this_res = sess.run(gradient[0], feed_dict={
         x: img_copy,
         layer: layer_vec})[0]
@@ -841,7 +858,7 @@ img_copy = img_noise.copy()
 imgs = []
 print("Gaussian blurring...")
 for it_i in range(n_iterations):
-    print(it_i, end=', ')
+    print(it_i, end=', ', flush=True)
     this_res = sess.run(gradient[0], feed_dict={
         x: img_copy,
         layer: layer_vec})[0]
@@ -872,7 +889,7 @@ img_copy = img_noise.copy()
 imgs = []
 print("Clipping...")
 for it_i in range(n_iterations):
-    print(it_i, end=', ')
+    print(it_i, end=', ', flush=True)
     this_res = sess.run(gradient[0], feed_dict={
         x: img_copy,
         layer: layer_vec})[0]
@@ -915,7 +932,7 @@ imgs = []
 n_img, height, width, ch = img_copy.shape
 print("Zoom/fractal...")
 for it_i in range(n_iterations):
-    print(it_i, end=', ')
+    print(it_i, end=', ', flush=True)
     this_res = sess.run(gradient[0], feed_dict={
         x: img_copy,
         layer: layer_vec})[0]
@@ -943,7 +960,7 @@ for it_i in range(n_iterations):
 
     if it_i % gif_step == 0:
         imgs.append(normalize(img_copy[0]))
-print(" build_gif")
+print(" build_gif...")
 gif.build_gif(imgs, saveto='6-fractal_' +  TID + '.gif',
     interval=0.3, show_gif=False)
 

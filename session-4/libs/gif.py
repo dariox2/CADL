@@ -60,5 +60,9 @@ def build_gif(imgs, interval=0.1, dpi=72,
 
     if show_gif:
         plt.show()
+    else: # DJA
+        #plt.pause(1)
+        plt.clf()
+        plt.close(fig)
 
     return ani
