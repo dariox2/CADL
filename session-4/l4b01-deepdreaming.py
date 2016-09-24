@@ -98,6 +98,11 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 from matplotlib.cbook import MatplotlibDeprecationWarning 
 warnings.filterwarnings("ignore", category=MatplotlibDeprecationWarning) 
 
+def wait(n):
+    #plt.pause(n)
+    plt.pause(1)
+    input("(press enter)")
+
 # Start an interactive session:
 sess = tf.InteractiveSession()
 
@@ -150,7 +155,7 @@ og = coffee()
 plt.title("original coffee")
 plt.imshow(og)
 plt.show()
-plt.pause(3)
+wait(3)
 print("og min, max: ", og.min(), og.max())
 
 # We'll crop and resize the image to 224 x 224 pixels. I've provided
@@ -180,7 +185,7 @@ print("img_4d.shape: ", img_4d.shape)
 plt.title("deprocess")
 plt.imshow(inception.deprocess(img))
 plt.show()
-plt.pause(3)
+wait(3)
 
 
 res = np.squeeze(softmax.eval(feed_dict={x: img_4d}))
@@ -229,7 +234,7 @@ W_montage = utils.montage_filters(W_eval)
 plt.title("filters montage")
 plt.imshow(W_montage, interpolation='nearest')
 plt.show()
-plt.pause(3)
+wait(3)
 
 # Or, we can also try to look at them as RGB filters, showing the
 # influence of each color channel, for each neuron or output filter.
@@ -239,7 +244,7 @@ Ws = np.rollaxis(np.array(Ws), 0, 3)
 plt.title("as rgb filters")
 plt.imshow(Ws, interpolation='nearest')
 plt.show()
-plt.pause(5)
+wait(5)
 
 # In order to better see what these are doing, let's normalize the
 # filters range:
@@ -249,7 +254,7 @@ Ws = (Ws / np.max(np.abs(Ws)) * 128 + 128).astype(np.uint8)
 plt.title("normalized filters")
 plt.imshow(Ws, interpolation='nearest')
 plt.show()
-plt.pause(3)
+wait(3)
 
 # Like with our MNIST example, we can probably guess what some of 
 # these are doing. They are responding to edges, corners, and 
@@ -275,20 +280,16 @@ print("layer_shape: ", layer_shape)
 
 f = feature.eval(feed_dict={x: img_4d})
 montage = utils.montage_filters(np.rollaxis(np.expand_dims(f[0], 3), 3, 2))
-plt.title('deprocess orig')
-plt.imshow(inception.deprocess(img))
-plt.show()
-plt.pause(3)
 
 plt.title('Convolution Filters')
 plt.imshow(Ws, interpolation='nearest')
 plt.show()
-plt.pause(3)
+wait(3)
 
 plt.title('Convolution Outputs')
 plt.imshow(montage, cmap='gray')
 plt.show()
-plt.pause(3)
+wait(3)
 
 # it's a little hard to see what's happening here but let's try. The
 # third filter for instance seems to be a lot like the gabor filter 
@@ -298,7 +299,7 @@ plt.pause(3)
 # see that the horizontal edges really pop out.
 
 #
-#Visualizing the Gradient
+# Visualizing the Gradient
 #
 
 # So this is a pretty useful technique for the first convolution 
@@ -339,15 +340,10 @@ res = sess.run(gradient, feed_dict={x: img_4d})[0]
 # Let's visualize the original image and the output of the 
 # backpropagated gradient:
 
-plt.title("inception deprocess")
-plt.imshow(inception.deprocess(img))
-plt.show()
-plt.pause(3)
-
 plt.title("result 0")
 plt.imshow(res[0])
 plt.show()
-plt.pause(3)
+wait(3)
 
 # Well that looks like a complete mess! What we can do is normalize 
 # the activations in a way that let's us see it more in terms of the 
@@ -362,15 +358,10 @@ def normalize(img, s=0.1):
 
 
 r = normalize(res)
-plt.title("normalized deprocess")
-plt.imshow(inception.deprocess(img))
-plt.show()
-plt.pause(3)
-
 plt.title("normalized result")
 plt.imshow(r[0])
 plt.show()
-plt.pause(3)
+wait(3)
 
 # Much better! This sort of makes sense! There are some strong edges 
 # and we can really see what colors are changing along those edges.
@@ -409,7 +400,7 @@ montage = utils.montage(np.array(gradients_norm),
 plt.title("gradients norm montage")
 plt.imshow(montage)
 plt.show()
-plt.pause(3)
+wait(3)
 
 # So it's clear that each neuron is responding to some type of 
 # feature. It looks like a lot of them are interested in the texture 
@@ -441,9 +432,6 @@ print("features: ", features)
 n_plots = len(features) + 1
 base = img_4d
 plt.title("feature loop")
-plt.imshow(inception.deprocess(img))
-plt.show()
-plt.pause(3)
 for feature_i, featurename in enumerate(features):
     feature = g.get_tensor_by_name(featurename + ':0')
     neuron = tf.reduce_max(feature, len(feature.get_shape())-1)
@@ -452,10 +440,11 @@ for feature_i, featurename in enumerate(features):
     plt.title("feature: "+featurename)
     plt.imshow(normalize(this_res))
     plt.show()
-    plt.pause(3)
+    wait(3)
 
 # To really understand what's happening in these later layers, we're
-# going to have to experiment with some other visualization techniques.
+# going to have to experiment with some other visualization 
+# techniques.
 
 
 ###################################################################
@@ -610,7 +599,7 @@ for feature_i in features:
     gif.build_gif(imgs, saveto='1-simplest-' + 
         feature_i.split('/')[-1] + '_' + TID + '.gif',
          interval=0.3, show_gif=False)
-    plt.pause(1)
+    wait(1)
 # When we look at the outputs of these, we should see the 
 # representations in corresponding layers being amplified on the 
 # original input image. As we get to later layers, it really starts 
@@ -625,16 +614,16 @@ for feature_i in features:
 # an image:
 
 # Create some noise, centered at gray
-img_noise = inception.preprocess(
-    (np.random.randint(100, 150, size=(224, 224, 3))))[np.newaxis]
-print("img noise min/max: ", img_noise.min(), img_noise.max())
-# NEEDS PATCH IN inception.py:
+img_noise = inception.preprocess( #(np.random.randint(100, 150, size=(224, 224, 3))))[np.newaxis]
 #  File "l4b01.py", line 612, in <module>
 #    (np.random.randint(100, 150, size=(224, 224, 3))))[np.newaxis]
 #  File "/home/dario/cadl/session-4/libs/inception.py", line 83, in # preprocess
 #    img *= 255.0
 # TypeError: Cannot cast ufunc multiply output from dtype('float64') 
 # to dtype('int64') with casting rule 'same_kind'
+# bugfix Van Mach (randint produces 'int64')
+     (np.random.randint(100, 150, size=(224, 224, 3), dtype='uint8')))[np.newaxis]    
+print("img noise min/max: ", img_noise.min(), img_noise.max())
 
 
 # And the rest is the same:
@@ -913,7 +902,7 @@ gif.build_gif(imgs, saveto='5-clip-' + str(neuron_i) + '_' +
 
 plt.title("Clipping")
 plt.imshow(normalize(img_copy[0]))
-plt.pause(3)
+wait(3)
 
 
 #
