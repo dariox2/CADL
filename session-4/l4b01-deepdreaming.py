@@ -955,6 +955,7 @@ for it_i in range(n_iterations):
 t2 = datetime.datetime.now()
 delta = t2 - t1
 print("             Total animation time: ", delta.total_seconds())
+  # Ref: Centos: 834s
 
 print(" build_gif...")
 gif.build_gif(imgs, saveto='6-fractal_' +  TID + '.gif',
