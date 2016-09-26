@@ -144,7 +144,7 @@ plt.style.use('bmh')
 import datetime
 #np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
 plt.ion()
-plt.figure(figsize=(5, 5))
+plt.figure(figsize=(4, 4))
 TID=datetime.date.today().strftime("%Y%m%d")+"_"+datetime.datetime.now().time().strftime("%H%M%S")
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -153,8 +153,8 @@ warnings.filterwarnings("ignore", category=MatplotlibDeprecationWarning)
 
 def wait(n=1):
     #plt.pause(n)
-    #plt.pause(1)
-    input("(press enter)")
+    plt.pause(1)
+    #input("(press enter)")
 
 
 #
@@ -498,7 +498,8 @@ with tf.Session(graph=g) as sess, g.device(device):
 
 # Now we can get all the operations that belong to the graph `g`:
 names = [op.name for op in g.get_operations()]
-print(names)
+print("op.names[0..5]:")
+print(names[0:5])
 
 
 # <a name="part-2---visualizing-gradients"></a>
@@ -515,10 +516,10 @@ print(names)
 # use list comprehension to iterate over all the "names" we just
 # created, finding whichever ones have the name "pool" in them.
 # Then be sure to append a ":0" to the names
-features = ...
+features = [name+":0" for name in names if 'pool' in name.split()[-1]]
 
 # Let's print them
-print(features)
+print("features: ", features)
 
 # This is what we want to have at the end. You could just copy this
 # list
@@ -533,11 +534,9 @@ assert(features == ['net/pool1:0', 'net/pool2:0', 'net/pool3:0', 'net/pool4:0', 
 # In[ ]:
 
 # Use the function 'get_tensor_by_name' and the 'names' array to help
-# you
-# get the first tensor in the network. Remember you have to add ":0"
-# to the
-# name to get the output of an operation which is the tensor.
-x = ...
+# you get the first tensor in the network. Remember you have to add ":0"
+# to the name to get the output of an operation which is the tensor.
+x = g.get_tensor_by_name(names[0]+":0")
 
 assert(x.name == 'net/images:0')
 
@@ -575,17 +574,17 @@ def plot_gradient(img, x, feature, g, device='/cpu:0'):
 og = plt.imread('clinton.png')[..., :3]
 img = net['preprocess'](og)[np.newaxis]
 
-fig, axs = plt.subplots(1, len(features), figsize=(20, 10))
-
 for i in range(len(features)):
-    axs[i].set_title(features[i])
+    plt.title("feature "+str(i))
     grad = plot_gradient(img, x, g.get_tensor_by_name(features[i]), g)
-    axs[i].imshow(utils.normalize(grad))
+    plt.imshow(utils.normalize(grad))
+    wait(1)
 
 
-# <a name="part-3---basic-deep-dream"></a>
-# # Part 3 - Basic Deep Dream
 #
+# Part 3 - Basic Deep Dream
+#
+
 # In the lecture we saw how Deep Dreaming takes the backpropagated
 # gradient activations and simply adds it to the image, running the
 # same process again and again in a loop. We also saw many tricks one
