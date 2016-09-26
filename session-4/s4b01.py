@@ -119,9 +119,9 @@ except ImportError:
           "notebook inside the directory created by extracting",
           "the zip file or cloning the github repo.  If you are still")
 
-# We'll tell matplotlib to inline any drawn figures like so:
-get_ipython().magic('matplotlib inline')
-plt.style.use('ggplot')
+## We'll tell matplotlib to inline any drawn figures like so:
+#get_ipython().magic('matplotlib inline')
+#plt.style.use('ggplot')
 
 
 # In[ ]:
@@ -137,9 +137,30 @@ HTML("""<style> .rendered_html code {
 } </style>""")
 
 
-# <a name="part-1---pretrained-networks"></a>
-# # Part 1 - Pretrained Networks
+# dja
+import numpy as np
+import matplotlib.pyplot as plt
+plt.style.use('bmh')
+import datetime
+#np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
+plt.ion()
+plt.figure(figsize=(5, 5))
+TID=datetime.date.today().strftime("%Y%m%d")+"_"+datetime.datetime.now().time().strftime("%H%M%S")
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from matplotlib.cbook import MatplotlibDeprecationWarning 
+warnings.filterwarnings("ignore", category=MatplotlibDeprecationWarning) 
+
+def wait(n=1):
+    #plt.pause(n)
+    #plt.pause(1)
+    input("(press enter)")
+
+
 #
+# Part 1 - Pretrained Networks
+#
+
 # In the libs module, you'll see that I've included a few modules for
 # loading some state of the art networks. These include:
 #
@@ -233,9 +254,10 @@ net = inception.get_inception_model(version='v5')
 print("net.keys: ", net.keys())
 
 
-# <a name="preprocessdeprocessing"></a>
-# ## Preprocess/Deprocessing
+# 
+# Preprocess/Deprocessing
 #
+
 # Each network has a preprocessing/deprocessing function which we'll
 # use before sending the input to the network. This preprocessing
 # function is slightly different for each network. Recall from the
@@ -258,8 +280,10 @@ print("net.keys: ", net.keys())
 
 # First, let's get an image:
 og = plt.imread('clinton.png')[..., :3]
+plt.title("clinton")
 plt.imshow(og)
-print(og.min(), og.max())
+print("og min/max: ", og.min(), og.max())
+wait()
 
 
 # Let's now try preprocessing this image. The function for
@@ -278,8 +302,8 @@ print(og.min(), og.max())
 # to a 4-dimensional Tensor once we input it to the network.
 # We'll see how that works later.
 img = net['preprocess'](og)
-print(img.min(), img.max())
-
+print("preprocessed min/max:", img.min(), img.max())
+wait()
 
 # Let's undo the preprocessing. Recall that the `net` dictionary has
 # the key `deprocess` which is the function we need to use on our
@@ -289,14 +313,16 @@ print(img.min(), img.max())
 
 # In[ ]:
 
-deprocessed = ...
+deprocessed = net['deprocess'](og)
+plt.title("deprocessed")
 plt.imshow(deprocessed)
 plt.show()
 
 
-# <a name="tensorboard"></a>
-# ## Tensorboard
+# 
+# Tensorboard
 #
+
 # I've added a utility module called `nb_utils` which includes a
 # function `show_graph`. This will use
 # [Tensorboard](https://www.tensorflow.org/versions/r0.10/how_tos/graph_viz/index.html)
@@ -357,53 +383,52 @@ nb_utils.show_graph(net['graph_def'])
 # convolutions here, but please feel free to skip ahead if this isn't
 # of interest to you.
 #
-# <a name="a-note-on-1x1-convolutions"></a>
-# ## A Note on 1x1 Convolutions
+
 #
-# The 1x1 convolutions are setting the `ksize` parameter of the
-# kernels to 1. This is effectively allowing you to change the number
-# of dimensions. Remember that you need a 4-d tensor as input to a
-# convolution. Let's say its dimensions are $\text{N}\ x\ \text{W}\
-# x\ \text{H}\ x\ \text{C}_I$, where $\text{C}_I$ represents the
-# number of channels the image has. Let's say it is an RGB image,
-# then $\text{C}_I$ would be 3. Or later in the network, if we have
-# already convolved it, it might be 64 channels instead. Regardless,
-# when you convolve it w/ a $\text{K}_H\ x\ \text{K}_W\ x\
-# \text{C}_I\ x\ \text{C}_O$ filter, where $\text{K}_H$ is 1 and
-# $\text{K}_W$ is also 1, then the filters size is: $1\ x\ 1\ x\
-# \text{C}_I$ and this is perfomed for each output channel
-# $\text{C}_O$. What this is doing is filtering the information only
-# in the channels dimension, not the spatial dimensions. The output
-# of this convolution will be a $\text{N}\ x\ \text{W}\ x\ \text{H}\
-# x\ \text{C}_O$ output tensor. The only thing that changes in the
-# output is the number of output filters.
+# A Note on 1x1 Convolutions
 #
-# The 1x1 convolution operation is essentially reducing the amount of
-# information in the channels dimensions before performing a much
-# more expensive operation, e.g. a 3x3 or 5x5 convolution.
-# Effectively, it is a very clever trick for dimensionality reduction
-# used in many state of the art convolutional networks. Another way
-# to look at it is that it is preseving the spatial information, but
-# at each location, there is a fully connected network taking all the
-# information from every input channel, $\text{C}_I$, and reducing it
-# down to $\text{C}_O$ channels (or could easily also be up, but that
-# is not the typical use case for this). So it's not really a
-# convolution, but we can use the convolution operation to perform it
-# at every location in our image.
-#
-# If you are interested in reading more about this architecture, I
-# highly encourage you to read [Network in
-# Network](https://arxiv.org/pdf/1312.4400v3.pdf), Christian
-# Szegedy's work on the [Inception
-# network](http://www.cs.unc.edu/~wliu/papers/GoogLeNet.pdf), Highway
-# Networks, Residual Networks, and Ladder Networks.
-#
-# In this course, we'll stick to focusing on the applications of
+
+# The 1x1 convolutions are setting the ksize parameter of the 
+# kernels to 1. This is effectively allowing you to change the 
+# number of dimensions. Remember that you need a 4-d tensor as input
+# to a convolution. Let's say its dimensions are N x W x H x C(I), 
+# where C(I) represents the number of channels the image has. Let's 
+# say it is an RGB image, then C(I) would be 3. Or later in the 
+# network, if we have already convolved it, it might be 64 channels 
+# instead. Regardless, when you convolve it w/ a K(H) x K(W) x C(I) 
+# x C(O) filter, where K(H) is 1 and K(W) is also 1, then the 
+# filters size is: 1 x 1 x C(I) and this is perfomed for each output 
+# channel C(O). What this is doing is filtering the information only 
+# in the channels dimension, not the spatial dimensions. The output 
+# of this convolution will be a N x W x H x C(O) output tensor. The 
+# only thing that changes in the output is the number of output 
+# filters.
+
+# The 1x1 convolution operation is essentially reducing the amount 
+# of information in the channels dimensions before performing a much 
+# more expensive operation, e.g. a 3x3 or 5x5 convolution. 
+# Effectively, it is a very clever trick for dimensionality 
+# reduction used in many state of the art convolutional networks. 
+# Another way to look at it is that it is preseving the spatial 
+# information, but at each location, there is a fully connected 
+# network taking all the information from every input channel, C(I), 
+# and reducing it down to C(O) channels (or could easily also be up, 
+# but that is not the typical use case for this). So it's not really 
+# a convolution, but we can use the convolution operation to perform 
+# it at every location in our image.
+
+# If you are interested in reading more about this architecture, I 
+# highly encourage you to read Network in Network, Christian 
+# Szegedy's work on the Inception network, Highway Networks, 
+# Residual Networks, and Ladder Networks.
+
+# In this course, we'll stick to focusing on the applications of 
 # these, while trying to delve as much into the code as possible.
+
 #
-# <a name="network-labels"></a>
-# ## Network Labels
+# Network Labels
 #
+
 # Let's now look at the labels:
 
 # In[ ]:
@@ -414,12 +439,13 @@ net['labels']
 # In[ ]:
 
 label_i = 851
-print(net['labels'][label_i])
+print("labels[", label_i, "]", net['labels'][label_i])
 
 
-# <a name="using-context-managers"></a>
-# ## Using Context Managers
 #
+# Using Context Managers
+#
+
 # Up until now, we've mostly used a single `tf.Session` within a
 # notebook and didn't give it much thought. Now that we're using some
 # bigger models, we're going to have to be more careful. Using a big
@@ -437,7 +463,7 @@ print(net['labels'][label_i])
 # Load the VGG network. Scroll back up to where we loaded the
 # inception
 # network if you are unsure. It is inside the "vgg16" module...
-net = ..
+net = vgg16.get_vgg_model()
 
 assert(net['labels'][0] == (0, 'n01440764 tench, Tinca tinca'))
 
