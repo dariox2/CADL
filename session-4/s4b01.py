@@ -108,7 +108,7 @@ try:
     from skimage import data
     from scipy.misc import imresize
     from scipy.ndimage.filters import gaussian_filter
-    import IPython.display as ipyd
+    #import IPython.display as ipyd
     import tensorflow as tf
     from libs import utils, gif, datasets, dataset_utils, vae, dft, vgg16, nb_utils
 except ImportError:
@@ -119,22 +119,6 @@ except ImportError:
           "notebook inside the directory created by extracting",
           "the zip file or cloning the github repo.  If you are still")
 
-## We'll tell matplotlib to inline any drawn figures like so:
-#get_ipython().magic('matplotlib inline')
-#plt.style.use('ggplot')
-
-
-# In[ ]:
-
-# Bit of formatting because I don't like the default inline code
-# style:
-#from IPython.core.display import HTML
-#HTML("""<style> .rendered_html code { 
-#    padding: 2px 4px;
-#    color: #c7254e;
-#    background-color: #f9f2f4;
-#    border-radius: 4px;
-#} </style>""")
 
 
 # dja
@@ -150,6 +134,7 @@ import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 from matplotlib.cbook import MatplotlibDeprecationWarning 
 warnings.filterwarnings("ignore", category=MatplotlibDeprecationWarning) 
+gifdly=0.15
 
 def wait(n=1):
     #plt.pause(n)
@@ -281,7 +266,7 @@ print("net.keys: ", net.keys())
 # First, let's get an image:
 og = plt.imread('clinton.png')[..., :3]
 print("og min/max: ", og.min(), og.max())
-plt.title("clinton")
+#plt.title("clinton")
 #plt.imshow(og)
 #wait()
 
@@ -623,6 +608,8 @@ def dream(img, gradient, step, net, x, n_iterations=50, plot_step=10, name='drea
     with tf.Session(graph=g) as sess, g.device(device):
         for it_i in range(n_iterations):
 
+            print("dream it: ",it_i,"/",n_iterations)
+
             # This will calculate the gradient of the layer we chose with respect to the input image.
             this_res = sess.run(gradient[0], feed_dict={x: img_copy})[0]
 
@@ -703,7 +690,7 @@ for feature_i in range(len(features)):
 noise = net['preprocess'](
     np.random.rand(256, 256, 3) * 0.1 + 0.45)[np.newaxis]
 
-plt.title(noise)
+plt.title("noise")
 plt.imshow(net['deprocess'](noise[0]))
 wait(1)
 
@@ -748,7 +735,8 @@ for feature_i in range(len(features)):
 # In[ ]:
 
 # Load your own image here
-og = plt.imread("anu455.jpg")
+og = plt.imread("anu455eye.jpg")
+plt.title("orig")
 plt.imshow(og)
 wait(1)
 
@@ -789,7 +777,7 @@ n_els = layer_shape[-1]
 # In[ ]:
 
 # Pick a neuron. Or pick a random one. This should be 0-n_els
-neuron_i = 949 # 949=strawberry
+neuron_i = 208 # 208=lab dog, 949=strawberry
 
 print("net label["+str(neuron_i)+": ", net['labels'][neuron_i])
 assert(neuron_i >= 0 and neuron_i < n_els)
@@ -834,6 +822,7 @@ step = 0.2
 
 # In[ ]:
 
+"""
 imgs = []
 with tf.Session(graph=g) as sess, g.device(device):
     gradient = tf.gradients(tf.reduce_max(layer), x)
@@ -843,6 +832,8 @@ with tf.Session(graph=g) as sess, g.device(device):
 
     with tf.Session(graph=g) as sess, g.device(device):
         for it_i in range(n_iterations):
+
+            print("softmax it: ", it_i,"/",n_iterations)
 
             # This will calculate the gradient of the layer we chose with respect to the input image.
             this_res = sess.run(gradient[0], feed_dict={
@@ -864,11 +855,11 @@ with tf.Session(graph=g) as sess, g.device(device):
             if (it_i + 1) % plot_step == 0:
                 m = net['deprocess'](img_copy[0])
 
-                plt.imsave(fname='dream_vgg_last_'+TID+'.png', arr=m)
+                plt.imsave(fname='s4_dream_vgg_last_'+TID+'.png', arr=m)
                 
                 #plt.figure(figsize=(5, 5))
                 #plt.grid('off')
-                plt.title("it: "+str(it_i))
+                plt.title("softmax it: "+str(it_i))
                 plt.imshow(m)
                 #plt.show()
                 
@@ -879,18 +870,17 @@ with tf.Session(graph=g) as sess, g.device(device):
 # In[ ]:
 
 # Save the gif
-gif.build_gif(imgs, saveto='softmax.gif')
+gif.build_gif(imgs, saveto='s4_softmax_'+TID+'.gif', interval=gifdly)
+
+"""
 
 
-# In[ ]:
 
-ipyd.Image(url='softmax.gif?i={}'.format(
-        np.random.rand()), height=300, width=300)
-
-
-# <a name="fractal"></a>
-# ## Fractal
+# 
+# Fractal
 #
+
+
 # During the lecture we also saw a simple trick for creating an
 # infinite fractal: crop the image and then resize it. This can
 # produce some lovely aesthetics and really show some strong object
@@ -903,8 +893,10 @@ ipyd.Image(url='softmax.gif?i={}'.format(
 
 # In[ ]:
 
-n_iterations = 101
-plot_step = 10
+
+
+n_iterations = 300
+plot_step = 5
 step = 0.1
 crop = 1
 imgs = []
@@ -923,6 +915,8 @@ with tf.Session(graph=g) as sess, g.device(device):
 
     with tf.Session(graph=g) as sess, g.device(device):
         for it_i in range(n_iterations):
+
+            print("fractal it: ", it_i,"/",n_iterations)
 
             # This will calculate the gradient of the layer
             # we chose with respect to the input image.
@@ -968,24 +962,26 @@ with tf.Session(graph=g) as sess, g.device(device):
             if (it_i + 1) % plot_step == 0:
                 m = net['deprocess'](img_copy[0])
 
-                plt.grid('off')
+                #plt.grid('off')
+                plt.title("fractal it: "+str(it_i))
                 plt.imshow(m)
-                plt.show()
-                
+                #plt.show()
                 imgs.append(m)
+                wait(1)
+ 
 
 # Create a GIF
-gif.build_gif(imgs, saveto='fractal.gif')
+gif.build_gif(imgs, saveto='s4_fractal_'+TID+'.gif', interval=gifdly)
 
 
-# In[ ]:
-
-ipyd.Image(url='fractal.gif?i=2', height=300, width=300)
 
 
-# <a name="guided-hallucinations"></a>
-# ## Guided Hallucinations
+
 #
+# Guided Hallucinations
+#
+
+
 # Instead of following the gradient of an arbitrary mean or max of a
 # particular layer's activation, or a particular object that we want
 # to synthesize, we can also try to guide our image to look like
@@ -999,8 +995,9 @@ ipyd.Image(url='fractal.gif?i=2', height=300, width=300)
 # In[ ]:
 
 # Replace these with your own images!
-guide_og = plt.imread(...)[..., :3]
-dream_og = plt.imread(...)[..., :3]
+guide_og = plt.imread("letters-beige.jpg")[..., :3]
+#dream_og = plt.imread(os.path.expanduser("~/fot2.jpg"))[..., :3]
+dream_og=plt.imread("anu455.jpg")
 
 assert(guide_og.ndim == 3 and guide_og.shape[-1] == 3)
 assert(dream_og.ndim == 3 and dream_og.shape[-1] == 3)
@@ -1104,7 +1101,13 @@ with tf.Session(graph=g) as sess, g.device(device):
 # In[ ]:
 
 # Experiment with the step size!
+
+"""
+
 step = 0.1
+
+n_iterations = 10#100
+plot_step=4
 
 imgs = []
 
@@ -1119,6 +1122,8 @@ with tf.Session(graph=g) as sess, g.device(device):
         sess.run(tf.initialize_all_variables())
         
         for it_i in range(n_iterations):
+
+            print("guided it: ", it_i,"/",n_iterations)
 
             # This will calculate the gradient of the layer we chose with respect to the input image.
             this_res = sess.run(gradient[0], feed_dict={x: img_copy})[0]
@@ -1140,24 +1145,30 @@ with tf.Session(graph=g) as sess, g.device(device):
                 m = net['deprocess'](img_copy[0])
 
                 #plt.figure(figsize=(5, 5))
-                plt.grid('off')
-                plt.imshow(m)
+                #plt.grid('off')
+                plt.title("guided it: "+str(it_i))
+                plt.imshowstylenet it:  48 / 100  loss: 49.320736,  min/max: -1.028164 - 1.251730)
+stylenet it:  49 / 100  loss: 48.612350,  min/max: -1.023559 - 1.271632)
+stylenet it:  50 / 100  loss: 47.895477,  min/max: -1.017662 - 1.288900)
+stylenet it:  51 / 100  loss: 47.181725,  min/max: -1.011041 - 1.304064)
+stylenet it:  52 / 100  loss: 46.510548,  min/max: -1.004408 - 1.318297)
+stylenet it:  53 / 100  loss: 45.910484,  min/max: -0.998461 - 1.332990)
+
+(m)
                 #plt.show()
                 
                 imgs.append(m)
                 wait(1)
 
-gif.build_gif(imgs, saveto='guided.gif')                
+gif.build_gif(imgs, saveto='s4_guided_'+TID+'.gif', interval=gifdly)                
 
+"""
 
-# In[ ]:
-
-ipyd.Image(url='guided.gif?i=0', height=300, width=300)
-
-
-# <a name="further-explorations"></a>
-# ## Further Explorations
 #
+# Further Explorations
+#
+
+
 # In the `libs` module, I've included a `deepdream` module which has
 # two functions for performing Deep Dream and the Guided Deep Dream.
 # Feel free to explore these to create your own deep dreams.
@@ -1252,8 +1263,9 @@ names = [op.name for op in g.get_operations()]
 
 # In[ ]:
 
-content_og = plt.imread('arles.png')[..., :3]
-style_og = plt.imread('clinton.png')[..., :3]
+#content_og = plt.imread(os.path.expanduser("~/fot2.jpg"))[..., :3]
+content_og = plt.imread("anu455.jpg")[..., :3]
+style_og = plt.imread('letters-script.jpg')[..., :3]
 
 #fig, axs = plt.subplots(1, 2)
 #axs[0].grid('off')
@@ -1266,8 +1278,8 @@ plt.imshow(style_og)
 wait(3)
 
 # We'll save these with a specific name to include in your submission
-plt.imsave(arr=content_og, fname='content.png')
-plt.imsave(arr=style_og, fname='style.png')
+plt.imsave(arr=content_og, fname='s4_content_'+TID+'.png')
+plt.imsave(arr=style_og, fname='s4_style_'+TID+'.png')
 
 
 # In[ ]:
@@ -1283,10 +1295,10 @@ style_img = net['preprocess'](style_og)[np.newaxis]
 # In[ ]:
 
 # Grab the tensor defining the input to the network
-x = ...
+x = g.get_tensor_by_name(names[0] + ':0')
 
 # And grab the tensor defining the softmax layer of the network
-softmax = ...
+softmax = g.get_tensor_by_name(names[-2] + ':0')
 
 for img in [content_img, style_img]:
     with tf.Session(graph=g) as sess, g.device('/cpu:0'):
@@ -1308,6 +1320,7 @@ for img in [content_img, style_img]:
 
 # In[ ]:
 
+print("graph names:")
 print(names)
 
 
@@ -1397,13 +1410,9 @@ with tf.Session(graph=g) as sess, g.device('/cpu:0'):
     # We can set the `net_input` to our content image
     # or perhaps another image
     # or an image of noise
-# net_input = tf.Variable(content_img / 255.0)
-    net_input = tf.get_variable(
-       name='input',
-       shape=content_img.shape,
-       dtype=tf.float32,
-       initializer=tf.random_normal_initializer(
-           mean=np.mean(content_img), stddev=np.std(content_img)))
+    # net_input = tf.Variable(content_img / 255.0)
+    # net_input = tf.get_variable(name='input', shape=content_img.shape, dtype=tf.float32, initializer=tf.random_normal_initializer(mean=np.mean(content_img), stddev=np.std(content_img)))
+    net_input = tf.Variable(content_img / 255.0)
     
     # Now we load the network again, but this time replacing our placeholder
     # with the trainable tf.Variable
@@ -1491,6 +1500,7 @@ with tf.Session(graph=g) as sess, g.device('/cpu:0'):
 
 # In[ ]:
 
+"""
 imgs = []
 n_iterations = 100
 
@@ -1501,6 +1511,9 @@ with tf.Session(graph=g) as sess, g.device('/cpu:0'):
     og_img = net_input.eval()
     
     for it_i in range(n_iterations):
+
+        print("stylenet it: ", it_i,"/",n_iterations, end="  ")
+
         _, this_loss, synth = sess.run([optimizer, loss, net_input], feed_dict={
                     'net/dropout_1/random_uniform:0': np.ones(
                         g.get_tensor_by_name(
@@ -1511,14 +1524,20 @@ with tf.Session(graph=g) as sess, g.device('/cpu:0'):
                             'net/dropout/random_uniform:0'
                         ).get_shape().as_list())
                 })
-        print("%d: %f, (%f - %f)" %
-            (it_i, this_loss, np.min(synth), np.max(synth)))
+        print("loss: %f,  min/max: %f - %f)" %
+            (this_loss, np.min(synth), np.max(synth)))
         if it_i % 5 == 0:
             m = vgg16.deprocess(synth[0])
             imgs.append(m)
+            plt.title("stylenet it: "+str(it_i))
             plt.imshow(m)
-            plt.show()
-    gif.build_gif(imgs, saveto='stylenet.gif')
+            #plt.show()
+            wait(1)
+    gif.build_gif(imgs, saveto='s4_stylenet_'+TID+'.gif', interval=gifdly)
 
+"""
+
+print("END.")
 
 # eop
+
