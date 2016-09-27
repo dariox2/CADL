@@ -128,13 +128,13 @@ except ImportError:
 
 # Bit of formatting because I don't like the default inline code
 # style:
-from IPython.core.display import HTML
-HTML("""<style> .rendered_html code { 
-    padding: 2px 4px;
-    color: #c7254e;
-    background-color: #f9f2f4;
-    border-radius: 4px;
-} </style>""")
+#from IPython.core.display import HTML
+#HTML("""<style> .rendered_html code { 
+#    padding: 2px 4px;
+#    color: #c7254e;
+#    background-color: #f9f2f4;
+#    border-radius: 4px;
+#} </style>""")
 
 
 # dja
@@ -371,7 +371,8 @@ plt.show()
 
 # In[ ]:
 
-nb_utils.show_graph(net['graph_def'])
+# REQUIRES TENSORBOARD
+# nb_utils.show_graph(net['graph_def'])
 
 
 # If you open up the "mixed3a" node above (double click on it),
@@ -433,7 +434,8 @@ nb_utils.show_graph(net['graph_def'])
 
 # In[ ]:
 
-net['labels']
+#print("net labels: ")
+#print(net['labels'])
 
 
 # In[ ]:
@@ -609,11 +611,13 @@ for i in range(len(features)):
 
 # In[ ]:
 
-def dream(img, gradient, step, net, x, n_iterations=50, plot_step=10):
+def dream(img, gradient, step, net, x, n_iterations=50, plot_step=10, name='dream'):
+
+    print("Dreaming "+name+"...")
     # Copy the input image as we'll add the gradient to it in a loop
     img_copy = img.copy()
 
-    fig, axs = plt.subplots(1, n_iterations // plot_step, figsize=(20, 10))
+    #fig, axs = plt.subplots(1, n_iterations // plot_step, figsize=(10, 5))
 
     with tf.Session(graph=g) as sess, g.device(device):
         for it_i in range(n_iterations):
@@ -644,7 +648,9 @@ def dream(img, gradient, step, net, x, n_iterations=50, plot_step=10):
             # Plot the image
             if (it_i + 1) % plot_step == 0:
                 m = net['deprocess'](img_copy[0])
-                axs[it_i // plot_step].imshow(m)
+                plt.title(name+", it: "+str(it_i))
+                plt.imshow(m)
+                wait(1)
 
 
 # In[ ]:
@@ -669,6 +675,7 @@ plot_step = 1
 
 # In[ ]:
 
+"""
 for feature_i in range(len(features)):
     with tf.Session(graph=g) as sess, g.device(device):
         # Get a feature layer
@@ -679,8 +686,12 @@ for feature_i in range(len(features)):
         gradient = tf.gradients(tf.reduce_mean(layer), x)
         
         # Dream w/ our image
-        dream(img, gradient, step, net, x, n_iterations=n_iterations, plot_step=plot_step)
+        dream(img, gradient, step, net, x, n_iterations=n_iterations, plot_step=plot_step, name=features[feature_i])
 
+    wait(1)
+    #input("press...")
+
+"""
 
 # Instead of using an image, we can use an image of noise and see how
 # it "hallucinates" the representations that the layer most responds
@@ -691,6 +702,9 @@ for feature_i in range(len(features)):
 noise = net['preprocess'](
     np.random.rand(256, 256, 3) * 0.1 + 0.45)[np.newaxis]
 
+plt.title(noise)
+plt.imshow(net['deprocess'](noise[0]))
+wait(1)
 
 # We'll do the same thing as before, now w/ our noise image:
 #
@@ -701,14 +715,17 @@ noise = net['preprocess'](
 for feature_i in range(len(features)):
     with tf.Session(graph=g) as sess, g.device(device):
         # Get a feature layer
-        layer = ...
+        layer = g.get_tensor_by_name(features[feature_i])
 
         # Find the gradient of this layer's mean activation
         # with respect to the input image
-        gradient = ...
+        gradient = tf.gradients(tf.reduce_mean(layer), x)
         
         # Dream w/ the noise image.  Complete this!
-        dream(...)
+        dream(noise, gradient, step, net, x, n_iterations=n_iterations, plot_step=plot_step, name=features[feature_i])
+
+    wait(1)
+    #input("press...")
 
 
 # <a name="part-4---deep-dream-extensions"></a>
@@ -842,13 +859,13 @@ with tf.Session(graph=g) as sess, g.device(device):
             if (it_i + 1) % plot_step == 0:
                 m = net['deprocess'](img_copy[0])
 
-                plt.figure(figsize=(5, 5))
+                #plt.figure(figsize=(5, 5))
                 plt.grid('off')
                 plt.imshow(m)
-                plt.show()
+                #plt.show()
                 
                 imgs.append(m)
-                
+                wait(1)
 
 
 # In[ ]:
@@ -988,10 +1005,13 @@ assert(dream_og.ndim == 3 and dream_og.shape[-1] == 3)
 guide_img = net['preprocess'](guide_og)[np.newaxis]
 dream_img = net['preprocess'](dream_og)[np.newaxis]
 
-fig, axs = plt.subplots(1, 2, figsize=(7, 4))
-axs[0].imshow(guide_og)
-axs[1].imshow(dream_og)
-
+#fig, axs = plt.subplots(1, 2, figsize=(7, 4))
+plt.title("guide_og")
+plt.imshow(guide_og)
+wait(3)
+plt.title("dream_og")
+plt.imshow(dream_og)
+wait(3)
 
 # Like w/ Style Net, we are going to measure how similar the features
 # in the guide image are to the dream images. In order to do that,
@@ -1111,12 +1131,13 @@ with tf.Session(graph=g) as sess, g.device(device):
             if (it_i + 1) % plot_step == 0:
                 m = net['deprocess'](img_copy[0])
 
-                plt.figure(figsize=(5, 5))
+                #plt.figure(figsize=(5, 5))
                 plt.grid('off')
                 plt.imshow(m)
-                plt.show()
+                #plt.show()
                 
                 imgs.append(m)
+                wait(1)
 
 gif.build_gif(imgs, saveto='guided.gif')                
 
@@ -1226,13 +1247,15 @@ names = [op.name for op in g.get_operations()]
 content_og = plt.imread('arles.png')[..., :3]
 style_og = plt.imread('clinton.png')[..., :3]
 
-fig, axs = plt.subplots(1, 2)
-axs[0].imshow(content_og)
-axs[0].set_title('Content Image')
-axs[0].grid('off')
-axs[1].imshow(style_og)
-axs[1].set_title('Style Image')
-axs[1].grid('off')
+#fig, axs = plt.subplots(1, 2)
+#axs[0].grid('off')
+plt.title('Content Image')
+plt.imshow(content_og)
+wait(3)
+
+plt.title('Style Image')
+plt.imshow(style_og)
+wait(3)
 
 # We'll save these with a specific name to include in your submission
 plt.imsave(arr=content_og, fname='content.png')
