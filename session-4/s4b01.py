@@ -280,10 +280,10 @@ print("net.keys: ", net.keys())
 
 # First, let's get an image:
 og = plt.imread('clinton.png')[..., :3]
-plt.title("clinton")
-plt.imshow(og)
 print("og min/max: ", og.min(), og.max())
-wait()
+plt.title("clinton")
+#plt.imshow(og)
+#wait()
 
 
 # Let's now try preprocessing this image. The function for
@@ -315,8 +315,8 @@ wait()
 
 deprocessed = net['deprocess'](og)
 plt.title("deprocessed")
-plt.imshow(deprocessed)
-plt.show()
+#plt.imshow(deprocessed)
+#plt.show()
 
 
 # 
@@ -434,7 +434,7 @@ plt.show()
 
 # In[ ]:
 
-#print("net labels: ")
+#print("inception net labels: ")
 #print(net['labels'])
 
 
@@ -573,6 +573,7 @@ def plot_gradient(img, x, feature, g, device='/cpu:0'):
 
 # In[ ]:
 
+"""
 og = plt.imread('clinton.png')[..., :3]
 img = net['preprocess'](og)[np.newaxis]
 
@@ -581,7 +582,7 @@ for i in range(len(features)):
     grad = plot_gradient(img, x, g.get_tensor_by_name(features[i]), g)
     plt.imshow(utils.normalize(grad))
     wait(1)
-
+"""
 
 #
 # Part 3 - Basic Deep Dream
@@ -712,6 +713,7 @@ wait(1)
 
 # In[ ]:
 
+"""
 for feature_i in range(len(features)):
     with tf.Session(graph=g) as sess, g.device(device):
         # Get a feature layer
@@ -726,7 +728,7 @@ for feature_i in range(len(features)):
 
     wait(1)
     #input("press...")
-
+"""
 
 # <a name="part-4---deep-dream-extensions"></a>
 # # Part 4 - Deep Dream Extensions
@@ -746,12 +748,14 @@ for feature_i in range(len(features)):
 # In[ ]:
 
 # Load your own image here
-og = ...
+og = plt.imread("anu455.jpg")
 plt.imshow(og)
+wait(1)
 
 # Preprocess the image and make sure it is 4-dimensional by adding a
 # new axis to the 0th dimension:
-img = ...
+img = net['preprocess'](og)[np.newaxis]
+
 
 assert(img.ndim == 4)
 
@@ -776,7 +780,8 @@ n_els = layer_shape[-1]
 
 # Let's pick a label. First let's print out every label and then find
 # one we like:
-print(net['labels'])
+#print("vgg net labels:")
+#print(net['labels'])
 
 
 # <h3><font color='red'>TODO! COMPLETE THIS SECTION!</font></h3>
@@ -784,9 +789,9 @@ print(net['labels'])
 # In[ ]:
 
 # Pick a neuron. Or pick a random one. This should be 0-n_els
-neuron_i = ...
+neuron_i = 949 # 949=strawberry
 
-print(net['labels'][neuron_i])
+print("net label["+str(neuron_i)+": ", net['labels'][neuron_i])
 assert(neuron_i >= 0 and neuron_i < n_els)
 
 
@@ -859,8 +864,11 @@ with tf.Session(graph=g) as sess, g.device(device):
             if (it_i + 1) % plot_step == 0:
                 m = net['deprocess'](img_copy[0])
 
+                plt.imsave(fname='dream_vgg_last_'+TID+'.png', arr=m)
+                
                 #plt.figure(figsize=(5, 5))
-                plt.grid('off')
+                #plt.grid('off')
+                plt.title("it: "+str(it_i))
                 plt.imshow(m)
                 #plt.show()
                 
