@@ -1104,8 +1104,8 @@ with tf.Session(graph=g) as sess, g.device(device):
 # Experiment with the step size!
 
 
-n_iterations = 200
-plot_step=4
+n_iterations = 600
+plot_step=6
 step = 0.1
 
 imgs = []
