@@ -894,7 +894,7 @@ gif.build_gif(imgs, saveto='s4_softmax_'+TID+'.gif', interval=gifdly)
 # In[ ]:
 
 
-
+"""
 n_iterations = 300
 plot_step = 5
 step = 0.1
@@ -973,7 +973,7 @@ with tf.Session(graph=g) as sess, g.device(device):
 # Create a GIF
 gif.build_gif(imgs, saveto='s4_fractal_'+TID+'.gif', interval=gifdly)
 
-
+"""
 
 
 
@@ -995,9 +995,10 @@ gif.build_gif(imgs, saveto='s4_fractal_'+TID+'.gif', interval=gifdly)
 # In[ ]:
 
 # Replace these with your own images!
-guide_og = plt.imread("letters-beige.jpg")[..., :3]
+#guide_og = plt.imread("loremipsum.png")[..., :3]
 #dream_og = plt.imread(os.path.expanduser("~/fot2.jpg"))[..., :3]
-dream_og=plt.imread("anu455.jpg")
+guide_og = plt.imread(os.path.expanduser("~/fot2.jpg"))[..., :3]
+dream_og = plt.imread("loremipsum.png")[..., :3]
 
 assert(guide_og.ndim == 3 and guide_og.shape[-1] == 3)
 assert(dream_og.ndim == 3 and dream_og.shape[-1] == 3)
@@ -1007,8 +1008,8 @@ assert(dream_og.ndim == 3 and dream_og.shape[-1] == 3)
 
 # In[ ]:
 
-guide_img = net['preprocess'](guide_og)[np.newaxis]
-dream_img = net['preprocess'](dream_og)[np.newaxis]
+guide_img = net['preprocess'](guide_og, dsize=(448,448))[np.newaxis]
+dream_img = net['preprocess'](dream_og, dsize=(448,448))[np.newaxis]
 
 #fig, axs = plt.subplots(1, 2, figsize=(7, 4))
 plt.title("guide_og")
@@ -1102,12 +1103,10 @@ with tf.Session(graph=g) as sess, g.device(device):
 
 # Experiment with the step size!
 
-"""
 
-step = 0.1
-
-n_iterations = 10#100
+n_iterations = 200
 plot_step=4
+step = 0.1
 
 imgs = []
 
@@ -1151,11 +1150,12 @@ with tf.Session(graph=g) as sess, g.device(device):
                 #plt.show()
                 
                 imgs.append(m)
+
+                plt.imsave(fname='s4_guided_last_'+TID+'.png', arr=m)
                 wait(1)
 
 gif.build_gif(imgs, saveto='s4_guided_'+TID+'.gif', interval=gifdly)                
 
-"""
 
 #
 # Further Explorations
@@ -1256,9 +1256,9 @@ names = [op.name for op in g.get_operations()]
 
 # In[ ]:
 
-#content_og = plt.imread(os.path.expanduser("~/fot2.jpg"))[..., :3]
-content_og = plt.imread("anu455.jpg")[..., :3]
-style_og = plt.imread('letters-script.jpg')[..., :3]
+content_og = plt.imread(os.path.expanduser("~/fot2.jpg"))[..., :3]
+#content_og = plt.imread("anu455.jpg")[..., :3]
+style_og = plt.imread('loremipsum.png')[..., :3]
 
 #fig, axs = plt.subplots(1, 2)
 #axs[0].grid('off')
@@ -1271,14 +1271,14 @@ plt.imshow(style_og)
 wait(3)
 
 # We'll save these with a specific name to include in your submission
-plt.imsave(arr=content_og, fname='s4_content_'+TID+'.png')
-plt.imsave(arr=style_og, fname='s4_style_'+TID+'.png')
+#plt.imsave(arr=content_og, fname='s4_content_'+TID+'.png')
+#plt.imsave(arr=style_og, fname='s4_style_'+TID+'.png')
 
 
 # In[ ]:
 
-content_img = net['preprocess'](content_og)[np.newaxis]
-style_img = net['preprocess'](style_og)[np.newaxis]
+content_img = net['preprocess'](content_og, dsize=(448,448))[np.newaxis]
+style_img = net['preprocess'](style_og, dsize=(448,448))[np.newaxis]
 
 
 # Let's see what the network classifies these images as just for fun:
@@ -1494,13 +1494,14 @@ with tf.Session(graph=g) as sess, g.device('/cpu:0'):
 # In[ ]:
 
 """
+
 imgs = []
-n_iterations = 100
+n_iterations = 200
 
 with tf.Session(graph=g) as sess, g.device('/cpu:0'):
     sess.run(tf.initialize_all_variables())
 
-    # map input to noise
+    # map input to noise (or other image)
     og_img = net_input.eval()
     
     for it_i in range(n_iterations):
@@ -1526,6 +1527,8 @@ with tf.Session(graph=g) as sess, g.device('/cpu:0'):
             plt.imshow(m)
             #plt.show()
             wait(1)
+            plt.imsave(fname='s4_stylenet_last_'+TID+'.png', arr=m)
+
     gif.build_gif(imgs, saveto='s4_stylenet_'+TID+'.gif', interval=gifdly)
 
 """
