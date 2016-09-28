@@ -1147,14 +1147,7 @@ with tf.Session(graph=g) as sess, g.device(device):
                 #plt.figure(figsize=(5, 5))
                 #plt.grid('off')
                 plt.title("guided it: "+str(it_i))
-                plt.imshowstylenet it:  48 / 100  loss: 49.320736,  min/max: -1.028164 - 1.251730)
-stylenet it:  49 / 100  loss: 48.612350,  min/max: -1.023559 - 1.271632)
-stylenet it:  50 / 100  loss: 47.895477,  min/max: -1.017662 - 1.288900)
-stylenet it:  51 / 100  loss: 47.181725,  min/max: -1.011041 - 1.304064)
-stylenet it:  52 / 100  loss: 46.510548,  min/max: -1.004408 - 1.318297)
-stylenet it:  53 / 100  loss: 45.910484,  min/max: -0.998461 - 1.332990)
-
-(m)
+                plt.imshow(m)
                 #plt.show()
                 
                 imgs.append(m)
