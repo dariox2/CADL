@@ -1,8 +1,10 @@
 
-# coding: utf-8
 
-# # Session 5: Generative Models
 #
+# Session 5: Generative Models
+#
+
+
 # <p class="lead">
 # <a
 # href="https://www.kadenze.com/courses/creative-applications-of-deep-learning-with-tensorflow/info">Creative
@@ -156,7 +158,9 @@
 
 # In[ ]:
 
+print("Loading tensorflow...")
 import tensorflow as tf
+print("Loading celebrities...")
 from libs.datasets import CELEB
 files = CELEB()
 

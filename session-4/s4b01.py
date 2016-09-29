@@ -995,10 +995,11 @@ gif.build_gif(imgs, saveto='s4_fractal_'+TID+'.gif', interval=gifdly)
 # In[ ]:
 
 # Replace these with your own images!
-#guide_og = plt.imread("loremipsum.png")[..., :3]
-#dream_og = plt.imread(os.path.expanduser("~/fot2.jpg"))[..., :3]
-guide_og = plt.imread(os.path.expanduser("~/fot2.jpg"))[..., :3]
-dream_og = plt.imread("loremipsum.png")[..., :3]
+# (DREAM~ORIGIN; GUIDE~TARGET)
+guide_og = plt.imread("loremipsum.png")[..., :3]
+dream_og = plt.imread(os.path.expanduser("~/fot2.jpg"))[..., :3]
+#guide_og = plt.imread(os.path.expanduser("~/fot2.jpg"))[..., :3]
+#dream_og = plt.imread("loremipsum.png")[..., :3]
 
 assert(guide_og.ndim == 3 and guide_og.shape[-1] == 3)
 assert(dream_og.ndim == 3 and dream_og.shape[-1] == 3)
