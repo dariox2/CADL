@@ -1,12 +1,13 @@
 
 #
-# test shuffle_batch w/2 file queues
+# test shuffle_batch 
 #
-# example with pipeline returning batch with pairs
+# example with pipeline returning batch with pairs of
 # of matching files (e.g. color + black/white),
 # using a seed for repeating the random sequence
 #
-# v.9 DOES NOT WORK
+# version saving 2 full batch montages result
+# 8b - avoid plt/axs
 #
 
 print("Loading tensorflow...")
@@ -19,11 +20,13 @@ import os
 from libs import utils
 import datetime
 
+
 tf.set_random_seed(1)
 
 
 def create_input_pipeline_2(files1, files2, batch_size, shape, 
   crop_shape=None, crop_factor=1.0, n_threads=1, seed=None):
+
 
     producer1 = tf.train.string_input_producer(
         files1, capacity=len(files1), shuffle=False)
@@ -70,19 +73,32 @@ def create_input_pipeline_2(files1, files2, batch_size, shape,
         if crop_shape is not None
         else imgs2)
 
+    # Now we'll create a batch generator that will also shuffle our examples.
+    # We tell it how many it should have in its buffer when it randomly
+    # permutes the order.
     min_after_dequeue = len(files1) // 5
 
+    # The capacity should be larger than min_after_dequeue, and determines how
+    # many examples are prefetched.  TF docs recommend setting this value to:
+    # min_after_dequeue + (num_threads + a small safety margin) * batch_size
     capacity = min_after_dequeue + (n_threads + 1) * batch_size
 
+    # Randomize the order and output batches of batch_size.
     batch = tf.train.shuffle_batch([crops1, crops2],
                                    enqueue_many=False,
                                    batch_size=batch_size,
                                    capacity=capacity,
                                    min_after_dequeue=min_after_dequeue,
                                    num_threads=n_threads,
-                                   seed=seed)
-    
+                                   seed=seed
+                                   )
+
+    # alternatively, we could use shuffle_batch_join to use multiple reader
+    # instances, or set shuffle_batch's n_threads to higher than 1.
+
     return batch
+
+
 
 
 def get_some_files(path):
@@ -90,6 +106,7 @@ def get_some_files(path):
   for f in os.listdir(path) if f.endswith('.jpg')]
   fs=sorted(fs)
   return fs
+
 
 
 print("Loading files...")
@@ -103,34 +120,8 @@ input_shape = [218, 178, 3]
 crop_shape = [64, 64, 3]
 crop_factor = 0.8
 
-#seed=15 # not really necessary?
+#seed=15 # not really necessary
 seed=None
-
-TID=datetime.date.today().strftime("%Y%m%d")+"_"+datetime.datetime.now().time().strftime("%H%M%S")
-
-
-def runtest(sess, batch, idt):
-  fig, axs = plt.subplots(1, 3, figsize=(9, 3))
-
-  for bat in range(1,4):
-
-    mntg=[]
-
-    batres = sess.run(batch)
-    batch_xs1=np.array(batres[0])
-    batch_xs2=np.array(batres[1])
-    for imn in range(0,len(batch_xs1)):
-      img1=batch_xs1[imn] / 255.0 # color image
-      img2=batch_xs2[imn] / 255.0 # matching b/n image
-      mntg.append(img1)
-      mntg.append(img2)
-
-    #m=utils.montage(mntg, saveto="tmp/montage_bat"+str(bat)+"_"+TID+".png")
-    m=utils.montage(mntg)
-    axs[bat-1].imshow(m)
-    axs[bat-1].set_title("batch #"+str(bat))
-
-  plt.savefig("tmp/test_"+str(idt)+"_"+TID+".png", bbox_inches="tight")
 
 batch = create_input_pipeline_2(
     files1=filesX, files2=filesY,
@@ -140,15 +131,28 @@ batch = create_input_pipeline_2(
     shape=input_shape,
     seed=seed)
 
+
+
 sess = tf.Session()
 coord = tf.train.Coordinator()
 threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
+TID=datetime.date.today().strftime("%Y%m%d")+"_"+datetime.datetime.now().time().strftime("%H%M%S")
 
-for i in range(0,2):
-  runtest(sess, batch, i)
+mntg=[]
 
-#plt.show()  
+for bat in range(1,4):
+
+  batres = sess.run(batch)
+  batch_xs1=np.array(batres[0])
+  batch_xs2=np.array(batres[1])
+  for i in range(0,len(batch_xs1)):
+    img1=batch_xs1[i] / 255.0 # color image
+    img2=batch_xs2[i] / 255.0 # matching b/n image
+    mntg.append(img1)
+    mntg.append(img2)
+
+m=utils.montage(mntg, saveto="tmp/test_y8_"+TID+".png")
 
 # eop
 
