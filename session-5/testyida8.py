@@ -22,7 +22,7 @@ tf.set_random_seed(1)
 
 
 def create_input_pipeline_yida(files1, files2, batch_size, n_epochs, shape, crop_shape=None,
-                          crop_factor=1.0, n_threads=2, seed=None):
+                          crop_factor=1.0, n_threads=1, seed=None):
 
 
     producer1 = tf.train.string_input_producer(
@@ -139,7 +139,7 @@ threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
 TID=datetime.date.today().strftime("%Y%m%d")+"_"+datetime.datetime.now().time().strftime("%H%M%S")
 
-for bat in range(1,3):
+for bat in range(1,100):
 
   mntg=[]
 
@@ -152,7 +152,7 @@ for bat in range(1,3):
     mntg.append(img1)
     mntg.append(img2)
 
-  m=utils.montage(mntg, saveto="montage_"+TID+"_"+str(bat)+".png")
+  m=utils.montage(mntg, saveto="montage_bat"+str(bat)+"_"+TID+".png")
 
   plt.figure(figsize=(5, 5))
   plt.title("batch #"+str(bat))
