@@ -158,7 +158,7 @@ for bat in range(1,4):
   axs[bat-1].imshow(m)
   axs[bat-1].set_title("batch #"+str(bat))
 
-plt.savefig("tmp/test_y8_"+TID+".png", bbox_inches="tight")
+plt.savefig("tmp/y8a_"+TID+".png", bbox_inches="tight")
 
 # eop
 

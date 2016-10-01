@@ -1,29 +1,30 @@
 
 #
-# test shuffle_batch 
+# test shuffle_batch w/2 file queues
 #
-# example with pipeline returning batch with pairs of
+# example with pipeline returning batch with pairs
 # of matching files (e.g. color + black/white),
 # using a seed for repeating the random sequence
 #
+# v.9a - 2 figures with 3 batches each, plotting
+#        at the same time, fails to repeat the
+#        same pseudorandom sequence.
 
-print("Loading tensorflow...")
+import os
 import numpy as np
 import matplotlib.pyplot as plt
+print("Loading tensorflow...")
 import tensorflow as tf
-import os
 
 
-from libs import utils
+#from libs import utils
 import datetime
-
 
 tf.set_random_seed(1)
 
 
 def create_input_pipeline_2(files1, files2, batch_size, shape, 
   crop_shape=None, crop_factor=1.0, n_threads=1, seed=None):
-
 
     producer1 = tf.train.string_input_producer(
         files1, capacity=len(files1), shuffle=False)
@@ -70,30 +71,63 @@ def create_input_pipeline_2(files1, files2, batch_size, shape,
         if crop_shape is not None
         else imgs2)
 
-    # Now we'll create a batch generator that will also shuffle our examples.
-    # We tell it how many it should have in its buffer when it randomly
-    # permutes the order.
     min_after_dequeue = len(files1) // 5
 
-    # The capacity should be larger than min_after_dequeue, and determines how
-    # many examples are prefetched.  TF docs recommend setting this value to:
-    # min_after_dequeue + (num_threads + a small safety margin) * batch_size
     capacity = min_after_dequeue + (n_threads + 1) * batch_size
 
-    # Randomize the order and output batches of batch_size.
     batch = tf.train.shuffle_batch([crops1, crops2],
                                    enqueue_many=False,
                                    batch_size=batch_size,
                                    capacity=capacity,
                                    min_after_dequeue=min_after_dequeue,
                                    num_threads=n_threads,
-                                   seed=seed
-                                   )
-
-    # alternatively, we could use shuffle_batch_join to use multiple reader
-    # instances, or set shuffle_batch's n_threads to higher than 1.
-
+                                   seed=seed)
+    
     return batch
+
+
+
+def montage_2(images, saveto=None):
+    """Draw all images as a montage separated by 1 pixel borders.
+
+    Also saves the file to the destination specified by `saveto`.
+
+    Parameters
+    ----------
+    images : numpy.ndarray
+        Input array to create montage of.  Array should be:
+        batch x height x width x channels.
+    saveto : str
+        Location to save the resulting montage image.
+
+    Returns
+    -------
+    m : numpy.ndarray
+        Montage image.
+    """
+    if isinstance(images, list):
+        images = np.array(images)
+    img_h = images.shape[1]
+    img_w = images.shape[2]
+    n_plots = int(np.ceil(np.sqrt(images.shape[0])))
+    if len(images.shape) == 4 and images.shape[3] == 3:
+        m = np.ones(
+            (images.shape[1] * n_plots + n_plots + 1,
+             images.shape[2] * n_plots + n_plots + 1, 3)) * 0.5
+    else:
+        m = np.ones(
+            (images.shape[1] * n_plots + n_plots + 1,
+             images.shape[2] * n_plots + n_plots + 1)) * 0.5
+    for i in range(n_plots):
+        for j in range(n_plots):
+            this_filter = i * n_plots + j
+            if this_filter < images.shape[0]:
+                this_img = images[this_filter]
+                m[1 + i + i * img_h:1 + i + (i + 1) * img_h,
+                  1 + j + j * img_w:1 + j + (j + 1) * img_w] = this_img
+    if saveto: # dja
+      plt.imsave(arr=m, fname=saveto)
+    return m
 
 
 
@@ -103,7 +137,6 @@ def get_some_files(path):
   for f in os.listdir(path) if f.endswith('.jpg')]
   fs=sorted(fs)
   return fs
-
 
 
 print("Loading files...")
@@ -117,8 +150,37 @@ input_shape = [218, 178, 3]
 crop_shape = [64, 64, 3]
 crop_factor = 0.8
 
-#seed=15 # not really necessary
+#seed=15 # not really necessary?
 seed=None
+
+TID=datetime.date.today().strftime("%Y%m%d")+"_"+datetime.datetime.now().time().strftime("%H%M%S")
+
+n_plots=2
+n_bats=3
+
+def runtest(sess, batch, idt):
+
+  fig, axs = plt.subplots(1, 3, figsize=(9, 3))
+
+  for bat in range(n_bats):
+
+    mntg=[]
+    batres = sess.run(batch)
+    batch_xs1=np.array(batres[0])
+    batch_xs2=np.array(batres[1])
+    for imn in range(batch_size):
+      img1=batch_xs1[imn] / 255.0 # color image
+      img2=batch_xs2[imn] / 255.0 # matching b/n image
+      mntg.append(img1)
+      mntg.append(img2)
+
+    m=montage_2(mntg)
+
+    axs[bat].imshow(m)
+    axs[bat].set_title("batch #"+str(bat))
+
+  plt.savefig("tmp/y9a_"+str(idt)+"_"+TID+".png", bbox_inches="tight")
+
 
 batch = create_input_pipeline_2(
     files1=filesX, files2=filesY,
@@ -128,34 +190,14 @@ batch = create_input_pipeline_2(
     shape=input_shape,
     seed=seed)
 
-
-
 sess = tf.Session()
 coord = tf.train.Coordinator()
 threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
-TID=datetime.date.today().strftime("%Y%m%d")+"_"+datetime.datetime.now().time().strftime("%H%M%S")
+for i in range(0,2):
+  runtest(sess, batch, i)
 
-for bat in range(1,4):
-
-  mntg=[]
-
-  batres = sess.run(batch)
-  batch_xs1=np.array(batres[0])
-  batch_xs2=np.array(batres[1])
-  for i in range(0,len(batch_xs1)):
-    img1=batch_xs1[i] / 255.0 # color image
-    img2=batch_xs2[i] / 255.0 # matching b/n image
-    mntg.append(img1)
-    mntg.append(img2)
-
-  m=utils.montage(mntg, saveto="tmp/y8-_"+str(bat)+"_"+TID+".png")
-
-  plt.figure(figsize=(5, 5))
-  plt.title("batch #"+str(bat))
-  plt.imshow(m)
-  plt.show()
-
+plt.show()  
 
 # eop
 
