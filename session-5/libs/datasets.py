@@ -72,7 +72,8 @@ def CELEB(path='./img_align_celeba/'):
     else:
         fs = [os.path.join(path, f)
               for f in os.listdir(path) if f.endswith('.jpg')]
-        if len(fs) < 202598:
+        #if len(fs) < 202598:
+        if len(fs) < 100: # dja
             print('It does not look like you have downloaded the entire ' +
                   'Celeb Dataset.\n' +
                   'Try downloading the dataset from the "Aligned and Cropped" ' +

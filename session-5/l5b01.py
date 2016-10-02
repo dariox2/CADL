@@ -207,11 +207,11 @@ threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
 batch_xs = sess.run(batch)
 # We get batch_size at a time, so 100
-print(batch_xs.shape)
+print("batch_xs.shape: ", batch_xs.shape)
 # The datatype is float32 since what is what we use in the tensorflow
 # graph
 # And the max value still has the original image range from 0-255
-print(batch_xs.dtype, np.max(batch_xs.dtype))
+print("batch_xs.dtype: ", batch_xs.dtype, "  max: ", np.max(batch_xs.dtype))
 # So to plot it, we'll need to divide by 255.
 plt.imshow(batch_xs[0] / 255.0)
 
@@ -435,7 +435,7 @@ embedding = tf.get_variable("embedding", [n_chars, n_cells])
 Xs = tf.nn.embedding_lookup(embedding, X)
 
 # The resulting lookups are concatenated into a dense tensor
-print(Xs.get_shape().as_list())
+print("Xs.get_shape: ", Xs.get_shape().as_list())
 
 
 # To create a recurrent network, we're going to need to slice our
@@ -524,8 +524,10 @@ with tf.variable_scope('prediction'):
     # We get the probabilistic version by calculating the softmax of this
     probs = tf.nn.softmax(logits)
 
+    print("probs: ", probs)
     # And then we can find the index of maximum probability
-    Y_pred = tf.argmax(probs)
+    #Y_pred = tf.argmax(probs)
+    Y_pred = tf.argmax(probs, 1) # dja bugfix
 
 
 # <a name="loss"></a>
@@ -600,7 +602,7 @@ while True:
 
     loss_val, _ = sess.run([mean_loss, updates],
                            feed_dict={X: Xs, Y: Ys})
-    print(it_i, loss_val)
+    print("it_i: ", it_i, "  loss_val: ", loss_val)
 
     if it_i % 500 == 0:
         p = np.argmax(sess.run([Y_pred], feed_dict={X: Xs})[0], axis=1)
