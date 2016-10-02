@@ -160,6 +160,8 @@
 
 print("Loading tensorflow...")
 import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
 print("Loading celebrities...")
 from libs.datasets import CELEB
 files = CELEB()
@@ -347,8 +349,8 @@ plt.imshow(batch_xs[0] / 255.0)
 
 # In[ ]:
 
-get_ipython().magic('pylab')
-import tensorflow as tf
+#get_ipython().magic('pylab')
+#import tensorflow as tf
 from six.moves import urllib
 f, _ = urllib.request.urlretrieve('https://www.gutenberg.org/cache/epub/11/pg11.txt', 'alice.txt')
 with open(f, 'r') as fp:
