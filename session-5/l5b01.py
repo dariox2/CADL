@@ -1,52 +1,50 @@
 
+##
+## Session 5: Generative Models
+##
 
 #
-# Session 5: Generative Models
+# 
+# Learning Goals
+#
+#
+# - [Introduction]
+
+# - [Generative Adversarial Networks]
+#   - [Input Pipelines]
+#   - [GAN/DCGAN]
+#   - [Extensions]
+
+# - [Recurrent Networks]
+#   - [Basic RNN Cell]
+#   - [LSTM RNN Cell]
+#   - [GRU RNN Cell]
+#
+# - [Character Langauge Model]
+#   - [Setting up the Data]
+#   - [Creating the Model]
+#   - [Loss]
+#   - [Clipping the Gradient]
+#   - [Training]
+#   - [Extensions]
+#
+# - [DRAW Network] (???)
+#
+# - [Future]
+#
+# - [Homework]
+#
+# - [Examples]
+#
+# - [Reading]
 #
 
 
-# <p class="lead">
-# <a
-# href="https://www.kadenze.com/courses/creative-applications-of-deep-learning-with-tensorflow/info">Creative
-# Applications of Deep Learning with Google's Tensorflow</a><br />
-# <a href="http://pkmital.com">Parag K. Mital</a><br />
-# <a href="https://www.kadenze.com">Kadenze, Inc.</a>
-# </p>
-#
-# <a name="learning-goals"></a>
-# ## Learning Goals
-#
-#
-# <!-- MarkdownTOC autolink=true autoanchor=true bracket=round -->
-#
-# - [Introduction](#introduction)
-# - [Generative Adversarial
-# Networks](#generative-adversarial-networks)
-# - [Input Pipelines](#input-pipelines)
-# - [GAN/DCGAN](#gandcgan)
-# - [Extensions](#extensions)
-# - [Recurrent Networks](#recurrent-networks)
-# - [Basic RNN Cell](#basic-rnn-cell)
-# - [LSTM RNN Cell](#lstm-rnn-cell)
-# - [GRU RNN Cell](#gru-rnn-cell)
-# - [Character Langauge Model](#character-langauge-model)
-# - [Setting up the Data](#setting-up-the-data)
-# - [Creating the Model](#creating-the-model)
-# - [Loss](#loss)
-# - [Clipping the Gradient](#clipping-the-gradient)
-# - [Training](#training)
-# - [Extensions](#extensions-1)
-# - [DRAW Network](#draw-network)
-# - [Future](#future)
-# - [Homework](#homework)
-# - [Examples](#examples)
-# - [Reading](#reading)
-#
-# <!-- /MarkdownTOC -->
-#
-# <a name="introduction"></a>
-# # Introduction
-#
+##
+## Introduction
+##
+
+
 # So far we've seen the basics of neural networks, how they can be
 # used for encoding large datasets, or for predicting labels. We've
 # also seen how to interrogate the deeper representations that
@@ -82,9 +80,13 @@
 # forgetting over time, allowing us to model dynamic content and
 # sequences, called the recurrent neural network.
 #
-# <a name="generative-adversarial-networks"></a>
-# # Generative Adversarial Networks
-#
+
+
+##
+## Generative Adversarial Networks (GAN)
+##
+
+
 # In session 3, we were briefly introduced to the Variational
 # Autoencoder. This network was very powerful because it encompasses
 # a very strong idea. And that idea is measuring distance not
@@ -127,9 +129,12 @@
 # extensions to this model which make it more like the autoencoder
 # framework, allowing it to do this.
 #
-# <a name="input-pipelines"></a>
-# ## Input Pipelines
+
+
 #
+# Input Pipelines
+#
+
 # Before we get started, we're going to need to work with a very
 # large image dataset, the CelebNet dataset. In session 1, we loaded
 # this dataset but only grabbed the first 1000 images. That's because
@@ -141,7 +146,7 @@
 # networks. But I think now we're ready to see how to handle some
 # larger datasets.
 #
-# Tensorflow provides operations for takinga list of files, using
+# Tensorflow provides operations for taking a list of files, using
 # that list to load the data pointed to it, decoding that file's data
 # as an image, and creating shuffled minibatches. All of this is put
 # into a queue and managed by queuerunners and coordinators.
@@ -156,12 +161,29 @@
 #
 # Let's first get the list of all the CelebNet files:
 
-# In[ ]:
-
 print("Loading tensorflow...")
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
+
+# dja
+#import os
+plt.style.use('bmh')
+import datetime
+#np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
+plt.ion()
+plt.figure(figsize=(4, 4))
+TID=datetime.date.today().strftime("%Y%m%d")+"_"+datetime.datetime.now().time().strftime("%H%M%S")
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from matplotlib.cbook import MatplotlibDeprecationWarning 
+warnings.filterwarnings("ignore", category=MatplotlibDeprecationWarning) 
+
+def wait(n):
+    #plt.pause(n)
+    plt.pause(1)
+    #input("(press enter)")
+
 print("Loading celebrities...")
 from libs.datasets import CELEB
 files = CELEB()
@@ -173,7 +195,6 @@ files = CELEB()
 # epochs we want to run for, and how we want the images to be
 # cropped.
 
-# In[ ]:
 
 from libs.dataset_utils import create_input_pipeline
 batch_size = 100
@@ -194,16 +215,12 @@ batch = create_input_pipeline(
 # create a `Coordinator` and specify this to tensorflow using the
 # `start_queue_runners` method in order to provide the data:
 
-# In[ ]:
-
 sess = tf.Session()
 coord = tf.train.Coordinator()
 threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
 
 # We can grab our data using our `batch` generator like so:
-
-# In[ ]:
 
 batch_xs = sess.run(batch)
 # We get batch_size at a time, so 100
@@ -214,14 +231,17 @@ print("batch_xs.shape: ", batch_xs.shape)
 print("batch_xs.dtype: ", batch_xs.dtype, "  max: ", np.max(batch_xs.dtype))
 # So to plot it, we'll need to divide by 255.
 plt.imshow(batch_xs[0] / 255.0)
-
+wait(1)
 
 # Let's see how to make use of this while we train a generative
 # adversarial network!
 #
-# <a name="gandcgan"></a>
-# ## GAN/DCGAN
+
+
 #
+# GAN/DCGAN
+#
+
 # Inside the libs directory, you'll find `gan.py` which shows how to
 # create a generative adversarial network with or without
 # convolution, and how to train it using the CelebNet dataset. Let's
@@ -230,18 +250,25 @@ plt.imshow(batch_xs[0] / 255.0)
 #
 # -- Code demonstration not transcribed. --
 #
-# <a name="extensions"></a>
-# ## Extensions
+
+
 #
+# Extensions
+#
+
 # So it turns out there are a ton of very fun and interesting
 # extensions when you have a model in this space. It turns out that
 # you can perform addition in the latent space. I'll just show you
 # Alec Radford's code base on github to show you what that looks
 # like.
 #
-# <a name="recurrent-networks"></a>
-# # Recurrent Networks
-#
+
+
+##
+## Recurrent Networks (RNN)
+##
+
+
 # Up until now, all of the networks that we've learned and worked
 # with really have no sense of time. They are static. They cannot
 # remember sequences, nor can they understand order outside of the
@@ -278,9 +305,12 @@ plt.imshow(batch_xs[0] / 255.0)
 # want the network to output for some given set of inputs. And
 # they'll be trained with gradient descent and backprop.
 #
-# <a name="basic-rnn-cell"></a>
-# ## Basic RNN Cell
+
+
 #
+# Basic RNN Cell
+#
+
 # The basic recurrent cell can be used in tensorflow as
 # `tf.nn.rnn_cell.BasicRNNCell`. Though for most complex sequences,
 # especially longer sequences, this is almost never a good idea. That
@@ -304,9 +334,12 @@ plt.imshow(batch_xs[0] / 255.0)
 # yea, what were you doing in 1997. Probably not coming up with they
 # called the long-short-term-memory, or LSTM.
 #
-# <a name="lstm-rnn-cell"></a>
-# ## LSTM RNN Cell
+
+
 #
+# LSTM RNN Cell
+#
+
 # The mechanics of this are unforunately far beyond the scope of this
 # course, but put simply, it uses a combinations of gating cells to
 # control its contents and by having gates, it is able to block the
@@ -317,27 +350,37 @@ plt.imshow(batch_xs[0] / 255.0)
 # In tensorflow, we can make use of this cell using
 # `tf.nn.rnn_cell.LSTMCell`.
 #
-# <a name="gru-rnn-cell"></a>
-# ## GRU RNN Cell
+
+
 #
+# GRU RNN Cell
+#
+
 # One last cell type is worth mentioning, the gated recurrent unit,
 # or GRU. Again, beyond the scope of this class. Just think of it as
 # a simplifed version of the LSTM with 2 gates instead of 4, though
 # that is not an accurate description. In Tensorflow we can use this
 # with `tf.nn.rnn_cell.GRUCell`.
 #
-# <a name="character-langauge-model"></a>
-# # Character Langauge Model
-#
+
+
+##
+## Character Langauge Model
+##
+
+
 # We'll now try a fun application of recurrent networks where we try
 # to model a corpus of text, one character at a time. The basic idea
 # is to take one character at a time and try to predict the next
 # character in sequence. Given enough sequences, the model is capable
 # of generating entirely new sequences all on its own.
 #
-# <a name="setting-up-the-data"></a>
-# ## Setting up the Data
+
+
 #
+# Setting up the Data
+#
+
 # For data, we're going to start with text. You can basically take
 # any text file that is sufficiently long, as we'll need a lot of it,
 # and try to use this. This website seems like an interesting place
@@ -347,10 +390,8 @@ plt.imshow(batch_xs[0] / 255.0)
 # compressing wikipedia. Let's try w/ Alice's Adventures in
 # Wonderland by Lewis Carroll:
 
-# In[ ]:
 
-#get_ipython().magic('pylab')
-#import tensorflow as tf
+print("Reading text file...")
 from six.moves import urllib
 f, _ = urllib.request.urlretrieve('https://www.gutenberg.org/cache/epub/11/pg11.txt', 'alice.txt')
 with open(f, 'r') as fp:
@@ -360,10 +401,8 @@ with open(f, 'r') as fp:
 # And let's find out what's inside this text file by creating a set
 # of all possible characters.
 
-# In[ ]:
-
 vocab = list(set(txt))
-len(txt), len(vocab)
+print ("txt: ", len(txt), "  vocab: ", len(vocab))
 
 
 # Great so we now have about 164 thousand characters and 85 unique
@@ -377,18 +416,17 @@ len(txt), len(vocab)
 # We'll first create a look up table which will map a character to an
 # integer:
 
-# In[ ]:
-
+print("Creating encoder...")
 encoder = dict(zip(vocab, range(len(vocab))))
+print("Creating decoder...")
 decoder = dict(zip(range(len(vocab)), vocab))
 
 
-# <a name="creating-the-model"></a>
-# ## Creating the Model
 #
-# For our model, we'll need to define a few parameters.
+# Creating the Model
+#
 
-# In[ ]:
+# For our model, we'll need to define a few parameters.
 
 # Number of sequences in a mini batch
 batch_size = 100
@@ -411,8 +449,6 @@ n_chars = len(vocab)
 # `width` x `channels`; we're going to have `batch size` x `sequence
 # length`.
 
-# In[ ]:
-
 X = tf.placeholder(tf.int32, [None, sequence_length], name='X')
 
 # We'll have a placeholder for our true outputs
@@ -424,8 +460,6 @@ Y = tf.placeholder(tf.int32, [None, sequence_length], name='Y')
 # into such a representation. But instead, we'll use
 # `tf.nn.embedding_lookup` so that we don't need to compute the
 # encoded vector. Let's see how this works:
-
-# In[ ]:
 
 # we first create a variable to take us from our one-hot
 # representation to our LSTM cells
@@ -444,8 +478,6 @@ print("Xs.get_shape: ", Xs.get_shape().as_list())
 # then be connected to a recurrent layer composed of `n_cells` LSTM
 # units.
 
-# In[ ]:
-
 # Let's create a name scope for the operations to clean things up in
 # our graph
 with tf.name_scope('reslice'):
@@ -455,8 +487,6 @@ with tf.name_scope('reslice'):
 
 # Now we'll create our recurrent layer composed of LSTM cells.
 
-# In[ ]:
-
 cells = tf.nn.rnn_cell.BasicLSTMCell(num_units=n_cells, state_is_tuple=True)
 
 
@@ -465,16 +495,12 @@ cells = tf.nn.rnn_cell.BasicLSTMCell(num_units=n_cells, state_is_tuple=True)
 # the `tf.shape` method to compute it based on whatever `X` is,
 # letting us feed in different sizes into the graph.
 
-# In[ ]:
-
 initial_state = cells.zero_state(tf.shape(X)[0], tf.float32)
 
 
 # Great now we have a layer of recurrent cells and a way to
 # initialize them. If we wanted to make this a multi-layer recurrent
 # network, we could use the `MultiRNNCell` like so:
-
-# In[ ]:
 
 if n_layers > 1:
     cells = tf.nn.rnn_cell.MultiRNNCell(
@@ -485,8 +511,6 @@ if n_layers > 1:
 # In either case, the cells are composed of their outputs as
 # modulated by the LSTM's output gate, and whatever is currently
 # stored in its memory contents. Now let's connect our input to it.
-
-# In[ ]:
 
 # this will return us a list of outputs of every element in our
 # sequence.
@@ -504,8 +528,6 @@ outputs_flat = tf.reshape(tf.concat(1, outputs), [-1, n_cells])
 # So if our input sequence was "networ", our output sequence should
 # be: "etwork". This will give us the same batch size coming out, and
 # the same number of elements as our input sequence.
-
-# In[ ]:
 
 with tf.variable_scope('prediction'):
     W = tf.get_variable(
@@ -527,16 +549,14 @@ with tf.variable_scope('prediction'):
     print("probs: ", probs)
     # And then we can find the index of maximum probability
     #Y_pred = tf.argmax(probs)
-    Y_pred = tf.argmax(probs, 1) # dja bugfix
+    Y_pred = tf.argmax(probs, 1)
 
-
-# <a name="loss"></a>
-# ## Loss
 #
+# Loss
+#
+
 # Our loss function will take the reshaped predictions and targets,
 # and compute the softmax cross entropy.
-
-# In[ ]:
 
 with tf.variable_scope('loss'):
     # Compute mean cross entropy loss for each output.
@@ -545,9 +565,10 @@ with tf.variable_scope('loss'):
     mean_loss = tf.reduce_mean(loss)
 
 
-# <a name="clipping-the-gradient"></a>
-# ## Clipping the Gradient
 #
+# Clipping the Gradient
+#
+
 # Normally, we would just create an optimizer, give it a learning
 # rate, and tell it to minize our loss. But with recurrent networks,
 # we can help out a bit by telling it to clip gradients. That helps
@@ -555,8 +576,6 @@ with tf.variable_scope('loss'):
 # bigger than the value we tell it. We can do that in tensorflow by
 # iterating over every gradient and variable, and changing their
 # value before we apply their update to every trainable variable.
-
-# In[ ]:
 
 with tf.name_scope('optimizer'):
     optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
@@ -575,10 +594,11 @@ with tf.name_scope('optimizer'):
 # problem. Really, the only way to know is to try different
 # approaches and see how it effects the output on your problem.
 #
-# <a name="training"></a>
-# ## Training
 
-# In[ ]:
+
+#
+# Training
+#
 
 sess = tf.Session()
 init = tf.initialize_all_variables()
@@ -587,6 +607,7 @@ sess.run(init)
 cursor = 0
 it_i = 0
 while True:
+    print("it_i: ", it_i, end="")
     Xs, Ys = [], []
     for batch_i in range(batch_size):
         if (cursor + sequence_length) >= len(txt) - sequence_length - 1:
@@ -602,7 +623,7 @@ while True:
 
     loss_val, _ = sess.run([mean_loss, updates],
                            feed_dict={X: Xs, Y: Ys})
-    print("it_i: ", it_i, "  loss_val: ", loss_val)
+    print("  loss_val: ", loss_val)
 
     if it_i % 500 == 0:
         p = np.argmax(sess.run([Y_pred], feed_dict={X: Xs})[0], axis=1)
@@ -612,9 +633,10 @@ while True:
     it_i += 1
 
 
-# <a name="extensions-1"></a>
-# ## Extensions
 #
+# Extensions
+#
+
 # There are also certainly a lot of additions we can add to speed up
 # or help with training including adding dropout or using batch
 # normalization that I haven't gone into here. Also when dealing with
@@ -635,9 +657,13 @@ while True:
 # sessions to add recurrent layers to a traditional convolutional
 # model.
 #
-# <a name="future"></a>
-# # Future
-#
+
+
+##
+## Future
+##
+
+
 # If you're still here, then I'm really excited for you and to see
 # what you'll create. By now, you've seen most of the major building
 # blocks with neural networks. From here, you are only limited by the
@@ -658,9 +684,13 @@ while True:
 # algorithms. That's really where reinforcement learning is starting
 # to shine. But that's for another course, perhaps.
 #
-# <a name="reading"></a>
-# # Reading
-#
+
+
+##
+## Reading
+##
+
+
 # Ian J. Goodfellow, Jean Pouget-Abadie, Mehdi Mirza, Bing Xu, David
 # Warde-Farley, Sherjil Ozair, Aaron Courville, Yoshua Bengio.
 # Generative Adversarial Networks. 2014.
@@ -713,3 +743,6 @@ while True:
 # Proceedings of the 28th International Conference on Machine
 # Learning (ICML-11), ICML ’11, pages 1017–1024, New York, NY, USA,
 # June 2011. ACM.
+#
+
+# eop
