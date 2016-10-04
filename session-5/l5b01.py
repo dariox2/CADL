@@ -606,6 +606,7 @@ sess.run(init)
 
 cursor = 0
 it_i = 0
+print("Begin training...")
 while True:
     print("it_i: ", it_i, end="")
     Xs, Ys = [], []
@@ -626,7 +627,9 @@ while True:
     print("  loss_val: ", loss_val)
 
     if it_i % 500 == 0:
-        p = np.argmax(sess.run([Y_pred], feed_dict={X: Xs})[0], axis=1)
+        # otra linea con error? de donde salio? no esta en upstream...
+        #p = np.argmax(sess.run([Y_pred], feed_dict={X: Xs})[0], axis=1)
+        p = sess.run([Y_pred], feed_dict={X: Xs})[0]
         preds = [decoder[p_i] for p_i in p]
         print("".join(preds).split('\n'))
 
