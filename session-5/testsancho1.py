@@ -228,10 +228,11 @@ sess.run(init)
 
 cursor = 0
 it_i = 0
+print("Train size: ", batch_size*sequence_length)
 print("Begin training...")
 #while True:
 while it_i<runlimit:
-    print("it_i: ", it_i, end="")
+    #print("it_i: ", it_i, end="")
     Xs, Ys = [], []
     for batch_i in range(batch_size):
         if (cursor + sequence_length) >= len(txt) - sequence_length - 1:
@@ -247,14 +248,14 @@ while it_i<runlimit:
 
     loss_val, _ = sess.run([mean_loss, updates],
                            feed_dict={X: Xs, Y: Ys})
-    print("  loss_val: ", loss_val)
+    #print("  loss_val: ", loss_val)
 
     if it_i % 100 == 0:
+        print("it_i: ", it_i, "  loss_val: ", loss_val)
         p = sess.run([Y_pred], feed_dict={X: Xs})[0]
-        print("  p: ", len(p))
         preds = [decoder[p_i] for p_i in p]
-        print("  preds: ", len(preds))
         print("".join(preds).split('\n'))
+        print("")
 
     it_i += 1
 

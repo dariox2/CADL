@@ -1,7 +1,15 @@
 
+#
+# testsancho
+#
+# test saving training checkpoint
+#
+
 print("Loading tensorflow...")
 import tensorflow as tf
 import numpy as np
+import os
+
 
 # dja
 #import os
@@ -151,6 +159,7 @@ outputs_flat = tf.reshape(tf.concat(1, outputs), [-1, n_cells])
 # be: "etwork". This will give us the same batch size coming out, and
 # the same number of elements as our input sequence.
 
+print("Creating prediction layer...")
 with tf.variable_scope('prediction'):
     W = tf.get_variable(
         "W",
@@ -168,7 +177,6 @@ with tf.variable_scope('prediction'):
     # We get the probabilistic version by calculating the softmax of this
     probs = tf.nn.softmax(logits)
 
-    print("probs: ", probs)
     # And then we can find the index of maximum probability
     #Y_pred = tf.argmax(probs)
     Y_pred = tf.argmax(probs, 1)
@@ -180,6 +188,7 @@ with tf.variable_scope('prediction'):
 # Our loss function will take the reshaped predictions and targets,
 # and compute the softmax cross entropy.
 
+print("Creating loss function...")
 with tf.variable_scope('loss'):
     # Compute mean cross entropy loss for each output.
     Y_true_flat = tf.reshape(tf.concat(1, Y), [-1])
@@ -199,6 +208,7 @@ with tf.variable_scope('loss'):
 # iterating over every gradient and variable, and changing their
 # value before we apply their update to every trainable variable.
 
+print("Creating optimizer & clip gradients...")
 with tf.name_scope('optimizer'):
     optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
     gradients = []
@@ -225,6 +235,15 @@ with tf.name_scope('optimizer'):
 sess = tf.Session()
 init = tf.initialize_all_variables()
 sess.run(init)
+saver = tf.train.Saver()
+
+ckptname="testsancho2_model.ckpt"
+print("Restoring model checkpoint...")
+if os.path.exists(ckptname):
+    saver.restore(sess, ckptname)
+    print("  Model restored.")
+else:
+    print("  Model not found")    
 
 cursor = 0
 it_i = 0
@@ -257,6 +276,12 @@ while it_i<runlimit:
         print("".join(preds).split('\n'))
 
     it_i += 1
+
+    if it_i % 50 == 0:
+        print("Saving checkpoint...")
+        save_path = saver.save(sess, "./"+ckptname)
+        print("  Model saved in file: %s" % save_path)
+
 
 
 # eop
