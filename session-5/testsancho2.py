@@ -10,7 +10,6 @@ import tensorflow as tf
 import numpy as np
 import os
 
-
 # dja
 #import os
 import datetime
@@ -126,16 +125,16 @@ cells = tf.nn.rnn_cell.BasicLSTMCell(num_units=n_cells, state_is_tuple=True)
 # letting us feed in different sizes into the graph.
 
 initial_state = cells.zero_state(tf.shape(X)[0], tf.float32)
-
-
+print("initial state: ", initial_state)
+input
 # Great now we have a layer of recurrent cells and a way to
 # initialize them. If we wanted to make this a multi-layer recurrent
 # network, we could use the `MultiRNNCell` like so:
 
-if n_layers > 1:
-    cells = tf.nn.rnn_cell.MultiRNNCell(
-        [cells] * n_layers, state_is_tuple=True)
-    initial_state = cells.zero_state(tf.shape(X)[0], tf.float32)
+#if n_layers > 1:
+#    cells = tf.nn.rnn_cell.MultiRNNCell(
+#        [cells] * n_layers, state_is_tuple=True)
+#    initial_state = cells.zero_state(tf.shape(X)[0], tf.float32)
 
 
 # In either case, the cells are composed of their outputs as
@@ -146,8 +145,7 @@ if n_layers > 1:
 # sequence.
 # Each output is `batch_size` x `n_cells` of output.
 # It will also return the state as a tuple of the n_cells's memory
-# and
-# their output to connect to the time we use the recurrent layer.
+# and their output to connect to the time we use the recurrent layer.
 outputs, state = tf.nn.rnn(cells, Xs, initial_state=initial_state)
 
 # We'll now stack all our outputs for every cell
@@ -217,7 +215,6 @@ with tf.name_scope('optimizer'):
         gradients.append((tf.clip_by_value(grad, -clip, clip), var))
     updates = optimizer.apply_gradients(gradients)
 
-
 # We could also explore other methods of clipping the gradient based
 # on a percentile of the norm of activations or other similar
 # methods, like when we explored deep dream regularization. But the
@@ -228,14 +225,52 @@ with tf.name_scope('optimizer'):
 #
 
 
+def savethefuckingstate(s):
+
+  with open('fuckingstate', 'w') as f:
+    for i in range(2):
+      for j in range(20):
+        for k in range(256):
+          f.write(str(s[i][j][k])+"\n")
+
+def readthefuckingstate():
+
+  with open('fuckingstate', 'r') as f:
+    raw=f.readlines()
+    n=0
+    newstate=[]
+    for i in range(2):
+      si=[]
+      for j in range(20):
+        sj=[]
+        for k in range(256):
+          print(n,": ["+raw[n]+"]")
+          sj.append(float(raw[n]))
+          n+=1
+        si.append(sj)
+      newstate.append(si)
+
+  return newstate
+
+
 #
 # Training
 #
 
 sess = tf.Session()
+#init = tf.initialize_all_variables()
+#sess.run(init)
+
+
+cursor = 0
+it_i = 0
+
+#laststate=tf.Variable(np.array(2,20,256), dftype=tf.float32)
+
 init = tf.initialize_all_variables()
 sess.run(init)
-saver = tf.train.Saver()
+
+saver = tf.train.Saver() #?var_list={gradients: gradients})
 
 ckptname="testsancho2_model.ckpt"
 print("Restoring model checkpoint...")
@@ -245,8 +280,7 @@ if os.path.exists(ckptname):
 else:
     print("  Model not found")    
 
-cursor = 0
-it_i = 0
+
 print("Begin training...")
 #while True:
 while it_i<runlimit:
@@ -264,9 +298,10 @@ while it_i<runlimit:
     Xs = np.array(Xs).astype(np.int32)
     Ys = np.array(Ys).astype(np.int32)
 
-    loss_val, _ = sess.run([mean_loss, updates],
+    loss_val, _ , laststate= sess.run([mean_loss, updates, state],
                            feed_dict={X: Xs, Y: Ys})
-    print("  loss_val: ", loss_val)
+
+    savethefuckingstate(laststate)
 
     if it_i % 10 == 0:
         p = sess.run([Y_pred], feed_dict={X: Xs})[0]
@@ -282,6 +317,12 @@ while it_i<runlimit:
         save_path = saver.save(sess, "./"+ckptname)
         print("  Model saved in file: %s" % save_path)
 
+#print("rno=", rno) # (30,20,256)
+#print("rns=", rns) # (2,20,256)
+
+newstate = readthefuckingstate()
+print(newstate)
+print(np.array(newstate).shape)
 
 
 # eop
