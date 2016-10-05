@@ -3,6 +3,9 @@
 # testsancho
 #
 # test saving training checkpoint
+# CHECKPOINT DOES NOT WORK, 
+# train. saver() does not save what  is 
+# supposed to (i.e. cell state variables)
 #
 
 print("Loading tensorflow...")
@@ -25,7 +28,7 @@ f="bohemian.txt" # batch 20, seq 30, 200 it, funny resemblance
 with open(f, 'r') as fp:
     txt = fp.read()
 
-runlimit=50
+runlimit=100
 
 # And let's find out what's inside this text file by creating a set
 # of all possible characters.
@@ -225,34 +228,6 @@ with tf.name_scope('optimizer'):
 #
 
 
-def savethefuckingstate(s):
-
-  with open('fuckingstate', 'w') as f:
-    for i in range(2):
-      for j in range(20):
-        for k in range(256):
-          f.write(str(s[i][j][k])+"\n")
-
-def readthefuckingstate():
-
-  with open('fuckingstate', 'r') as f:
-    raw=f.readlines()
-    n=0
-    newstate=[]
-    for i in range(2):
-      si=[]
-      for j in range(20):
-        sj=[]
-        for k in range(256):
-          print(n,": ["+raw[n]+"]")
-          sj.append(float(raw[n]))
-          n+=1
-        si.append(sj)
-      newstate.append(si)
-
-  return newstate
-
-
 #
 # Training
 #
@@ -265,26 +240,24 @@ sess = tf.Session()
 cursor = 0
 it_i = 0
 
-#laststate=tf.Variable(np.array(2,20,256), dftype=tf.float32)
 
 init = tf.initialize_all_variables()
 sess.run(init)
 
-saver = tf.train.Saver() #?var_list={gradients: gradients})
+restorer = tf.train.Saver()
 
 ckptname="testsancho2_model.ckpt"
 print("Restoring model checkpoint...")
 if os.path.exists(ckptname):
-    saver.restore(sess, ckptname)
+    restorer.restore(sess, ckptname)
     print("  Model restored.")
 else:
     print("  Model not found")    
 
-
+print("Train size: ", batch_size*sequence_length)
 print("Begin training...")
 #while True:
 while it_i<runlimit:
-    print("it_i: ", it_i, end="")
     Xs, Ys = [], []
     for batch_i in range(batch_size):
         if (cursor + sequence_length) >= len(txt) - sequence_length - 1:
@@ -298,31 +271,26 @@ while it_i<runlimit:
     Xs = np.array(Xs).astype(np.int32)
     Ys = np.array(Ys).astype(np.int32)
 
-    loss_val, _ , laststate= sess.run([mean_loss, updates, state],
+    loss_val, _ = sess.run([mean_loss, updates],
                            feed_dict={X: Xs, Y: Ys})
 
-    savethefuckingstate(laststate)
-
     if it_i % 10 == 0:
+        print("it_i: ", it_i, "  loss: ", loss_val)
         p = sess.run([Y_pred], feed_dict={X: Xs})[0]
-        print("  p: ", len(p))
         preds = [decoder[p_i] for p_i in p]
-        print("  preds: ", len(preds))
         print("".join(preds).split('\n'))
+        print("")
 
     it_i += 1
 
     if it_i % 50 == 0:
+        saver = tf.train.Saver() #?var_list={gradients: gradients})
         print("Saving checkpoint...")
         save_path = saver.save(sess, "./"+ckptname)
         print("  Model saved in file: %s" % save_path)
 
 #print("rno=", rno) # (30,20,256)
 #print("rns=", rns) # (2,20,256)
-
-newstate = readthefuckingstate()
-print(newstate)
-print(np.array(newstate).shape)
 
 
 # eop

@@ -3,6 +3,7 @@
 # testsancho
 #
 # test saving training checkpoint
+# custom save/restore
 #
 
 print("Loading tensorflow...")
@@ -125,8 +126,8 @@ cells = tf.nn.rnn_cell.BasicLSTMCell(num_units=n_cells, state_is_tuple=True)
 # letting us feed in different sizes into the graph.
 
 initial_state = cells.zero_state(tf.shape(X)[0], tf.float32)
-print("initial state: ", initial_state)
-input
+print("initial state: ", initial_state.get_shape(), initial_state)
+
 # Great now we have a layer of recurrent cells and a way to
 # initialize them. If we wanted to make this a multi-layer recurrent
 # network, we could use the `MultiRNNCell` like so:
@@ -225,10 +226,7 @@ with tf.name_scope('optimizer'):
 #
 
 
-rnnfile="fuckingstate.rnn"
-
-
-def savethefuckingstate(s):
+def savethefuckingstate(s, rnnfile):
 
   with open(rnnfile, 'w') as f:
     for i in range(2):
@@ -237,7 +235,7 @@ def savethefuckingstate(s):
           f.write(str(s[i][j][k])+"\n")
 
 
-def readthefuckingstate():
+def readthefuckingstate(rnnfile):
 
   with open(rnnfile, 'r') as f:
     raw=f.readlines()
@@ -257,14 +255,19 @@ def readthefuckingstate():
   return newstate
 
 
+g = tf.get_default_graph()
+print("inception graph names: ")
+for op in g.get_operations():
+    print("    "+op.name)
+
+
+
+
 #
 # Training
 #
 
 sess = tf.Session()
-#init = tf.initialize_all_variables()
-#sess.run(init)
-
 
 cursor = 0
 it_i = 0
@@ -276,18 +279,17 @@ sess.run(init)
 
 print("Restoring model checkpoint...")
 if os.path.exists(rnnfile):
-    newstate = readthefuckingstate()
+    newstate = readthefuckingstate("fuckingstate.rnn")
     print("  Model restored.")
     ass=cell.assign(newstate)
     ses.runn(ass)
 else:
     print("  Model not found")    
 
-
+print("Train size: ", batch_size*sequence_length)
 print("Begin training...")
 #while True:
 while it_i<runlimit:
-    print("it_i: ", it_i, end="")
     Xs, Ys = [], []
     for batch_i in range(batch_size):
         if (cursor + sequence_length) >= len(txt) - sequence_length - 1:
@@ -301,21 +303,22 @@ while it_i<runlimit:
     Xs = np.array(Xs).astype(np.int32)
     Ys = np.array(Ys).astype(np.int32)
 
-    loss_val, _ , laststate= sess.run([mean_loss, updates, state],
+    loss_val, _ = sess.run([mean_loss, updates],
                            feed_dict={X: Xs, Y: Ys})
 
     if it_i % 10 == 0:
+        print("it_i: ", it_i, "  loss: ", loss_val)
         p = sess.run([Y_pred], feed_dict={X: Xs})[0]
-        print("  p: ", len(p))
         preds = [decoder[p_i] for p_i in p]
-        print("  preds: ", len(preds))
         print("".join(preds).split('\n'))
+        print("")
 
     it_i += 1
 
     if it_i % 50 == 0:
+        laststate = sess.run(state)[-1]
         print("Saving checkpoint...")
-        savethefuckingstate(laststate)
+        savethefuckingstate(laststate, "fuckingstate.rnn")
 
 
 #print("rno=", rno) # (30,20,256)
