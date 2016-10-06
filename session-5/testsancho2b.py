@@ -69,7 +69,7 @@ batch_size = 20#0
 sequence_length = 30#0
 
 # Number of cells in our LSTM layer
-n_cells = 256
+n_cells = 128#256
 
 # Number of LSTM layers
 n_layers = 2
@@ -164,7 +164,8 @@ outputs_flat = tf.reshape(tf.concat(1, outputs), [-1, n_cells])
 # the same number of elements as our input sequence.
 
 print("Creating prediction layer...")
-with tf.variable_scope('prediction'):
+#with tf.variable_scope('prediction'):
+if True:
     W = tf.get_variable(
         "W",
         shape=[n_cells, n_chars],
@@ -182,7 +183,6 @@ with tf.variable_scope('prediction'):
     probs = tf.nn.softmax(logits)
 
     # And then we can find the index of maximum probability
-    #Y_pred = tf.argmax(probs)
     Y_pred = tf.argmax(probs, 1)
 
 #
@@ -241,25 +241,34 @@ cursor = 0
 it_i = 0
 
 
-ckptname="testsancho2_model.ckpt-19"
+print("  Initializing...")    
+#init = tf.initialize_all_variables()
+#sess.run(init)
+
+ckptname="tmp/testsancho2_model.ckpt"
 #metaname=ckptname+".meta"
 
 #if os.path.exists(metaname):
 if os.path.exists(ckptname):
     #saver = tf.train.import_meta_graph(metaname)
+    #saver = tf.train.Saver({"embedding": embedding, "prediction/W": W, "prediction/b": b})
     saver=tf.train.Saver()
     print("Restoring model checkpoint...")
     saver.restore(sess, ckptname)
     print("  Model restored.")
 
-    #ypc=tf.get_collection("Y_pred")
-    #for n,t in enumerate(ypc):
+    #ypc=tf.get_collection("prediction/W")
+    #for t in ypc:
     #  print(n, t)
-    #Y_pred=ypc[0]
+    #print(ypc)
+    #Y_pred=ypc
+    #g = tf.Graph()
+    #Y_pred=g.get_tensor_by_name("prediction/W:0")
+    #for op in g.get_operations():
+    #  print("  op: ", op)
+
+    #print("Y_pred: ", Y_pred)
    
-    print("  Initializing...")    
-    #init = tf.initialize_all_variables()
-    sess.run(init)
 
 else:
     print("No checkpoint found")
@@ -267,39 +276,28 @@ else:
 
 print("Train size: ", batch_size*sequence_length)
 print("Begin training...")
-#while True:
-while it_i<runlimit:
+if True:
     Xs, Ys = [], []
     for batch_i in range(batch_size):
         if (cursor + sequence_length) >= len(txt) - sequence_length - 1:
             cursor = 0
         Xs.append([encoder[ch]
                    for ch in txt[cursor:cursor + sequence_length]])
-        Ys.append([encoder[ch]
-                   for ch in txt[cursor + 1: cursor + sequence_length + 1]])
+        #Ys.append([encoder[ch]
+        #           for ch in txt[cursor + 1: cursor + sequence_length + 1]])
+     
 
         cursor = (cursor + sequence_length)
     Xs = np.array(Xs).astype(np.int32)
-    Ys = np.array(Ys).astype(np.int32)
+    #Ys = np.array(Ys).astype(np.int32)
 
-    if it_i == 0:
-        print("PREDICCION INICIAL")
-        p = sess.run([Y_pred], feed_dict={X: Xs})[0]
-        preds = [decoder[p_i] for p_i in p]
-        print("".join(preds).split('\n'))
-        print("")
+
+    print("PREDICCION INICIAL")
+    p = sess.run([Y_pred], feed_dict={X: Xs})[0]
+    preds = [decoder[p_i] for p_i in p]
+    print("".join(preds).split('\n'))
+    print("")
  
-    loss_val = sess.run([mean_loss],
-                           feed_dict={X: Xs, Y: Ys})
-
-    if it_i % 10 == 0:
-        print("it_i: ", it_i, "  loss: ", loss_val)
-        p = sess.run([Y_pred], feed_dict={X: Xs})[0]
-        preds = [decoder[p_i] for p_i in p]
-        print("".join(preds).split('\n'))
-        print("")
-
-    it_i += 1
 
     #if it_i % 50 == 0:
     #    print("Saving checkpoint...")

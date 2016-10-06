@@ -30,7 +30,7 @@ f="bohemian.txt" # batch 20, seq 30, 200 it, funny resemblance
 with open(f, 'r') as fp:
     txt = fp.read()
 
-runlimit=500
+runlimit=200
 
 # And let's find out what's inside this text file by creating a set
 # of all possible characters.
@@ -69,7 +69,7 @@ batch_size = 20#0
 sequence_length = 30#0
 
 # Number of cells in our LSTM layer
-n_cells = 256
+n_cells = 128#256
 
 # Number of LSTM layers
 n_layers = 2
@@ -164,7 +164,8 @@ outputs_flat = tf.reshape(tf.concat(1, outputs), [-1, n_cells])
 # the same number of elements as our input sequence.
 
 print("Creating prediction layer...")
-with tf.variable_scope('prediction'):
+#with tf.variable_scope('prediction'):
+if True:
     W = tf.get_variable(
         "W",
         shape=[n_cells, n_chars],
@@ -182,7 +183,6 @@ with tf.variable_scope('prediction'):
     probs = tf.nn.softmax(logits)
 
     # And then we can find the index of maximum probability
-    #Y_pred = tf.argmax(probs)
     Y_pred = tf.argmax(probs, 1)
 
 #
@@ -241,9 +241,10 @@ cursor = 0
 it_i = 0
 
 
-saver = tf.train.Saver() #?var_list={gradients: gradients})
+#saver = tf.train.Saver({"embedding": embedding, "prediction/W": W, "prediction/b": b})
+saver=tf.train.Saver()
 
-ckptname="testsancho2_model.ckpt"
+ckptname="tmp/testsancho2_model.ckpt"
 #if os.path.exists(ckptname):
 #    print("Restoring model checkpoint...")
 #    saver.restore(sess, ckptname)
@@ -283,7 +284,7 @@ while it_i<runlimit:
     it_i += 1
 
 
-tf.add_to_collection("Y_pred", Y_pred)
+#tf.add_to_collection("Y_pred", Y_pred)
 
 print("Saving checkpoint...")
 save_path = saver.save(sess, "./"+ckptname, write_meta_graph=False)

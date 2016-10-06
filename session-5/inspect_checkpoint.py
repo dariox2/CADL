@@ -288,6 +288,6 @@ def init_from_checkpoint(checkpoint_dir, assignment_map):
 # pylint: enable=protected-access
 
 
-lv=list_variables("testsancho2_model.ckpt")
+lv=list_variables("tmp/testsancho2_model.ckpt")
 for v in lv:
   print(v)
