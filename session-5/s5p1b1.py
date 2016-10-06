@@ -179,14 +179,16 @@ HTML("""<style> .rendered_html code {
 } </style>""")
 
 
-# <a
-# name="part-1---generative-adversarial-networks-gan--deep-convolutional-gan-dcgan"></a>
-# # Part 1 - Generative Adversarial Networks (GAN) / Deep
-# Convolutional GAN (DCGAN)
+##
+## Part 1 - Generative Adversarial Networks (GAN) / 
+##          Deep Convolutional GAN (DCGAN)
+##
+
+
 #
-# <a name="introduction"></a>
-# ## Introduction
+# Introduction
 #
+
 # Recall from the lecture that a Generative Adversarial Network is
 # two networks, a generator and a discriminator. The "generator"
 # takes a feature vector and decodes this feature vector to become an
@@ -253,12 +255,13 @@ n_channels = 3
 input_shape = [None, n_pixels, n_pixels, n_channels]
 
 # And then create the input image placeholder
-X = tf.placeholder(name='X'...
+X = tf.placeholder(name='X', shape=input_shape) # dja
 
 
-# <a name="building-the-encoder"></a>
-# ## Building the Encoder
 #
+# Building the Encoder
+#
+
 # Let's build our encoder just like in Session 3. We'll create a
 # function which accepts the input placeholder, a list of dimensions
 # describing the number of convolutional filters in each layer, and a
@@ -285,7 +288,7 @@ def encoder(x, channels, filter_sizes, activation=tf.nn.tanh, reuse=None):
             # and the size of the kernel in `k_h` and `k_w`.
             # By default, this will use a stride of 2, meaning
             # each new layer will be downsampled by 2.
-            h, W = utils.conv2d(...
+            h, W = utils.conv2d(h, filter_sizes[layer_i]... # dja
 
             # Now apply the activation function
             h = activation(h)

@@ -392,8 +392,9 @@ wait(1)
 
 
 print("Reading text file...")
-from six.moves import urllib
-f, _ = urllib.request.urlretrieve('https://www.gutenberg.org/cache/epub/11/pg11.txt', 'alice.txt')
+#from six.moves import urllib
+#f, _ = urllib.request.urlretrieve('https://www.gutenberg.org/cache/epub/11/pg11.txt', 'alice.txt')
+f="alice2.txt"
 with open(f, 'r') as fp:
     txt = fp.read()
 
