@@ -7,6 +7,8 @@
 # train. saver() does not save what  is 
 # supposed to (i.e. cell state variables)
 #
+# sancho2a - 1) saver part
+#
 
 print("Loading tensorflow...")
 import tensorflow as tf
@@ -28,7 +30,7 @@ f="bohemian.txt" # batch 20, seq 30, 200 it, funny resemblance
 with open(f, 'r') as fp:
     txt = fp.read()
 
-runlimit=100
+runlimit=500
 
 # And let's find out what's inside this text file by creating a set
 # of all possible characters.
@@ -242,14 +244,14 @@ it_i = 0
 saver = tf.train.Saver() #?var_list={gradients: gradients})
 
 ckptname="testsancho2_model.ckpt"
-if os.path.exists(ckptname):
-    print("Restoring model checkpoint...")
-    saver.restore(sess, ckptname)
-    print("  Model restored.")
-else:
-    print("  Initializing...")    
-    init = tf.initialize_all_variables()
-    sess.run(init)
+#if os.path.exists(ckptname):
+#    print("Restoring model checkpoint...")
+#    saver.restore(sess, ckptname)
+#    print("  Model restored.")
+#else:
+print("  Initializing...")    
+init = tf.initialize_all_variables()
+sess.run(init)
 
 print("Train size: ", batch_size*sequence_length)
 print("Begin training...")
@@ -280,13 +282,12 @@ while it_i<runlimit:
 
     it_i += 1
 
-    if it_i % 50 == 0:
-        print("Saving checkpoint...")
-        save_path = saver.save(sess, "./"+ckptname)
-        print("  Model saved in file: %s" % save_path)
 
-#print("rno=", rno) # (30,20,256)
-#print("rns=", rns) # (2,20,256)
+tf.add_to_collection("Y_pred", Y_pred)
+
+print("Saving checkpoint...")
+save_path = saver.save(sess, "./"+ckptname, write_meta_graph=False)
+print("  Model saved in file: %s" % save_path)
 
 
 # eop
