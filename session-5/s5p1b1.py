@@ -288,7 +288,12 @@ def encoder(x, channels, filter_sizes, activation=tf.nn.tanh, reuse=None):
             # and the size of the kernel in `k_h` and `k_w`.
             # By default, this will use a stride of 2, meaning
             # each new layer will be downsampled by 2.
-            h, W = utils.conv2d(h, filter_sizes[layer_i]... # dja
+            h, W = utils.conv2d(h, filter_sizes[layer_i], 
+                                channels[layer_i],
+                                k_h=filter_sizes[layer_i],
+                                k_w=filter_sizes[layer_i],
+                                # d_h=2, d_w=2, 
+                                reuse=reuse) # dja
 
             # Now apply the activation function
             h = activation(h)
@@ -300,9 +305,10 @@ def encoder(x, channels, filter_sizes, activation=tf.nn.tanh, reuse=None):
     return h, hs
 
 
-# <a name="building-the-discriminator-for-the-training-samples"></a>
-# ## Building the Discriminator for the Training Samples
+# 
+# Building the Discriminator for the Training Samples
 #
+
 # Finally, let's take the output of our encoder, and make sure it has
 # just 1 value by using a fully connected layer. We can use the
 # `libs/utils` module's, `linear` layer to do this, which will also
@@ -332,7 +338,8 @@ def discriminator(X,
         
         # Now we can connect our 2D layer to a single neuron output w/
         # a sigmoid activation:
-        D, W = utils.linear(...
+        D, W = utils.linear(x=H, n_output=H.shape[0],
+          activation=tf.nn.sigmoid, reuse=reuse) # dja
     return D
 
 
@@ -352,9 +359,10 @@ graph = tf.get_default_graph()
 nb_utils.show_graph(graph.as_graph_def())
 
 
-# <a name="building-the-decoder"></a>
-# ## Building the Decoder
 #
+# Building the Decoder
+#
+
 # Now we're ready to build the Generator, or decoding network. This
 # network takes as input a vector of features and will try to produce
 # an image that looks like our training data. We'll send this
@@ -397,6 +405,7 @@ n_code = 16
 # And in total how many feature it has, including the spatial
 # dimensions.
 n_latent = (n_pixels // 16) * (n_pixels // 16) * n_code
+  # dja note: 16 = n_pixels/2 ??
 
 # Let's build the 2-D placeholder, which is the 1-d feature vector
 # for every
@@ -445,9 +454,10 @@ def decoder(z, dimensions, channels, filter_sizes,
     return h, hs
 
 
-# <a name="building-the-generator"></a>
-# ## Building the Generator
 #
+# Building the Generator
+#
+
 # Now we're ready to use our decoder to take in a vector of features
 # and generate something that looks like our training images. We have
 # to ensure that the last layer produces the same output shape as the
@@ -487,9 +497,10 @@ graph = tf.get_default_graph()
 nb_utils.show_graph(graph.as_graph_def())
 
 
-# <a name="building-the-discriminator-for-the-generated-samples"></a>
-# ## Building the Discriminator for the Generated Samples
 #
+# Building the Discriminator for the Generated Samples
+#
+
 # Lastly, we need *another* discriminator which takes as input our
 # generated images. Recall the discriminator that we have made only
 # takes as input our placeholder `X` which is for our actual training
@@ -517,9 +528,10 @@ D_fake = discriminator(G, reuse=True)
 nb_utils.show_graph(graph.as_graph_def())
 
 
-# <a name="gan-loss-functions"></a>
-# ## GAN Loss Functions
 #
+# GAN Loss Functions
+#
+
 # We now have all the components to our network. We just have to
 # train it. This is the notoriously tricky bit. We will have 3
 # different loss measures instead of our typical network with just a
@@ -563,9 +575,9 @@ with tf.variable_scope('loss/generator'):
 # In[ ]:
 
 with tf.variable_scope('loss/discriminator/real'):
-    loss_D_real = utils.binary_cross_entropy(D_real, ...
+    loss_D_real = utils.binary_cross_entropy(D_real, tf.ones_like(D_fake))
 with tf.variable_scope('loss/discriminator/fake'):
-    loss_D_fake = utils.binary_cross_entropy(D_fake, ...
+    loss_D_fake = utils.binary_cross_entropy(D_fake, tf.zeroes_like(D_fake))
 with tf.variable_scope('loss/discriminator'):
     loss_D = tf.reduce_mean((loss_D_real + loss_D_fake) / 2)
 
@@ -577,10 +589,11 @@ nb_utils.show_graph(graph.as_graph_def())
 
 # With our loss functions, we can create an optimizer for the
 # discriminator and generator:
+
 #
-# <a name="building-the-optimizers-w-regularization"></a>
-# ## Building the Optimizers w/ Regularization
+# Building the Optimizers w/ Regularization
 #
+
 # We're almost ready to create our optimizers. We just need to do one
 # extra thing. Recall that our loss for our generator has a flow from
 # the generator through the discriminator. If we are training both
@@ -893,11 +906,15 @@ coord.join(threads)
 # Clean up the session.
 sess.close()
 
+input("press any key to 2ND PART")
 
-# <a
-# name="part-2---variational-auto-encoding-generative-adversarial-network-vaegan"></a>
-# # Part 2 - Variational Auto-Encoding Generative Adversarial Network
-# (VAEGAN)
+"""
+
+##
+## Part 2 - Variational Auto-Encoding Generative Adversarial Network
+##          (VAEGAN)
+##
+
 #
 # In our definition of the generator, we started with a feature
 # vector, `Z`. This feature vector was not connected to anything
@@ -1081,6 +1098,7 @@ channels = [64, 64, 64]
 filter_sizes = [5, 5, 5]
 activation = tf.nn.elu
 n_hidden = 128
+
 
 with tf.variable_scope('encoder'):
     H, Hs = encoder(...
@@ -1922,7 +1940,7 @@ for i, ax_i in enumerate(axs):
 # In[ ]:
 
 def slerp(val, low, high):
-    """Spherical interpolation. val has a range of 0 to 1."""
+    # Spherical interpolation. val has a range of 0 to 1.
     if val <= 0:
         return low
     elif val >= 1:
@@ -2155,3 +2173,6 @@ gif.build_gif(imgs=imgs, saveto='vaegan.gif')
 #
 # Please visit [session-5-part2.ipynb](session-5-part2.ipynb) for the
 # rest of the homework!
+
+"""
+
