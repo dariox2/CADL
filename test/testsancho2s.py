@@ -7,12 +7,9 @@ import tensorflow as tf
 import numpy as np
 import os
 
+save=False
 
-#g = tf.Graph()
-#with tf.Session(graph=g) as sess:
-
-with tf.variable_scope("cadorcha", reuse=False):
-
+if True:
   sess=tf.Session()
 
   print("Reading text file...")
@@ -21,7 +18,7 @@ with tf.variable_scope("cadorcha", reuse=False):
   with open(f, 'r') as fp:
     txt = fp.read()
 
-  runlimit=100 # 50~100
+  runlimit=300 # 50~100
 
   vocab = list(set(txt))
   print ("txt: ", len(txt), "  vocab: ", len(vocab))
@@ -31,14 +28,12 @@ with tf.variable_scope("cadorcha", reuse=False):
 
   batch_size = 20
   sequence_length = 30
-  n_cells = 128
+  n_cells = 256
   n_layers = 2
   n_chars = len(vocab)
 
   X = tf.placeholder(tf.int32, [None, sequence_length], name='X')
   Y = tf.placeholder(tf.int32, [None, sequence_length], name='Y')
-
-  #with tf.name_scope("embudding"):
 
   embedding = tf.get_variable("embedding", [n_chars, n_cells])
   Xs = tf.nn.embedding_lookup(embedding, X)
@@ -54,14 +49,14 @@ with tf.variable_scope("cadorcha", reuse=False):
   #
   # 1) OK FOR INITIAL TRAINING; STATE IS LOST AFTER
   #
-  #initial_state = cells.zero_state(tf.shape(X)[0], tf.float32)
-  #print("initial state: ", initial_state)
-  #outputs, state = tf.nn.rnn(cells, Xs, initial_state=initial_state)
+  initial_state = cells.zero_state(tf.shape(X)[0], tf.float32)
+  print("initial state: ", initial_state)
+  outputs, state = tf.nn.rnn(cells, Xs, initial_state=initial_state)
   
   #
-  # 2) OK FOR RESTORING AND EVALUATE OUTPUT; DEGRADES IF TRAINED
+  # 2) OK(????) FOR RESTORING AND EVALUATE OUTPUT; DEGRADES IF TRAINED
   #
-  outputs, state = tf.nn.rnn(cells, Xs, dtype=tf.float32)
+  #outputs, state = tf.nn.rnn(cells, Xs, dtype=tf.float32)
 
 
   outputs_flat = tf.reshape(tf.concat(1, outputs), [-1, n_cells])
@@ -71,13 +66,13 @@ with tf.variable_scope("cadorcha", reuse=False):
     W = tf.get_variable(
         "W",
         shape=[n_cells, n_chars],
-        #initializer=tf.random_normal_initializer(stddev=0.1))
-        initializer=tf.constant_initializer(0.5))
+        initializer=tf.random_normal_initializer(stddev=0.1))
+        #initializer=tf.constant_initializer(0.5))
     b = tf.get_variable(
         "b",
         shape=[n_chars],
-        #initializer=tf.random_normal_initializer(stddev=0.1))
-        initializer=tf.constant_initializer(1.0))
+        initializer=tf.random_normal_initializer(stddev=0.1))
+        #initializer=tf.constant_initializer(1.0))
     logits = tf.matmul(outputs_flat, W) + b
     probs = tf.nn.softmax(logits)
     Y_pred = tf.argmax(probs, 1)
@@ -96,21 +91,21 @@ with tf.variable_scope("cadorcha", reuse=False):
         gradients.append((tf.clip_by_value(grad, -clip, clip), var))
     updates = optimizer.apply_gradients(gradients)
 
-  #sess = tf.Session()
-
   cursor = 0
   it_i = 0
 
-with tf.variable_scope("cadorcha", reuse=True):
+#with tf.variable_scope("cadorcha", reuse=True):
+
+  print("  Initializing...")    
+  init = tf.initialize_all_variables()
+  sess.run(init)
+
   saver = tf.train.Saver()
   ckptname="tmp/testsancho2_model.ckpt"
   if os.path.exists(ckptname):
     saver.restore(sess, ckptname)
     print("  Model restored.")
-  else:
-    print("  Initializing...")    
-    init = tf.initialize_all_variables()
-    sess.run(init)
+    save=False
 
   print("Train size: ", batch_size*sequence_length)
   print("Begin training...")
@@ -140,9 +135,10 @@ with tf.variable_scope("cadorcha", reuse=True):
 
     it_i += 1
 
-  print("Saving checkpoint...")
-  save_path = saver.save(sess, ckptname)
-  print("  Model saved in file: %s" % save_path)
+  if save:
+    print("Saving checkpoint...")
+    save_path = saver.save(sess, ckptname)
+    print("  Model saved in file: %s" % save_path)
 
 # eop
 
