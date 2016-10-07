@@ -49,7 +49,12 @@ def print_tensors_in_checkpoint_file(file_name, tensor_name):
         print("tensor_name: ", key)
         print(reader.get_tensor(key))
     elif not tensor_name:
-      print(reader.debug_string().decode("utf-8"))
+      #print(reader.debug_string().decode("utf-8"))
+      # dja
+      tlist=sorted(reader.debug_string().decode("utf-8").split("\n"),
+                   key=str.lower)
+      for t in tlist:
+         print(t)
     else:
       print("tensor_name: ", tensor_name)
       print(reader.get_tensor(tensor_name))

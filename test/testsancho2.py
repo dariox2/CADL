@@ -233,20 +233,16 @@ with tf.name_scope('optimizer'):
 #
 
 sess = tf.Session()
-#init = tf.initialize_all_variables()
-#sess.run(init)
-
 
 cursor = 0
 it_i = 0
-
 
 init = tf.initialize_all_variables()
 sess.run(init)
 
 restorer = tf.train.Saver()
 
-ckptname="testsancho2_model.ckpt"
+ckptname="tmp/testsancho2_model.ckpt"
 print("Restoring model checkpoint...")
 if os.path.exists(ckptname):
     restorer.restore(sess, ckptname)

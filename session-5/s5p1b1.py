@@ -131,52 +131,16 @@
 
 # First check the Python version
 import sys
-if sys.version_info < (3,4):
-    print('You are running an older version of Python!\n\n',
-          'You should consider updating to Python 3.4.0 or',
-          'higher as the libraries built for this course',
-          'have only been tested in Python 3.4 and higher.\n')
-    print('Try installing the Python 3.5 version of anaconda'
-          'and then restart `jupyter notebook`:\n',
-          'https://www.continuum.io/downloads\n\n')
 
-# Now get necessary libraries
-try:
-    import os
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from skimage.transform import resize
-    from skimage import data
-    from scipy.misc import imresize
-    from scipy.ndimage.filters import gaussian_filter
-    import IPython.display as ipyd
-    import tensorflow as tf
-    from libs import utils, gif, datasets, dataset_utils, nb_utils
-except ImportError as e:
-    print("Make sure you have started notebook in the same directory",
-          "as the provided zip file which includes the 'libs' folder",
-          "and the file 'utils.py' inside of it.  You will NOT be able",
-          "to complete this assignment unless you restart jupyter",
-          "notebook inside the directory created by extracting",
-          "the zip file or cloning the github repo.")
-    print(e)
-
-# We'll tell matplotlib to inline any drawn figures like so:
-get_ipython().magic('matplotlib inline')
-plt.style.use('ggplot')
-
-
-# In[ ]:
-
-# Bit of formatting because I don't like the default inline code
-# style:
-from IPython.core.display import HTML
-HTML("""<style> .rendered_html code { 
-    padding: 2px 4px;
-    color: #c7254e;
-    background-color: #f9f2f4;
-    border-radius: 4px;
-} </style>""")
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+from skimage.transform import resize
+from skimage import data
+from scipy.misc import imresize
+from scipy.ndimage.filters import gaussian_filter
+import tensorflow as tf
+from libs import utils, gif, datasets, dataset_utils, nb_utils
 
 
 ##
@@ -255,7 +219,7 @@ n_channels = 3
 input_shape = [None, n_pixels, n_pixels, n_channels]
 
 # And then create the input image placeholder
-X = tf.placeholder(name='X', shape=input_shape) # dja
+X = tf.placeholder(name='X', shape=input_shape, dtype=tf.float32) # dja
 
 
 #
