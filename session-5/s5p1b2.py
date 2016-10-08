@@ -689,9 +689,7 @@ batch = dataset_utils.create_input_pipeline(
 # would be done. This is because in Part 2, we'll see an extension to
 # this network which makes it much easier to train.
 
-# dja note: F****N SAVER DOES NOT WORK HERE EITHER
-
-ckpt_name = 'gan.ckpt'
+ckpt_name = 'gan.ckpt-0'
 
 sess = tf.Session()
 saver = tf.train.Saver()
@@ -883,7 +881,7 @@ sess.close()
 
 input("press any key to 2ND PART")
 
-"""
+
 
 ##
 ## Part 2 - Variational Auto-Encoding Generative Adversarial Network
