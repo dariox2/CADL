@@ -127,18 +127,19 @@
 # Network and how it is trained
 # * Learn to sample from a pre-trained CharRNN model
 
-# In[ ]:
 
-# First check the Python version
+print("Begin import...")
+
+
 import sys
-
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage.transform import resize
-from skimage import data
+#from skimage import data # ERROR: Cannot load libmkl_def.so
 from scipy.misc import imresize
 from scipy.ndimage.filters import gaussian_filter
+print("Loading tensorflow...")
 import tensorflow as tf
 from libs import utils, gif, datasets, dataset_utils, nb_utils
 
@@ -237,6 +238,7 @@ X = tf.placeholder(name='X', shape=input_shape, dtype=tf.float32) # dja
 
 # In[ ]:
 
+print("def encoder...")
 def encoder(x, channels, filter_sizes, activation=tf.nn.tanh, reuse=None):
     # Set the input to a common variable name, h, for hidden layer
     h = x
@@ -245,17 +247,16 @@ def encoder(x, channels, filter_sizes, activation=tf.nn.tanh, reuse=None):
     # of output filters in each layer, and collect each hidden layer
     hs = []
     for layer_i in range(len(channels)):
-        
+
         with tf.variable_scope('layer{}'.format(layer_i+1), reuse=reuse):
             # Convolve using the utility convolution function
             # This requirs the number of output filter,
             # and the size of the kernel in `k_h` and `k_w`.
             # By default, this will use a stride of 2, meaning
             # each new layer will be downsampled by 2.
-            h, W = utils.conv2d(h, filter_sizes[layer_i], 
-                                channels[layer_i],
-                                k_h=filter_sizes[layer_i],
-                                k_w=filter_sizes[layer_i],
+            h, W = utils.conv2d(h, len(filter_sizes), 
+                                filter_sizes[layer_i],
+                                filter_sizes[layer_i],
                                 # d_h=2, d_w=2, 
                                 reuse=reuse) # dja
 
@@ -282,7 +283,7 @@ def encoder(x, channels, filter_sizes, activation=tf.nn.tanh, reuse=None):
 # <h3><font color='red'>TODO! COMPLETE THIS SECTION!</font></h3>
 
 # In[ ]:
-
+print("def discriminator...")
 def discriminator(X,
                   channels=[50, 50, 50, 50],
                   filter_sizes=[4, 4, 4, 4],
@@ -300,9 +301,9 @@ def discriminator(X,
         shape = H.get_shape().as_list()
         H = tf.reshape(H, [-1, shape[1] * shape[2] * shape[3]])
         
-        # Now we can connect our 2D layer to a single neuron output w/
-        # a sigmoid activation:
-        D, W = utils.linear(x=H, n_output=H.shape[0],
+        # Now we can connect our 2D layer to a single neuron output
+        # w/a sigmoid activation:
+        D, W = utils.linear(x=H, n_output=1,
           activation=tf.nn.sigmoid, reuse=reuse) # dja
     return D
 
@@ -398,8 +399,7 @@ Z_tensor = tf.reshape(Z, [-1, n_pixels // 16, n_pixels // 16, n_code])
 # We'll end up needing this for Part 2 when we combine the
 # variational autoencoder w/ the generative adversarial network.
 
-# In[ ]:
-
+print("def decoder...")
 def decoder(z, dimensions, channels, filter_sizes,
             activation=tf.nn.relu, reuse=None):
     h = z
@@ -431,9 +431,9 @@ def decoder(z, dimensions, channels, filter_sizes,
 # element in our `dimensions` list is 64, and the last element in our
 # `channels` list is 3.
 
-# In[ ]:
-
 # Explore these parameters.
+
+print("def generator...")
 def generator(Z,
               dimensions=[n_pixels//8, n_pixels//4, n_pixels//2, n_pixels],
               channels=[50, 50, 50, n_channels],
@@ -518,8 +518,7 @@ nb_utils.show_graph(graph.as_graph_def())
 # measure will measure the cross entropy with our predicted
 # distribution and the true distribution which has all ones.
 
-# In[ ]:
-
+print("create loss_G...")
 with tf.variable_scope('loss/generator'):
     loss_G = tf.reduce_mean(utils.binary_cross_entropy(D_fake, tf.ones_like(D_fake)))
 
@@ -536,17 +535,15 @@ with tf.variable_scope('loss/generator'):
 #
 # <h3><font color='red'>TODO! COMPLETE THIS SECTION!</font></h3>
 
-# In[ ]:
 
+print("create loss_D...")
 with tf.variable_scope('loss/discriminator/real'):
-    loss_D_real = utils.binary_cross_entropy(D_real, tf.ones_like(D_fake))
+    loss_D_real = utils.binary_cross_entropy(D_real, tf.ones_like(D_fake)) # dja
 with tf.variable_scope('loss/discriminator/fake'):
-    loss_D_fake = utils.binary_cross_entropy(D_fake, tf.zeroes_like(D_fake))
+    loss_D_fake = utils.binary_cross_entropy(D_fake, tf.zeros_like(D_fake)) # dja
 with tf.variable_scope('loss/discriminator'):
     loss_D = tf.reduce_mean((loss_D_real + loss_D_fake) / 2)
 
-
-# In[ ]:
 
 nb_utils.show_graph(graph.as_graph_def())
 
@@ -576,18 +573,20 @@ nb_utils.show_graph(graph.as_graph_def())
 #
 # <h3><font color='red'>TODO! COMPLETE THIS SECTION!</font></h3>
 
-# In[ ]:
+# dja debug
+#for v in tf.trainable_variables():
+#    print("  ->",v.name)
 
 # Grab just the variables corresponding to the discriminator
 # and just the generator:
 vars_d = [v for v in tf.trainable_variables()
-          if ...]
+             if v.name.startswith("discriminator/")] # dja
 print('Training discriminator variables:')
 [print(v.name) for v in tf.trainable_variables()
  if v.name.startswith('discriminator')]
 
 vars_g = [v for v in tf.trainable_variables()
-          if ...]
+             if v.name.startswith('generator/')] # dja
 print('Training generator variables:')
 [print(v.name) for v in tf.trainable_variables()
  if v.name.startswith('generator')]
@@ -632,7 +631,7 @@ lr_d = tf.placeholder(tf.float32, shape=[], name='learning_rate_d')
 
 # In[ ]:
 
-opt_g = tf.train.AdamOptimizer(learning_rate=lr_g).minimize(...)
+opt_g = tf.train.AdamOptimizer(learning_rate=lr_g).minimize(loss_G + g_reg, var_list=vars_g) # dja
 
 
 # In[ ]:
@@ -715,12 +714,9 @@ zs = utils.make_latent_manifold(zs, n_examples)
 # \end{align}
 #
 # Which is written out in tensorflow as:
-
-# In[ ]:
-
-(-(x * tf.log(z) + (1. - x) * tf.log(1. - z)))
-
-
+#
+#    (-(x * tf.log(z) + (1. - x) * tf.log(1. - z)))
+#
 # Where `x` is the discriminator's prediction of the true
 # distribution, in the case of GANs, the input images, and `z` is the
 # discriminator's prediction of the generated images corresponding to
