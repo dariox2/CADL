@@ -7,7 +7,10 @@ import tensorflow as tf
 import numpy as np
 import os
 
-save=False
+
+ckptname="tmp/testsancho2_model.ckpt"
+
+save=True
 
 if True:
   sess=tf.Session()
@@ -49,14 +52,14 @@ if True:
   #
   # 1) OK FOR INITIAL TRAINING; STATE IS LOST AFTER
   #
-  initial_state = cells.zero_state(tf.shape(X)[0], tf.float32)
-  print("initial state: ", initial_state)
-  outputs, state = tf.nn.rnn(cells, Xs, initial_state=initial_state)
+  #initial_state = cells.zero_state(tf.shape(X)[0], tf.float32)
+  #print("initial state: ", initial_state)
+  #outputs, state = tf.nn.rnn(cells, Xs, initial_state=initial_state)
   
   #
   # 2) OK(????) FOR RESTORING AND EVALUATE OUTPUT; DEGRADES IF TRAINED
   #
-  #outputs, state = tf.nn.rnn(cells, Xs, dtype=tf.float32)
+  outputs, state = tf.nn.rnn(cells, Xs, dtype=tf.float32)
 
 
   outputs_flat = tf.reshape(tf.concat(1, outputs), [-1, n_cells])
@@ -66,13 +69,13 @@ if True:
     W = tf.get_variable(
         "W",
         shape=[n_cells, n_chars],
-        initializer=tf.random_normal_initializer(stddev=0.1))
-        #initializer=tf.constant_initializer(0.5))
+        #initializer=tf.random_normal_initializer(stddev=0.1))
+        initializer=tf.constant_initializer(0.51))
     b = tf.get_variable(
         "b",
         shape=[n_chars],
-        initializer=tf.random_normal_initializer(stddev=0.1))
-        #initializer=tf.constant_initializer(1.0))
+        #initializer=tf.random_normal_initializer(stddev=0.1))
+        initializer=tf.constant_initializer(0.49))
     logits = tf.matmul(outputs_flat, W) + b
     probs = tf.nn.softmax(logits)
     Y_pred = tf.argmax(probs, 1)
@@ -94,18 +97,21 @@ if True:
   cursor = 0
   it_i = 0
 
-#with tf.variable_scope("cadorcha", reuse=True):
-
   print("  Initializing...")    
   init = tf.initialize_all_variables()
   sess.run(init)
 
   saver = tf.train.Saver()
-  ckptname="tmp/testsancho2_model.ckpt"
+
+  #provi DEBUG
+  #save_path = saver.save(sess, ckptname)
+  #quit()
+
+  #ckptname="tmp/testsancho2_model.ckpt"
   if os.path.exists(ckptname):
     saver.restore(sess, ckptname)
     print("  Model restored.")
-    save=False
+    #save=False
 
   print("Train size: ", batch_size*sequence_length)
   print("Begin training...")
@@ -119,7 +125,8 @@ if True:
       Ys.append([encoder[ch]
               for ch in txt[cursor + 1: cursor + sequence_length + 1]])
 
-    cursor = (cursor + sequence_length)
+      cursor = (cursor + sequence_length)
+
     Xs = np.array(Xs).astype(np.int32)
     Ys = np.array(Ys).astype(np.int32)
 
