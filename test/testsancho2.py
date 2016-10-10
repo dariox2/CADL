@@ -16,11 +16,12 @@ import os
 
 print("Reading text file...")
 
-f="bohemian.txt" # only 2000 words approx.
+#f="bohemian.txt" # only 2000 words approx.
+f="chankorean.txt"
 with open(f, 'r') as fp:
     txt = fp.read()
 
-runlimit=300 # 50~100
+runlimit=1000 # 50~100
 
 vocab = list(set(txt))
 print ("txt: ", len(txt), "  vocab: ", len(vocab))
