@@ -1,158 +1,43 @@
 
-# coding: utf-8
+# Session 5, part 4 (notebook part 2)
 
-# # Session 5: Generative Networks
-# ## Assignment: Generative Adversarial Networks, Variational
-# Autoencoders, and Recurrent Neural Networks
-# <p class="lead">
-# <a
-# href="https://www.kadenze.com/courses/creative-applications-of-deep-learning-with-tensorflow/info">Creative
-# Applications of Deep Learning with Google's Tensorflow</a><br />
-# <a href="http://pkmital.com">Parag K. Mital</a><br />
-# <a href="https://www.kadenze.com">Kadenze, Inc.</a>
-# </p>
-#
-#
-# Continued from [session-5-part-1.ipynb](session-5-part-1.ipynb)...
-#
-# # Table of Contents
-#
-# <!-- MarkdownTOC autolink="true" autoanchor="true" bracket="round"
-# -->
-# - [Overview](session-5-part-1.ipynb#overview)
-# - [Learning Goals](session-5-part-1.ipynb#learning-goals)
-# - [Part 1 - Generative Adversarial Networks \(GAN\) / Deep
-# Convolutional GAN
-# \(DCGAN\)](#part-1---generative-adversarial-networks-gan--deep-convolutional-gan-dcgan)
-# - [Introduction](session-5-part-1.ipynb#introduction)
-# - [Building the
-# Encoder](session-5-part-1.ipynb#building-the-encoder)
-# - [Building the Discriminator for the Training
-# Samples](session-5-part-1.ipynb#building-the-discriminator-for-the-training-samples)
-# - [Building the
-# Decoder](session-5-part-1.ipynb#building-the-decoder)
-# - [Building the
-# Generator](session-5-part-1.ipynb#building-the-generator)
-# - [Building the Discriminator for the Generated
-# Samples](session-5-part-1.ipynb#building-the-discriminator-for-the-generated-samples)
-# - [GAN Loss Functions](session-5-part-1.ipynb#gan-loss-functions)
-# - [Building the Optimizers w/
-# Regularization](session-5-part-1.ipynb#building-the-optimizers-w-regularization)
-# - [Loading a Dataset](session-5-part-1.ipynb#loading-a-dataset)
-# - [Training](session-5-part-1.ipynb#training)
-# - [Equilibrium](session-5-part-1.ipynb#equilibrium)
-# - [Part 2 - Variational Auto-Encoding Generative Adversarial
-# Network
-# \(VAEGAN\)](#part-2---variational-auto-encoding-generative-adversarial-network-vaegan)
-# - [Batch Normalization](session-5-part-1.ipynb#batch-normalization)
-# - [Building the
-# Encoder](session-5-part-1.ipynb#building-the-encoder-1)
-# - [Building the Variational
-# Layer](session-5-part-1.ipynb#building-the-variational-layer)
-# - [Building the
-# Decoder](session-5-part-1.ipynb#building-the-decoder-1)
-# - [Building VAE/GAN Loss
-# Functions](session-5-part-1.ipynb#building-vaegan-loss-functions)
-# - [Creating the
-# Optimizers](session-5-part-1.ipynb#creating-the-optimizers)
-# - [Loading the Dataset](session-5-part-1.ipynb#loading-the-dataset)
-# - [Training](session-5-part-1.ipynb#training-1)
-# - [Part 3 - Latent-Space
-# Arithmetic](session-5-part-1.ipynb#part-3---latent-space-arithmetic)
-# - [Loading the Pre-Trained
-# Model](session-5-part-1.ipynb#loading-the-pre-trained-model)
-# - [Exploring the Celeb Net
-# Attributes](session-5-part-1.ipynb#exploring-the-celeb-net-attributes)
-# - [Find the Latent Encoding for an
-# Attribute](session-5-part-1.ipynb#find-the-latent-encoding-for-an-attribute)
-# - [Latent Feature
-# Arithmetic](session-5-part-1.ipynb#latent-feature-arithmetic)
-# - [Extensions](session-5-part-1.ipynb#extensions)
-# - [Part 4 - Character-Level Language
-# Model](session-5-part-2.ipynb#part-4---character-level-language-model)
-# - [Part 5 - Pretrained Char-RNN of Donald
-# Trump](session-5-part-2.ipynb#part-5---pretrained-char-rnn-of-donald-trump)
-# - [Getting the Trump
-# Data](session-5-part-2.ipynb#getting-the-trump-data)
-# - [Basic Text Analysis](session-5-part-2.ipynb#basic-text-analysis)
-# - [Loading the Pre-trained Trump
-# Model](session-5-part-2.ipynb#loading-the-pre-trained-trump-model)
-# - [Inference: Keeping Track of the
-# State](session-5-part-2.ipynb#inference-keeping-track-of-the-state)
-# - [Probabilistic
-# Sampling](session-5-part-2.ipynb#probabilistic-sampling)
-# - [Inference:
-# Temperature](session-5-part-2.ipynb#inference-temperature)
-# - [Inference: Priming](session-5-part-2.ipynb#inference-priming)
-# - [Assignment
-# Submission](session-5-part-2.ipynb#assignment-submission)
-#
-# <!-- /MarkdownTOC -->
 
-# In[ ]:
-
-# First check the Python version
+print("Begin import...")
 import sys
-if sys.version_info < (3,4):
-    print('You are running an older version of Python!\n\n',
-          'You should consider updating to Python 3.4.0 or',
-          'higher as the libraries built for this course',
-          'have only been tested in Python 3.4 and higher.\n')
-    print('Try installing the Python 3.5 version of anaconda'
-          'and then restart `jupyter notebook`:\n',
-          'https://www.continuum.io/downloads\n\n')
-
-# Now get necessary libraries
-try:
-    import os
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from skimage.transform import resize
-    from skimage import data
-    from scipy.misc import imresize
-    from scipy.ndimage.filters import gaussian_filter
-    import IPython.display as ipyd
-    import tensorflow as tf
-    from libs import utils, gif, datasets, dataset_utils, nb_utils
-except ImportError as e:
-    print("Make sure you have started notebook in the same directory",
-          "as the provided zip file which includes the 'libs' folder",
-          "and the file 'utils.py' inside of it.  You will NOT be able",
-          "to complete this assignment unless you restart jupyter",
-          "notebook inside the directory created by extracting",
-          "the zip file or cloning the github repo.")
-    print(e)
-
-# We'll tell matplotlib to inline any drawn figures like so:
-get_ipython().magic('matplotlib inline')
-plt.style.use('ggplot')
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+from skimage.transform import resize
+#from skimage import data # ERROR: Cannot load libmkl_def.so
+from scipy.misc import imresize
+from scipy.ndimage.filters import gaussian_filter
+print("Loading tensorflow...")
+import tensorflow as tf
+from libs import utils, gif, datasets, dataset_utils, nb_utils
 
 
-# In[ ]:
+# dja
+plt.style.use('bmh')
+#import datetime
+#np.set_printoptions(threshold=np.inf) # display FULL array (infinite)
+plt.ion()
+plt.figure(figsize=(4, 4))
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from matplotlib.cbook import MatplotlibDeprecationWarning 
+warnings.filterwarnings("ignore", category=MatplotlibDeprecationWarning) 
 
-# Bit of formatting because I don't like the default inline code
-# style:
-from IPython.core.display import HTML
-HTML("""<style> .rendered_html code { 
-    padding: 2px 4px;
-    color: #c7254e;
-    background-color: #f9f2f4;
-    border-radius: 4px;
-} </style>""")
+def wait(n):
+    #plt.pause(n)
+    plt.pause(3)
+    #input("(press enter)")
 
 
-# <style> .rendered_html code {
-# padding: 2px 4px;
-# color: #c7254e;
-# background-color: #f9f2f4;
-# border-radius: 4px;
-# } </style>
-#
-#
-#
-# <a name="part-4---character-level-language-model"></a>
-# # Part 4 - Character-Level Language Model
-#
+##
+## Part 4 - Character-Level Language Model
+##
+
+
 # We'll now continue onto the second half of the homework and explore
 # recurrent neural networks. We saw one potential application of a
 # recurrent neural network which learns letter by letter the content
@@ -163,20 +48,17 @@ HTML("""<style> .rendered_html code {
 #
 # <h3><font color='red'>TODO! COMPLETE THIS SECTION!</font></h3>
 
-# In[ ]:
-
-import tensorflow as tf
-from six.moves import urllib
-script = 'http://www.awesomefilm.com/script/biglebowski.txt'
-txts = []
-f, _ = urllib.request.urlretrieve(script, script.split('/')[-1])
+#from six.moves import urllib
+#script = 'http://www.awesomefilm.com/script/biglebowski.txt'
+# txts = [] # ???
+#f, _ = urllib.request.urlretrieve(script, script.split('/')[-1])
+#f="../test/bohemian.txt" # dja
+f="../test/quijote.txt" # dja
 with open(f, 'r') as fp:
     txt = fp.read()
 
 
 # Let's take a look at the first part of this:
-
-# In[ ]:
 
 txt[:100]
 
@@ -191,7 +73,6 @@ txt[:100]
 # down to just the possible letters for what you want to
 # learn/synthesize while retaining any meaningful patterns:
 
-# In[ ]:
 
 txt = "\n".join([txt_i.strip()
                  for txt_i in txt.replace('\t', '').split('\n')
@@ -199,8 +80,6 @@ txt = "\n".join([txt_i.strip()
 
 
 # Now we can see how much text we have:
-
-# In[ ]:
 
 len(txt)
 
@@ -213,12 +92,10 @@ len(txt)
 # Let's now take a look at the different characters we have in our
 # file:
 
-# In[ ]:
-
 vocab = list(set(txt))
 vocab.sort()
-len(vocab)
-print(vocab)
+print("len vocab: ", len(vocab))
+print("vocab: ", vocab)
 
 
 # And then create a mapping which can take us from the letter to an
@@ -227,7 +104,6 @@ print(vocab)
 # Python 3.6, this is the default behavior of dict, but in earlier
 # versions of Python, we'll need to be explicit by using OrderedDict.
 
-# In[ ]:
 
 from collections import OrderedDict
 
@@ -235,9 +111,7 @@ encoder = OrderedDict(zip(vocab, range(len(vocab))))
 decoder = OrderedDict(zip(range(len(vocab)), vocab))
 
 
-# In[ ]:
-
-encoder
+print("encoder: ", encoder)
 
 
 # We'll store a few variables that will determine the size of our
@@ -250,8 +124,6 @@ encoder
 # total number of possible characters in our data, which will
 # determine the size of our one hot encoding (like we had for MNIST
 # in Session 3).
-
-# In[ ]:
 
 # Number of sequences in a mini batch
 batch_size = 100
@@ -276,12 +148,11 @@ n_chars = len(vocab)
 #
 # <h3><font color='red'>TODO! COMPLETE THIS SECTION!</font></h3>
 
-# In[ ]:
 
-X = tf.placeholder(tf.int32, shape=..., name='X')
+X = tf.placeholder(tf.int32, shape=[None, sequence_length], name='X') # dja
 
 # We'll have a placeholder for our true outputs
-Y = tf.placeholder(tf.int32, shape=..., name='Y')
+Y = tf.placeholder(tf.int32, shape=[None, sequence_length], name='Y') # dja
 
 
 # The first thing we need to do is convert each of our
@@ -293,8 +164,6 @@ Y = tf.placeholder(tf.int32, shape=..., name='Y')
 # function `tf.nn.embedding_lookup` to connect our `X` placeholder to
 # `n_cells` number of neurons.
 
-# In[ ]:
-
 # we first create a variable to take us from our one-hot
 # representation to our LSTM cells
 embedding = tf.get_variable("embedding", [n_chars, n_cells])
@@ -303,7 +172,7 @@ embedding = tf.get_variable("embedding", [n_chars, n_cells])
 Xs = tf.nn.embedding_lookup(embedding, X)
 
 # The resulting lookups are concatenated into a dense tensor
-print(Xs.get_shape().as_list())
+print("dense tensor: ", Xs.get_shape().as_list())
 
 
 # Now recall from the lecture that recurrent neural networks share
@@ -316,8 +185,6 @@ print(Xs.get_shape().as_list())
 # We then use `tf.squeeze` to remove the 1st index corresponding to
 # the singleton `sequence_length` index, resulting in simply
 # `[batch_size, n_cells]`.
-
-# In[ ]:
 
 with tf.name_scope('reslice'):
     Xs = [tf.squeeze(seq, [1])
@@ -336,16 +203,14 @@ with tf.name_scope('reslice'):
 # forget: Continual prediction with lstm. Neural computation,
 # 12(10):2451–2471, 2000).
 
-# In[ ]:
 
-cells = tf.nn.rnn_cell.BasicLSTMCell(num_units=n_cells, state_is_tuple=True, forget_bias=1.0)
+cells = tf.nn.rnn_cell.BasicLSTMCell(num_units=n_cells, state_is_tuple=True,
+                                     forget_bias=1.0)
 
 
 # Let's take a look at the cell's state size:
 
-# In[ ]:
-
-cells.state_size
+print("cells state size: ", cells.state_size)
 
 
 # `c` defines the internal memory and `h` the output. We'll have as
@@ -355,8 +220,6 @@ cells.state_size
 # zeros using the convenience function provided inside our `cells`
 # object, `zero_state`:
 
-# In[ ]:
-
 initial_state = cells.zero_state(tf.shape(X)[0], tf.float32)
 
 
@@ -364,9 +227,7 @@ initial_state = cells.zero_state(tf.shape(X)[0], tf.float32)
 # of zeros for our `c` and `h` states for each of our `n_cells` and
 # stores this as a tuple inside the `LSTMStateTuple` object:
 
-# In[ ]:
-
-initial_state
+print("initial state: ", initial_state)
 
 
 # So far, we have created a single layer of LSTM cells composed of
@@ -376,7 +237,6 @@ initial_state
 # layers we want. We'll then update our `initial_state` variable to
 # include the additional cells:
 
-# In[ ]:
 
 cells = tf.nn.rnn_cell.MultiRNNCell(
     [cells] * n_layers, state_is_tuple=True)
@@ -386,9 +246,7 @@ initial_state = cells.zero_state(tf.shape(X)[0], tf.float32)
 # Now if we take a look at our `initial_state`, we should see one
 # `LSTMStateTuple` for each of our layers:
 
-# In[ ]:
-
-initial_state
+print("initial_state: ", initial_state)
 
 
 # So far, we haven't connected our recurrent cells to anything. Let's
@@ -402,12 +260,11 @@ initial_state
 # each of our LSTM layers inside a `LSTMStateTuple` just like the
 # `initial_state` variable.
 
-# In[ ]:
 
-help(tf.nn.rnn)
+#help(tf.nn.rnn)
 
 
-# In[ ]:
+"""
 
 Help on function rnn in module tensorflow.python.ops.rnn:
 
@@ -465,6 +322,7 @@ rnn(cell, inputs, initial_state=None, dtype=None, sequence_length=None, scope=No
       ValueError: If `inputs` is `None` or an empty list, or if the input depth
         (column size) cannot be inferred from inputs via shape inference.
 
+"""
 
 
 # Use the help on the functino `tf.nn.rnn` to create the `outputs`
@@ -473,23 +331,18 @@ rnn(cell, inputs, initial_state=None, dtype=None, sequence_length=None, scope=No
 #
 # <h3><font color='red'>TODO! COMPLETE THIS SECTION!</font></h3>
 
-# In[ ]:
 
-outputs, state = tf.nn.rnn(cell=..., input=..., initial_state=...)
+outputs, state = tf.nn.rnn(cell=cells, inputs=Xs, initial_state=initial_state) # dja
 
 
 # Let's take a look at the state now:
 
-# In[ ]:
-
-state
+print("state: ", state)
 
 
 # Our outputs are returned as a list for each of our timesteps:
 
-# In[ ]:
-
-outputs
+print("outputs: ", outputs)
 
 
 # We'll now stack all our outputs for every timestep. We can treat
@@ -499,17 +352,13 @@ outputs
 # So we'll stack these in a 2d matrix so that we can create our
 # softmax layer:
 
-# In[ ]:
-
 outputs_flat = tf.reshape(tf.concat(1, outputs), [-1, n_cells])
 
 
 # Our outputs are now concatenated so that we have [`batch_size *
 # timesteps`, `n_cells`]
 
-# In[ ]:
-
-outputs_flat
+print("outputs flat: ", outputs_flat)
 
 
 # We now create a softmax layer just like we did in Session 3 and in
@@ -520,7 +369,6 @@ outputs_flat
 # its sum. We store the softmax probabilities in `probs` as well as
 # keep track of the maximum index in `Y_pred`:
 
-# In[ ]:
 
 with tf.variable_scope('prediction'):
     W = tf.get_variable(
@@ -617,8 +465,6 @@ with tf.variable_scope('prediction'):
 # of the labels is not equal to the rank of the labels minus one.
 # ```
 
-# In[ ]:
-
 with tf.variable_scope('loss'):
     # Compute mean cross entropy loss for each output.
     Y_true_flat = tf.reshape(tf.concat(1, Y), [-1])
@@ -641,8 +487,6 @@ with tf.variable_scope('loss'):
 # http://www.felixgers.de/papers/phd.pdf
 # https://colah.github.io/posts/2015-08-Understanding-LSTMs/
 
-# In[ ]:
-
 with tf.name_scope('optimizer'):
     optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
     gradients = []
@@ -654,9 +498,7 @@ with tf.name_scope('optimizer'):
 
 # Let's take a look at the graph:
 
-# In[ ]:
-
-nb_utils.show_graph(tf.get_default_graph().as_graph_def())
+#nb_utils.show_graph(tf.get_default_graph().as_graph_def())
 
 
 # Below is the rest of code we'll need to train the network. I do not
@@ -668,15 +510,15 @@ nb_utils.show_graph(tf.get_default_graph().as_graph_def())
 # this, so I'll leave it for you as an exercise. The next part of
 # this notebook will have you load a pre-trained network.
 
-# In[ ]:
-
+print("Training...")
 with tf.Session() as sess:
     init = tf.initialize_all_variables()
     sess.run(init)
 
     cursor = 0
     it_i = 0
-    while it_i < 500:
+    while it_i < 10000:
+
         Xs, Ys = [], []
         for batch_i in range(batch_size):
             if (cursor + sequence_length) >= len(txt) - sequence_length - 1:
@@ -692,10 +534,11 @@ with tf.Session() as sess:
 
         loss_val, _ = sess.run([mean_loss, updates],
                                feed_dict={X: Xs, Y: Ys})
-        if it_i % 100 == 0:
-            print(it_i, loss_val)
 
-        if it_i % 500 == 0:
+        if it_i % 100 == 0:
+
+            print("it_i: ", it_i, "  loss: ", loss_val)
+
             p = sess.run(probs, feed_dict={X: np.array(Xs[-1])[np.newaxis]})
             ps = [np.random.choice(range(n_chars), p=p_i.ravel())
                   for p_i in p]
@@ -710,528 +553,10 @@ with tf.Session() as sess:
             else:
                 print([decoder[ch] for ch in ps])
 
+            print("")
+
         it_i += 1
 
 
-"""
+# eop
 
-# <a name="part-5---pretrained-char-rnn-of-donald-trump"></a>
-# # Part 5 - Pretrained Char-RNN of Donald Trump
-#
-# Rather than stick around to let a model train, let's now explore
-# one I've trained for you Donald Trump. If you've trained your own
-# model on your own text corpus then great! You should be able to use
-# that in place of the one I've provided and still continue with the
-# rest of the notebook.
-#
-# For the Donald Trump corpus, there are a lot of video transcripts
-# that you can find online. I've searched for a few of these, put
-# them in a giant text file, made everything lowercase, and removed
-# any extraneous letters/symbols to help reduce the vocabulary (not
-# that it's not very large to begin with, ha).
-#
-# I used the code exactly as above to train on the text I gathered
-# and left it to train for about 2 days. The only modification is
-# that I also used "dropout" which you can see in the libs/charrnn.py
-# file. Let's explore it now and we'll see how we can play with
-# "sampling" the model to generate new phrases, and how to "prime"
-# the model (a psychological term referring to when someone is
-# exposed to something shortly before another event).
-#
-# First, let's clean up any existing graph:
-
-# In[ ]:
-
-tf.reset_default_graph()
-
-
-# <a name="getting-the-trump-data"></a>
-# ## Getting the Trump Data
-#
-# Now let's load the text. This is included in the repo or can be
-# downloaded from:
-
-# In[ ]:
-
-with open('trump.txt', 'r') as fp:
-    txt = fp.read()
-
-
-# Let's take a look at what's going on in here:
-
-# In[ ]:
-
-txt[:100]
-
-
-# <a name="basic-text-analysis"></a>
-# ## Basic Text Analysis
-#
-# We can do some basic data analysis to get a sense of what kind of
-# vocabulary we're working with. It's really important to look at
-# your data in as many ways as possible. This helps ensure there
-# isn't anything unexpected going on. Let's find every unique word he
-# uses:
-
-# In[ ]:
-
-words = set(txt.split(' '))
-
-
-# In[ ]:
-
-words
-
-
-# Now let's count their occurrences:
-
-# In[ ]:
-
-counts = {word_i: 0 for word_i in words}
-for word_i in txt.split(' '):
-    counts[word_i] += 1
-counts
-
-
-# We can sort this like so:
-
-# In[ ]:
-
-[(word_i, counts[word_i]) for word_i in sorted(counts, key=counts.get, reverse=True)]
-
-
-# As we should expect, "the" is the most common word, as it is in the
-# English language:
-# https://en.wikipedia.org/wiki/Most_common_words_in_English
-#
-# <a name="loading-the-pre-trained-trump-model"></a>
-# ## Loading the Pre-trained Trump Model
-#
-# Let's load the pretrained model. Rather than provide a tfmodel
-# export, I've provided the checkpoint so you can also experiment
-# with training it more if you wish. We'll rebuild the graph using
-# the `charrnn` module in the `libs` directory:
-
-# In[ ]:
-
-from libs import charrnn
-
-
-# Let's get the checkpoint and build the model then restore the
-# variables from the checkpoint. The only parameters of consequence
-# are `n_layers` and `n_cells` which define the total size and layout
-# of the model. The rest are flexible. We'll set the `batch_size` and
-# `sequence_length` to 1, meaning we can feed in a single character
-# at a time only, and get back 1 character denoting the very next
-# character's prediction.
-
-# In[ ]:
-
-ckpt_name = 'trump.ckpt'
-g = tf.Graph()
-n_layers = 3
-n_cells = 512
-with tf.Session(graph=g) as sess:
-    model = charrnn.build_model(txt=txt,
-                                batch_size=1,
-                                sequence_length=1,
-                                n_layers=n_layers,
-                                n_cells=n_cells,
-                                gradient_clip=10.0)
-    saver = tf.train.Saver()
-    if os.path.exists(ckpt_name):
-        saver.restore(sess, ckpt_name)
-        print("Model restored.")
-
-
-# Let's now take a look at the model:
-
-# In[ ]:
-
-nb_utils.show_graph(g.as_graph_def())
-
-
-# In[ ]:
-
-n_iterations = 100
-
-
-# <a name="inference-keeping-track-of-the-state"></a>
-# ## Inference: Keeping Track of the State
-#
-# Now recall from Part 4 when we created our LSTM network, we had an
-# `initial_state` variable which would set the LSTM's `c` and `h`
-# state vectors, as well as the final output state which was the
-# output of the `c` and `h` state vectors after having passed through
-# the network. When we input to the network some letter, say 'n', we
-# can set the `initial_state` to zeros, but then after having input
-# the letter `n`, we'll have as output a new state vector for `c` and
-# `h`. On the next letter, we'll then want to set the `initial_state`
-# to this new state, and set the input to the previous letter's
-# output. That is how we ensure the network keeps track of time and
-# knows what has happened in the past, and let it continually
-# generate.
-
-# In[ ]:
-
-curr_states = None
-g = tf.Graph()
-with tf.Session(graph=g) as sess:
-    model = charrnn.build_model(txt=txt,
-                                batch_size=1,
-                                sequence_length=1,
-                                n_layers=n_layers,
-                                n_cells=n_cells,
-                                gradient_clip=10.0)
-    saver = tf.train.Saver()
-    if os.path.exists(ckpt_name):
-        saver.restore(sess, ckpt_name)
-        print("Model restored.")
-        
-    # Get every tf.Tensor for the initial state
-    init_states = []
-    for s_i in model['initial_state']:
-        init_states.append(s_i.c)
-        init_states.append(s_i.h)
-        
-    # Similarly, for every state after inference
-    final_states = []
-    for s_i in model['final_state']:
-        final_states.append(s_i.c)
-        final_states.append(s_i.h)
-
-    # Let's start with the letter 't' and see what comes out:
-    synth = [[encoder[' ']]]
-    for i in range(n_iterations):
-
-        # We'll create a feed_dict parameter which includes what to
-        # input to the network, model['X'], as well as setting
-        # dropout to 1.0, meaning no dropout.
-        feed_dict = {model['X']: [synth[-1]],
-                     model['keep_prob']: 1.0}
-        
-        # Now we'll check if we currently have a state as a result
-        # of a previous inference, and if so, add to our feed_dict
-        # parameter the mapping of the init_state to the previous
-        # output state stored in "curr_states".
-        if curr_states:
-            feed_dict.update(
-                {init_state_i: curr_state_i
-                 for (init_state_i, curr_state_i) in
-                     zip(init_states, curr_states)})
-            
-        # Now we can infer and see what letter we get
-        p = sess.run(model['probs'], feed_dict=feed_dict)[0]
-        
-        # And make sure we also keep track of the new state
-        curr_states = sess.run(final_states, feed_dict=feed_dict)
-        
-        # Find the most likely character
-        p = np.argmax(p)
-        
-        # Append to string
-        synth.append([p])
-        
-        # Print out the decoded letter
-        print(model['decoder'][p], end='')
-        sys.stdout.flush()
-
-
-# <a name="probabilistic-sampling"></a>
-# ## Probabilistic Sampling
-#
-# Run the above cell a couple times. What you should find is that it
-# is deterministic. We always pick *the* most likely character. But
-# we can do something else which will make things less deterministic
-# and a bit more interesting: we can sample from our probabilistic
-# measure from our softmax layer. This means if we have the letter
-# 'a' as 0.4, and the letter 'o' as 0.2, we'll have a 40% chance of
-# picking the letter 'a', and 20% chance of picking the letter 'o',
-# rather than simply always picking the letter 'a' since it is the
-# most probable.
-
-# In[ ]:
-
-curr_states = None
-g = tf.Graph()
-with tf.Session(graph=g) as sess:
-    model = charrnn.build_model(txt=txt,
-                                batch_size=1,
-                                sequence_length=1,
-                                n_layers=n_layers,
-                                n_cells=n_cells,
-                                gradient_clip=10.0)
-    saver = tf.train.Saver()
-    if os.path.exists(ckpt_name):
-        saver.restore(sess, ckpt_name)
-        print("Model restored.")
-        
-    # Get every tf.Tensor for the initial state
-    init_states = []
-    for s_i in model['initial_state']:
-        init_states.append(s_i.c)
-        init_states.append(s_i.h)
-        
-    # Similarly, for every state after inference
-    final_states = []
-    for s_i in model['final_state']:
-        final_states.append(s_i.c)
-        final_states.append(s_i.h)
-
-    # Let's start with the letter 't' and see what comes out:
-    synth = [[encoder[' ']]]
-    for i in range(n_iterations):
-
-        # We'll create a feed_dict parameter which includes what to
-        # input to the network, model['X'], as well as setting
-        # dropout to 1.0, meaning no dropout.
-        feed_dict = {model['X']: [synth[-1]],
-                     model['keep_prob']: 1.0}
-        
-        # Now we'll check if we currently have a state as a result
-        # of a previous inference, and if so, add to our feed_dict
-        # parameter the mapping of the init_state to the previous
-        # output state stored in "curr_states".
-        if curr_states:
-            feed_dict.update(
-                {init_state_i: curr_state_i
-                 for (init_state_i, curr_state_i) in
-                     zip(init_states, curr_states)})
-            
-        # Now we can infer and see what letter we get
-        p = sess.run(model['probs'], feed_dict=feed_dict)[0]
-        
-        # And make sure we also keep track of the new state
-        curr_states = sess.run(final_states, feed_dict=feed_dict)
-        
-        # Now instead of finding the most likely character,
-        # we'll sample with the probabilities of each letter
-        p = p.astype(np.float64)
-        p = np.random.multinomial(1, p.ravel() / p.sum())
-        p = np.argmax(p)
-        
-        # Append to string
-        synth.append([p])
-        
-        # Print out the decoded letter
-        print(model['decoder'][p], end='')
-        sys.stdout.flush()
-
-
-# <a name="inference-temperature"></a>
-# ## Inference: Temperature
-#
-# When performing probabilistic sampling, we can also use a parameter
-# known as temperature which comes from simulated annealing. The
-# basic idea is that as the temperature is high and very hot, we have
-# a lot more free energy to use to jump around more, and as we cool
-# down, we have less energy and then become more deterministic. We
-# can use temperature by scaling our log probabilities like so:
-
-# In[ ]:
-
-temperature = 0.5
-curr_states = None
-g = tf.Graph()
-with tf.Session(graph=g) as sess:
-    model = charrnn.build_model(txt=txt,
-                                batch_size=1,
-                                sequence_length=1,
-                                n_layers=n_layers,
-                                n_cells=n_cells,
-                                gradient_clip=10.0)
-    saver = tf.train.Saver()
-    if os.path.exists(ckpt_name):
-        saver.restore(sess, ckpt_name)
-        print("Model restored.")
-        
-    # Get every tf.Tensor for the initial state
-    init_states = []
-    for s_i in model['initial_state']:
-        init_states.append(s_i.c)
-        init_states.append(s_i.h)
-        
-    # Similarly, for every state after inference
-    final_states = []
-    for s_i in model['final_state']:
-        final_states.append(s_i.c)
-        final_states.append(s_i.h)
-
-    # Let's start with the letter 't' and see what comes out:
-    synth = [[encoder[' ']]]
-    for i in range(n_iterations):
-
-        # We'll create a feed_dict parameter which includes what to
-        # input to the network, model['X'], as well as setting
-        # dropout to 1.0, meaning no dropout.
-        feed_dict = {model['X']: [synth[-1]],
-                     model['keep_prob']: 1.0}
-        
-        # Now we'll check if we currently have a state as a result
-        # of a previous inference, and if so, add to our feed_dict
-        # parameter the mapping of the init_state to the previous
-        # output state stored in "curr_states".
-        if curr_states:
-            feed_dict.update(
-                {init_state_i: curr_state_i
-                 for (init_state_i, curr_state_i) in
-                     zip(init_states, curr_states)})
-            
-        # Now we can infer and see what letter we get
-        p = sess.run(model['probs'], feed_dict=feed_dict)[0]
-        
-        # And make sure we also keep track of the new state
-        curr_states = sess.run(final_states, feed_dict=feed_dict)
-        
-        # Now instead of finding the most likely character,
-        # we'll sample with the probabilities of each letter
-        p = p.astype(np.float64)
-        p = np.log(p) / temperature
-        p = np.exp(p) / np.sum(np.exp(p))
-        p = np.random.multinomial(1, p.ravel() / p.sum())
-        p = np.argmax(p)
-        
-        # Append to string
-        synth.append([p])
-        
-        # Print out the decoded letter
-        print(model['decoder'][p], end='')
-        sys.stdout.flush()
-
-
-# <a name="inference-priming"></a>
-# ## Inference: Priming
-#
-# Let's now work on "priming" the model with some text, and see what
-# kind of state it is in and leave it to synthesize from there. We'll
-# do more or less what we did before, but feed in our own text
-# instead of the last letter of the synthesis from the model.
-
-# In[ ]:
-
-prime = "obama"
-temperature = 1.0
-curr_states = None
-n_iterations = 500
-g = tf.Graph()
-with tf.Session(graph=g) as sess:
-    model = charrnn.build_model(txt=txt,
-                                batch_size=1,
-                                sequence_length=1,
-                                n_layers=n_layers,
-                                n_cells=n_cells,
-                                gradient_clip=10.0)
-    saver = tf.train.Saver()
-    if os.path.exists(ckpt_name):
-        saver.restore(sess, ckpt_name)
-        print("Model restored.")
-        
-    # Get every tf.Tensor for the initial state
-    init_states = []
-    for s_i in model['initial_state']:
-        init_states.append(s_i.c)
-        init_states.append(s_i.h)
-        
-    # Similarly, for every state after inference
-    final_states = []
-    for s_i in model['final_state']:
-        final_states.append(s_i.c)
-        final_states.append(s_i.h)
-
-    # Now we'll keep track of the state as we feed it one
-    # letter at a time.
-    curr_states = None
-    for ch in prime:
-        feed_dict = {model['X']: [[model['encoder'][ch]]],
-                     model['keep_prob']: 1.0}
-        if curr_states:
-            feed_dict.update(
-                {init_state_i: curr_state_i
-                 for (init_state_i, curr_state_i) in
-                     zip(init_states, curr_states)})
-        
-        # Now we can infer and see what letter we get
-        p = sess.run(model['probs'], feed_dict=feed_dict)[0]
-        p = p.astype(np.float64)
-        p = np.log(p) / temperature
-        p = np.exp(p) / np.sum(np.exp(p))
-        p = np.random.multinomial(1, p.ravel() / p.sum())
-        p = np.argmax(p)
-        
-        # And make sure we also keep track of the new state
-        curr_states = sess.run(final_states, feed_dict=feed_dict)
-        
-    # Now we're ready to do what we were doing before but with the
-    # last predicted output stored in `p`, and the current state of
-    # the model.
-    synth = [[p]]
-    print(prime + model['decoder'][p], end='')
-    for i in range(n_iterations):
-
-        # Input to the network
-        feed_dict = {model['X']: [synth[-1]],
-                     model['keep_prob']: 1.0}
-        
-        # Also feed our current state
-        feed_dict.update(
-            {init_state_i: curr_state_i
-             for (init_state_i, curr_state_i) in
-                 zip(init_states, curr_states)})
-            
-        # Inference
-        p = sess.run(model['probs'], feed_dict=feed_dict)[0]
-        
-        # Keep track of the new state
-        curr_states = sess.run(final_states, feed_dict=feed_dict)
-        
-        # Sample
-        p = p.astype(np.float64)
-        p = np.log(p) / temperature
-        p = np.exp(p) / np.sum(np.exp(p))
-        p = np.random.multinomial(1, p.ravel() / p.sum())
-        p = np.argmax(p)
-        
-        # Append to string
-        synth.append([p])
-        
-        # Print out the decoded letter
-        print(model['decoder'][p], end='')
-        sys.stdout.flush()
-
-
-# <a name="assignment-submission"></a>
-# # Assignment Submission
-# After you've completed both notebooks, create a zip file of the
-# current directory using the code below. This code will make sure
-# you have included this completed ipython notebook and the following
-# files named exactly as:
-#
-# session-5/
-# session-5-part-1.ipynb
-# session-5-part-2.ipynb
-# vaegan.gif
-
-# You'll then submit this zip file for your third assignment on
-# Kadenze for "Assignment 5: Generative Adversarial Networks and
-# Recurrent Neural Networks"! If you have any questions, remember to
-# reach out on the forums and connect with your peers or with me.
-#
-# To get assessed, you'll need to be a premium student! This will
-# allow you to build an online portfolio of all of your work and
-# receive grades. If you aren't already enrolled as a student,
-# register now at http://www.kadenze.com/ and join the #CADL
-# community to see what your peers are doing!
-# https://www.kadenze.com/courses/creative-applications-of-deep-learning-with-tensorflow/info
-#
-# Also, if you share any of the GIFs on
-# Facebook/Twitter/Instagram/etc..., be sure to use the #CADL hashtag
-# so that other students can find your work!
-
-# In[ ]:
-
-utils.build_submission('session-5.zip',
-                       ('vaegan.gif',
-                        'session-5-part-1.ipynb',
-                        'session-5-part-2.ipynb'))
-
-"""
