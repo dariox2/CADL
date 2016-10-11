@@ -78,8 +78,16 @@ with open('trump.txt', 'r') as fp:
 
 # In[ ]:
 
-txt[:100]
+print("txt 100: ", txt[:100])
 
+
+# dja - from s5p4:
+from collections import OrderedDict
+vocab = list(set(txt))
+vocab.sort()
+print("len vocab: ", len(vocab))
+print("vocab: ", vocab)
+encoder = OrderedDict(zip(vocab, range(len(vocab))))
 
 #
 # Basic Text Analysis
@@ -93,8 +101,7 @@ txt[:100]
 
 words = set(txt.split(' '))
 
-
-print("words: ", words)
+#print("words: ", words)
 
 
 # Now let's count their occurrences:
@@ -103,23 +110,31 @@ counts = {word_i: 0 for word_i in words}
 for word_i in txt.split(' '):
     counts[word_i] += 1
 
-print("counts: ", counts)
+#print("counts: ", counts)
 
 
 # We can sort this like so:
 
-# In[ ]:
-
-[(word_i, counts[word_i]) for word_i in sorted(counts, key=counts.get, reverse=True)]
+##[(word_i, counts[word_i]) for word_i in sorted(counts, key=counts.get, reverse=True)]
+print("Sorted counts:")
+n=0
+for word_i in sorted(counts, key=counts.get, reverse=True):
+  print(word_i, counts[word_i])
+  n+=1
+  if n>10:
+    break
 
 
 # As we should expect, "the" is the most common word, as it is in the
 # English language:
 # https://en.wikipedia.org/wiki/Most_common_words_in_English
 #
-# <a name="loading-the-pre-trained-trump-model"></a>
-# ## Loading the Pre-trained Trump Model
+
+
 #
+# Loading the Pre-trained Trump Model
+#
+
 # Let's load the pretrained model. Rather than provide a tfmodel
 # export, I've provided the checkpoint so you can also experiment
 # with training it more if you wish. We'll rebuild the graph using
@@ -143,6 +158,7 @@ ckpt_name = 'trump.ckpt'
 g = tf.Graph()
 n_layers = 3
 n_cells = 512
+"""
 with tf.Session(graph=g) as sess:
     model = charrnn.build_model(txt=txt,
                                 batch_size=1,
@@ -153,13 +169,14 @@ with tf.Session(graph=g) as sess:
     saver = tf.train.Saver()
     if os.path.exists(ckpt_name):
         saver.restore(sess, ckpt_name)
-        print("Model restored.")
+        print("Model restored (1).")
 
 
 # Let's now take a look at the model:
 
 # nb_utils.show_graph(g.as_graph_def())
 
+"""
 
 n_iterations = 100
 
@@ -181,6 +198,7 @@ n_iterations = 100
 # knows what has happened in the past, and let it continually
 # generate.
 
+print("Inference...")
 curr_states = None
 g = tf.Graph()
 with tf.Session(graph=g) as sess:
@@ -193,7 +211,7 @@ with tf.Session(graph=g) as sess:
     saver = tf.train.Saver()
     if os.path.exists(ckpt_name):
         saver.restore(sess, ckpt_name)
-        print("Model restored.")
+        print("Model restored (2).")
         
     # Get every tf.Tensor for the initial state
     init_states = []
@@ -243,6 +261,8 @@ with tf.Session(graph=g) as sess:
         print(model['decoder'][p], end='')
         sys.stdout.flush()
 
+    print("")
+
 
 #
 # Probabilistic Sampling
@@ -258,6 +278,7 @@ with tf.Session(graph=g) as sess:
 # rather than simply always picking the letter 'a' since it is the
 # most probable.
 
+print("Probabilistic Sampling...")
 curr_states = None
 g = tf.Graph()
 with tf.Session(graph=g) as sess:
@@ -270,7 +291,7 @@ with tf.Session(graph=g) as sess:
     saver = tf.train.Saver()
     if os.path.exists(ckpt_name):
         saver.restore(sess, ckpt_name)
-        print("Model restored.")
+        print("Model restored (3).")
         
     # Get every tf.Tensor for the initial state
     init_states = []
@@ -323,6 +344,8 @@ with tf.Session(graph=g) as sess:
         print(model['decoder'][p], end='')
         sys.stdout.flush()
 
+    print("")
+
 
 #
 # Inference: Temperature
@@ -336,6 +359,7 @@ with tf.Session(graph=g) as sess:
 # can use temperature by scaling our log probabilities like so:
 
 
+print("Temperature...")
 temperature = 0.5
 curr_states = None
 g = tf.Graph()
@@ -349,7 +373,7 @@ with tf.Session(graph=g) as sess:
     saver = tf.train.Saver()
     if os.path.exists(ckpt_name):
         saver.restore(sess, ckpt_name)
-        print("Model restored.")
+        print("Model restored (4).")
         
     # Get every tf.Tensor for the initial state
     init_states = []
@@ -403,6 +427,8 @@ with tf.Session(graph=g) as sess:
         # Print out the decoded letter
         print(model['decoder'][p], end='')
         sys.stdout.flush()
+    
+    print("")
 
 
 #
@@ -414,6 +440,7 @@ with tf.Session(graph=g) as sess:
 # do more or less what we did before, but feed in our own text
 # instead of the last letter of the synthesis from the model.
 
+print("Priming...")
 prime = "obama"
 temperature = 1.0
 curr_states = None
@@ -429,7 +456,7 @@ with tf.Session(graph=g) as sess:
     saver = tf.train.Saver()
     if os.path.exists(ckpt_name):
         saver.restore(sess, ckpt_name)
-        print("Model restored.")
+        print("Model restored (5).")
         
     # Get every tf.Tensor for the initial state
     init_states = []
@@ -502,6 +529,8 @@ with tf.Session(graph=g) as sess:
         # Print out the decoded letter
         print(model['decoder'][p], end='')
         sys.stdout.flush()
+
+    print("")
 
 
 # eop 

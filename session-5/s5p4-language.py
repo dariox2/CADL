@@ -60,7 +60,7 @@ with open(f, 'r') as fp:
 
 # Let's take a look at the first part of this:
 
-txt[:100]
+print("txt 100: ", txt[:100])
 
 
 # We'll just clean up the text a little. This isn't necessary, but
