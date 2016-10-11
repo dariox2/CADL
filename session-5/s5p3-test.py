@@ -33,7 +33,7 @@ warnings.filterwarnings("ignore", category=MatplotlibDeprecationWarning)
 def wait(n):
     #plt.pause(n)
     plt.pause(3)
-    #input("(press enter)")
+    input("(press enter)")
 
 
 ##
@@ -98,24 +98,24 @@ G = g.get_tensor_by_name('net/generator/x_tilde:0')
 # Let's get some data to play with:
 
 files = datasets.CELEB()
-img_i = 50
-img = plt.imread(files[img_i])
-plt.imshow(img)
-plt.title("some celeb")
-wait(1)
+#img_i = 50
+#img = plt.imread(files[img_i])
+#plt.imshow(img)
+#plt.title("some celeb")
+#wait(1)
 
 # Now preprocess the image, and see what the generated image looks
 # like (i.e. the lossy version of the image through the network's
 # encoding and decoding).
 
-p = CV.preprocess(img)
-synth = sess.run(G, feed_dict={X: p[np.newaxis]})
+#p = CV.preprocess(img)
+#synth = sess.run(G, feed_dict={X: p[np.newaxis]})
 
 #fig, axs = plt.subplots(1, 2, figsize=(10, 5))
 #axs[0].imshow(p)
-plt.imshow(synth[0] / synth.max())
-plt.title("lossy version")
-wait(1)
+#plt.imshow(synth[0] / synth.max())
+#plt.title("lossy version")
+#wait(1)
 
 
 # So we lost a lot of details but it seems to be able to express
@@ -145,14 +145,14 @@ print("net labels: ", net['labels'])
 
 # Let's see what attributes exist for one of the celeb images:
 
-plt.title("attributes")
-plt.imshow(img)
-print("attributes of ", img_i)
+#plt.title("attributes")
+#plt.imshow(img)
+#print("attributes of ", img_i)
 #[net['labels'][i] for i, attr_i in enumerate(net['attributes'][img_i]) if attr_i]
-for i, attr_i in enumerate(net['attributes'][img_i]):
-  if attr_i:
-    print(i, net['labels'][i])
-wait(1)
+#for i, attr_i in enumerate(net['attributes'][img_i]):
+#  if attr_i:
+#    print(i, net['labels'][i])
+#wait(1)
 
 
 #
@@ -176,7 +176,7 @@ print("Z shape: ", Z.get_shape())
 # our network is doing an okay job, let's try to find the `Z` of the
 # first 100 images with the 'Bald' attribute:
 
-bald_label = net['labels'].index('Bald')
+bald_label = net['labels'].index('Big_Nose')
 
 print("bald_label: ", bald_label)
 
@@ -191,7 +191,7 @@ print("bald idxs len: ", len(bald_img_idxs))
 
 # Now let's just load 100 of their images:
 
-print("bald #100: ", bald_img_idxs[99])
+print("big nose #100: ", bald_img_idxs[99])
 
 bald_imgs = [plt.imread(files[bald_img_i])[..., :3]
              for bald_img_i in bald_img_idxs[:100]]
@@ -278,10 +278,10 @@ def get_features_for(label='Bald', has_label=True, n_imgs=50):
 
 
 # Explore different attributes
-z1 = get_features_for('Male', True, n_imgs=10)
-z2 = get_features_for('Male', False, n_imgs=10)
-z3 = get_features_for('Smiling', True, n_imgs=10)
-z4 = get_features_for('Smiling', False, n_imgs=10)
+z1 = get_features_for('Attractive', True, n_imgs=10)
+z2 = get_features_for('Attractive', False, n_imgs=10)
+z3 = get_features_for('Chubby', True, n_imgs=10)
+z4 = get_features_for('Chubby', False, n_imgs=10)
 
 
 b1 = sess.run(G, feed_dict={Z: z1[np.newaxis]})
@@ -292,7 +292,7 @@ b4 = sess.run(G, feed_dict={Z: z4[np.newaxis]})
 
 plt.close()
 fig, axs = plt.subplots(1, 5, figsize=(9, 4))
-plt.suptitle("male / not male / smile / not smile")
+plt.suptitle("attract / not attract / chubby / not chubby")
 axs[0].imshow(b1[0] / b1.max()),  axs[0].grid('off'), axs[0].axis('off')
 axs[1].imshow(b2[0] / b2.max()),  axs[1].grid('off'), axs[1].axis('off')
 axs[2].imshow(b3[0] / b3.max()), axs[2].grid('off'), axs[2].axis('off')
@@ -310,7 +310,7 @@ amt = np.linspace(0, 1, n_imgs)
 zs = np.array([z1 + notmale_vector*amt_i for amt_i in amt])
 g = sess.run(G, feed_dict={Z: zs})
 
-plt.suptitle("male ... not male")
+plt.suptitle("attract ... not attract")
 #fig, axs = plt.subplots(1, n_imgs, figsize=(20, 4))
 for i, ax_i in enumerate(axs):
     ax_i.imshow(np.clip(g[i], 0, 1))
@@ -327,7 +327,7 @@ amt = np.linspace(0, 1, n_imgs)
 zs = np.array([z4 + smiling_vector*amt_i for amt_i in amt])
 g = sess.run(G, feed_dict={Z: zs})
 
-plt.suptitle("not smile ... smile")
+plt.suptitle("not chubby ... chubby")
 #fig, axs = plt.subplots(1, n_imgs, figsize=(20, 4))
 for i, ax_i in enumerate(axs):
     ax_i.imshow(np.clip(g[i] / g[i].max(), 0, 1))
@@ -574,7 +574,7 @@ for amt_i in amt:
     imgs.append(m)
 
 
-gif.build_gif(imgs, saveto='celeb_unblur_smile.gif', interval=0.2)
+gif.build_gif(imgs, saveto='celeb_unblur_chubby.gif', interval=0.2)
 
 
 #ipyd.Image(url='celeb.gif?i={}'.format(np.random.rand()), height=1000, width=1000)
