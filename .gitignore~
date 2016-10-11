@@ -1,2 +1,8 @@
 session-4/vgg16.tfmodel
+session-4/WP_000455.jpg
+session-4/WP_000478.jpg
+session-4/illust2vec.tfmodel
+session-5/img_align_celeba/
+session-5/list_attr_celeba.txt
+session-5/celeb.vaegan.tfmodel
 
