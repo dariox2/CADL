@@ -26,6 +26,9 @@ from libs.datasets import MNIST
 ds = MNIST()
 
 print("ds: ", ds)
+#print("ds shape: ", ds.shape)
+print("ds X shape: ", ds.X.shape)
+input("...")
 
 n_features = ds.X.shape[1]
 mean_img = np.mean(ds.X, axis=0)

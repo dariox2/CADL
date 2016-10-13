@@ -4,9 +4,10 @@ import os
 import os
 import urllib.request
 #os.mkdir('img_align_celeba_2')
+import time
 
 # Now perform the following 10 times:
-for img_i in range(156, 2000):
+for img_i in range(156, 5000):
 
     # create a string using the current loop counter
     f = '000%03d.jpg' % img_i
@@ -20,6 +21,7 @@ for img_i in range(156, 2000):
     # And now download the url to a location inside our new directory
     try:
       urllib.request.urlretrieve(url, os.path.join('img_align_celeba_2', f))
+      time.sleep(1)
     except Exception as e:
         print(f, " EXC: ",e)
 
