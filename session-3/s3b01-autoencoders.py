@@ -15,7 +15,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage.transform import resize
-from skimage import data
+#from skimage import data # Intel MKL FATAL ERROR: Cannot load libmkl_def.so.
 from scipy.misc import imresize
 import IPython.display as ipyd
 
@@ -43,7 +43,7 @@ print("Loading pictures...")
 #dirname = "../session-1/labdogs"
 dirname = "../../myrandompictures"
 QNT=100
-filenames = [os.path.join(dirname, fname) for fname in os.listdir(dirname)]
+filenames = [os.path.join(dirname, fname) for fname in os.listdir(dirname) if ".jpg" in fname]
 filenames = filenames[:QNT]
 assert(len(filenames) == QNT)
 myimgs=np.array([plt.imread(fname)[..., :3] for fname in filenames])
